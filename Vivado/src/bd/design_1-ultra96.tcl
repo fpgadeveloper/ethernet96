@@ -70,7 +70,7 @@ set_property -dict [list CONFIG.Standard {SGMII} \
 CONFIG.Ext_Management_Interface {true} \
 CONFIG.EMAC_IF_TEMAC {GEM} \
 CONFIG.SupportLevel {Include_Shared_Logic_in_Core} \
-CONFIG.NumOfLanes {2} \
+CONFIG.NumOfLanes {3} \
 CONFIG.TxLane0_Placement {DIFF_PAIR_0} \
 CONFIG.TxLane1_Placement {DIFF_PAIR_1} \
 CONFIG.RxLane0_Placement {DIFF_PAIR_0} \
@@ -112,16 +112,57 @@ connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_0/rx_bs_en_vtc_out] [get_bd_pin
 connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_0/clk125_out] [get_bd_pins gig_ethernet_pcs_pma_1/clk125m]
 connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_0/clk312_out] [get_bd_pins gig_ethernet_pcs_pma_1/clk312]
 
+# Create the ref clk 125MHz port
+create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 ref_clk_125mhz
+set_property CONFIG.FREQ_HZ 125000000 [get_bd_intf_ports /ref_clk_125mhz]
+
+# IBUFDS for 125MHz
+create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf util_ds_buf_0
+set_property -dict [list CONFIG.C_BUF_TYPE {IBUFDS}] [get_bd_cells util_ds_buf_0]
+connect_bd_intf_net [get_bd_intf_ports ref_clk_125mhz] [get_bd_intf_pins util_ds_buf_0/CLK_IN_D]
+
+# BUFGCE for 125MHz
+create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf util_ds_buf_1
+set_property -dict [list CONFIG.C_BUF_TYPE {BUFG}] [get_bd_cells util_ds_buf_1]
+connect_bd_net [get_bd_pins util_ds_buf_0/IBUF_OUT] [get_bd_pins util_ds_buf_1/BUFG_I]
+
+# Create clock wizard
+create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz clk_wiz_0
+set_property -dict [list CONFIG.PRIM_IN_FREQ.VALUE_SRC USER] [get_bd_cells clk_wiz_0]
+set_property -dict [list CONFIG.PRIM_SOURCE {No_buffer} \
+CONFIG.PRIM_IN_FREQ {125} \
+CONFIG.CLKOUT2_USED {true} \
+CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {125} \
+CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {625} \
+CONFIG.CLKOUT1_DRIVES {Buffer} \
+CONFIG.USE_LOCKED {true} \
+CONFIG.USE_RESET {false} \
+CONFIG.CLKIN1_JITTER_PS {80.0} \
+CONFIG.FEEDBACK_SOURCE {FDBK_AUTO} \
+CONFIG.MMCM_DIVCLK_DIVIDE {1} \
+CONFIG.MMCM_CLKFBOUT_MULT_F {10.000} \
+CONFIG.MMCM_CLKIN1_PERIOD {8.000} \
+CONFIG.MMCM_CLKOUT0_DIVIDE_F {10.000} \
+CONFIG.MMCM_CLKOUT1_DIVIDE {2} \
+CONFIG.NUM_OUT_CLKS {2} \
+CONFIG.CLKOUT1_JITTER {105.587} \
+CONFIG.CLKOUT1_PHASE_ERROR {83.589} \
+CONFIG.CLKOUT2_JITTER {78.432} \
+CONFIG.CLKOUT2_PHASE_ERROR {83.589}] [get_bd_cells clk_wiz_0]
+connect_bd_net [get_bd_pins util_ds_buf_1/BUFG_O] [get_bd_pins clk_wiz_0/clk_in1]
+
 # Add proc system reset
 create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset proc_sys_reset_0
-connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins proc_sys_reset_0/slowest_sync_clk]
+connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins proc_sys_reset_0/slowest_sync_clk]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0] [get_bd_pins proc_sys_reset_0/ext_reset_in]
 connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_reset] [get_bd_pins gig_ethernet_pcs_pma_0/reset]
+connect_bd_net [get_bd_pins clk_wiz_0/locked] [get_bd_pins proc_sys_reset_0/dcm_locked]
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset proc_sys_reset_1
-connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins proc_sys_reset_1/slowest_sync_clk]
+connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins proc_sys_reset_1/slowest_sync_clk]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0] [get_bd_pins proc_sys_reset_1/ext_reset_in]
 connect_bd_net [get_bd_pins proc_sys_reset_1/peripheral_reset] [get_bd_pins gig_ethernet_pcs_pma_1/reset]
+connect_bd_net [get_bd_pins clk_wiz_0/locked] [get_bd_pins proc_sys_reset_1/dcm_locked]
 
 # Constants for the PHY addresses
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_phyaddr_0
@@ -138,6 +179,7 @@ connect_bd_net [get_bd_pins const_phyaddr_2/dout] [get_bd_pins gig_ethernet_pcs_
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_phyaddr_3
 set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {04}] [get_bd_cells const_phyaddr_3]
+connect_bd_net [get_bd_pins const_phyaddr_3/dout] [get_bd_pins gig_ethernet_pcs_pma_0/phyaddr_2]
 connect_bd_net [get_bd_pins const_phyaddr_3/dout] [get_bd_pins gig_ethernet_pcs_pma_1/phyaddr_1]
 
 # Create SGMII ports
@@ -149,6 +191,8 @@ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:sgmii_rtl:1.0 sgmii_
 connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_1/sgmii_0] [get_bd_intf_ports sgmii_port_2]
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:sgmii_rtl:1.0 sgmii_port_3_tx
 connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_1/sgmii_1] [get_bd_intf_ports sgmii_port_3_tx]
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:sgmii_rtl:1.0 sgmii_port_3_rx
+connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_0/sgmii_2] [get_bd_intf_ports sgmii_port_3_rx]
 
 # Create MDIO ports
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_port_0
@@ -160,10 +204,10 @@ connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_1/ext_mdio_pcs_pma_0]
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_port_3
 connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_1/ext_mdio_pcs_pma_1] [get_bd_intf_ports mdio_port_3]
 
-# Create the ref clk port
-create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 ref_clk_port_0
-set_property CONFIG.FREQ_HZ [get_property CONFIG.FREQ_HZ [get_bd_intf_pins gig_ethernet_pcs_pma_0/refclk625_in]] [get_bd_intf_ports ref_clk_port_0]
-connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_0/refclk625_in] [get_bd_intf_ports ref_clk_port_0]
+# Create the ref clk 625MHz port
+create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 ref_clk_625mhz
+set_property CONFIG.FREQ_HZ [get_property CONFIG.FREQ_HZ [get_bd_intf_pins gig_ethernet_pcs_pma_0/refclk625_in]] [get_bd_intf_ports ref_clk_625mhz]
+connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_0/refclk625_in] [get_bd_intf_ports ref_clk_625mhz]
 
 # Connect the GMII and MDIO interfaces from the PS
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/GMII_ENET0] [get_bd_intf_pins gig_ethernet_pcs_pma_0/gmii_pcs_pma_0]
