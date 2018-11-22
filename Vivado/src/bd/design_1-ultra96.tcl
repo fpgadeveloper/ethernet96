@@ -56,7 +56,11 @@ CONFIG.PSU__ENET1__GRP_MDIO__IO {EMIO} \
 CONFIG.PSU__ENET2__PERIPHERAL__ENABLE {1} \
 CONFIG.PSU__ENET2__PERIPHERAL__IO {EMIO} \
 CONFIG.PSU__ENET2__GRP_MDIO__ENABLE {1} \
-CONFIG.PSU__ENET2__GRP_MDIO__IO {EMIO}] [get_bd_cells zynq_ultra_ps_e_0]
+CONFIG.PSU__ENET2__GRP_MDIO__IO {EMIO} \
+CONFIG.PSU__ENET3__PERIPHERAL__ENABLE {1} \
+CONFIG.PSU__ENET3__PERIPHERAL__IO {EMIO} \
+CONFIG.PSU__ENET3__GRP_MDIO__ENABLE {1} \
+CONFIG.PSU__ENET3__GRP_MDIO__IO {EMIO}] [get_bd_cells zynq_ultra_ps_e_0]
 
 # Add the SGMII cores
 create_bd_cell -type ip -vlnv xilinx.com:ip:gig_ethernet_pcs_pma gig_ethernet_pcs_pma_0
@@ -78,7 +82,7 @@ set_property -dict [list CONFIG.Standard {SGMII} \
 CONFIG.Ext_Management_Interface {true} \
 CONFIG.EMAC_IF_TEMAC {GEM} \
 CONFIG.SupportLevel {Include_Shared_Logic_in_Example_Design} \
-CONFIG.NumOfLanes {1} \
+CONFIG.NumOfLanes {2} \
 CONFIG.TxLane0_Placement {DIFF_PAIR_0} \
 CONFIG.TxLane1_Placement {DIFF_PAIR_1} \
 CONFIG.RxLane0_Placement {DIFF_PAIR_0} \
@@ -132,6 +136,10 @@ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_phyaddr_2
 set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {03}] [get_bd_cells const_phyaddr_2]
 connect_bd_net [get_bd_pins const_phyaddr_2/dout] [get_bd_pins gig_ethernet_pcs_pma_1/phyaddr_0]
 
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_phyaddr_3
+set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {04}] [get_bd_cells const_phyaddr_3]
+connect_bd_net [get_bd_pins const_phyaddr_3/dout] [get_bd_pins gig_ethernet_pcs_pma_1/phyaddr_1]
+
 # Create SGMII ports
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:sgmii_rtl:1.0 sgmii_port_0
 connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_0/sgmii_0] [get_bd_intf_ports sgmii_port_0]
@@ -139,6 +147,8 @@ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:sgmii_rtl:1.0 sgmii_
 connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_0/sgmii_1] [get_bd_intf_ports sgmii_port_1]
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:sgmii_rtl:1.0 sgmii_port_2
 connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_1/sgmii_0] [get_bd_intf_ports sgmii_port_2]
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:sgmii_rtl:1.0 sgmii_port_3_tx
+connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_1/sgmii_1] [get_bd_intf_ports sgmii_port_3_tx]
 
 # Create MDIO ports
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_port_0
@@ -147,6 +157,8 @@ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_po
 connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_0/ext_mdio_pcs_pma_1] [get_bd_intf_ports mdio_port_1]
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_port_2
 connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_1/ext_mdio_pcs_pma_0] [get_bd_intf_ports mdio_port_2]
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_port_3
+connect_bd_intf_net [get_bd_intf_pins gig_ethernet_pcs_pma_1/ext_mdio_pcs_pma_1] [get_bd_intf_ports mdio_port_3]
 
 # Create the ref clk port
 create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 ref_clk_port_0
@@ -160,6 +172,8 @@ connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/GMII_ENET1] [get_bd_intf
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/MDIO_ENET1] [get_bd_intf_pins gig_ethernet_pcs_pma_0/mdio_pcs_pma_1]
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/GMII_ENET2] [get_bd_intf_pins gig_ethernet_pcs_pma_1/gmii_pcs_pma_0]
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/MDIO_ENET2] [get_bd_intf_pins gig_ethernet_pcs_pma_1/mdio_pcs_pma_0]
+connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/GMII_ENET3] [get_bd_intf_pins gig_ethernet_pcs_pma_1/gmii_pcs_pma_1]
+connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/MDIO_ENET3] [get_bd_intf_pins gig_ethernet_pcs_pma_1/mdio_pcs_pma_1]
 
 # Restore current instance
 current_bd_instance $oldCurInst

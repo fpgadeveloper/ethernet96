@@ -47,10 +47,10 @@ set_property PACKAGE_PIN F1   [get_ports {sgmii_port_2_txn}];  # "F1.DSI_D0_N" C
 set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_txn}];
 set_property PACKAGE_PIN G1   [get_ports {sgmii_port_2_txp}];  # "G1.DSI_D0_P" Clock capable DBC
 set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_txp}];
-#set_property PACKAGE_PIN E3   [get_ports {sgmii_port_1_txn}];  # "E3.DSI_D1_N"
-#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_1_txn}];
-#set_property PACKAGE_PIN E4   [get_ports {sgmii_port_1_txp}];  # "E4.DSI_D1_P"
-#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_1_txp}];
+set_property PACKAGE_PIN E3   [get_ports {sgmii_port_3_tx_txn}];  # "E3.DSI_D1_N"
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_txn}];
+set_property PACKAGE_PIN E4   [get_ports {sgmii_port_3_tx_txp}];  # "E4.DSI_D1_P"
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_txp}];
 #set_property PACKAGE_PIN D1   [get_ports {sgmii_port_0_txn}];  # "D1.DSI_D2_N"
 #set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_0_txn}];
 #set_property PACKAGE_PIN E1   [get_ports {sgmii_port_0_txp}];  # "E1.DSI_D2_P"
@@ -59,6 +59,10 @@ set_property PACKAGE_PIN C3   [get_ports {sgmii_port_2_rxn}];  # "C3.DSI_D3_N" C
 set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_rxn}];
 set_property PACKAGE_PIN D3   [get_ports {sgmii_port_2_rxp}];  # "D3.DSI_D3_P" Clock capable DBC
 set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_rxp}];
+set_property PACKAGE_PIN F2   [get_ports {sgmii_port_3_tx_rxn}];  # F2 Not connected
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_rxn}];
+set_property PACKAGE_PIN F3   [get_ports {sgmii_port_3_tx_rxp}];  # F3 Not connected
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_rxp}];
 #set_property PACKAGE_PIN C2   [get_ports {HSIC_DATA               }];  # "C2.HSIC_DATA"
 ## Bank 66
 #set_property PACKAGE_PIN A2   [get_ports {HSIC_STR                }];  # "A2.HSIC_STR"
@@ -82,8 +86,10 @@ set_property PACKAGE_PIN F6   [get_ports {mdio_port_2_mdc}];  # "F6.HD_GPIO_4"
 set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_2_mdc}];
 set_property PACKAGE_PIN G5   [get_ports {mdio_port_2_mdio_io}];  # "G5.HD_GPIO_5"
 set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_2_mdio_io}];
-#set_property PACKAGE_PIN A6   [get_ports {HD_GPIO_6               }];  # "A6.HD_GPIO_6"
-#set_property PACKAGE_PIN A7   [get_ports {HD_GPIO_7               }];  # "A7.HD_GPIO_7"
+set_property PACKAGE_PIN A6   [get_ports {mdio_port_3_mdc}];  # "A6.HD_GPIO_6"
+set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_3_mdc}];
+set_property PACKAGE_PIN A7   [get_ports {mdio_port_3_mdio_io}];  # "A7.HD_GPIO_7"
+set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_3_mdio_io}];
 #set_property PACKAGE_PIN G6   [get_ports {HD_GPIO_8               }];  # "G6.HD_GPIO_8"
 #set_property PACKAGE_PIN E6   [get_ports {HD_GPIO_9               }];  # "E6.HD_GPIO_9"
 #set_property PACKAGE_PIN E5   [get_ports {HD_GPIO_10              }];  # "E5.HD_GPIO_10"
