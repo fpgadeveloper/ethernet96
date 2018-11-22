@@ -216,8 +216,28 @@ connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/GMII_ENET1] [get_bd_intf
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/MDIO_ENET1] [get_bd_intf_pins gig_ethernet_pcs_pma_0/mdio_pcs_pma_1]
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/GMII_ENET2] [get_bd_intf_pins gig_ethernet_pcs_pma_1/gmii_pcs_pma_0]
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/MDIO_ENET2] [get_bd_intf_pins gig_ethernet_pcs_pma_1/mdio_pcs_pma_0]
-connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/GMII_ENET3] [get_bd_intf_pins gig_ethernet_pcs_pma_1/gmii_pcs_pma_1]
-connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/MDIO_ENET3] [get_bd_intf_pins gig_ethernet_pcs_pma_1/mdio_pcs_pma_1]
+
+# Connect the GMII RX clocks
+connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_0/gmii_rxclk_0] [get_bd_pins zynq_ultra_ps_e_0/emio_enet0_gmii_rx_clk]
+connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_0/gmii_rxclk_1] [get_bd_pins zynq_ultra_ps_e_0/emio_enet1_gmii_rx_clk]
+connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_1/gmii_rxclk_0] [get_bd_pins zynq_ultra_ps_e_0/emio_enet2_gmii_rx_clk]
+
+# Connect the GMII TX clocks
+connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_0/gmii_txclk_0] [get_bd_pins zynq_ultra_ps_e_0/emio_enet0_gmii_tx_clk]
+connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_0/gmii_txclk_1] [get_bd_pins zynq_ultra_ps_e_0/emio_enet1_gmii_tx_clk]
+connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_1/gmii_txclk_0] [get_bd_pins zynq_ultra_ps_e_0/emio_enet2_gmii_tx_clk]
+
+# Connect GMII RX interface of port 3
+connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_0/gmii_rxclk_2] [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_rx_clk]
+connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_0/gmii_rx_dv_2] [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_rx_dv]
+connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_0/gmii_rx_er_2] [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_rx_er]
+connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_0/gmii_rxd_2] [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_rxd]
+
+# Connect GMII TX interface of port 3
+connect_bd_net [get_bd_pins gig_ethernet_pcs_pma_1/gmii_txclk_1] [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_tx_clk]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_tx_en] [get_bd_pins gig_ethernet_pcs_pma_1/gmii_tx_en_1]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_tx_er] [get_bd_pins gig_ethernet_pcs_pma_1/gmii_tx_er_1]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_txd] [get_bd_pins gig_ethernet_pcs_pma_1/gmii_txd_1]
 
 # Restore current instance
 current_bd_instance $oldCurInst
