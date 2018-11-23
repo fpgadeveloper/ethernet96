@@ -9,34 +9,42 @@
 
 # BYTE usage in BANK 65:
 # ----------------------
-# BYTE   Nibble   Usage
-# ----------------------
-# 0      Lower    Not used
-#        Upper    Not connected
-# 1      Lower    PORT 0,1,3 RX
-#        Upper    PORT 0,1 TX
-# 2      Lower    Not connected
-#        Upper    REF CLK 625MHz
-# 3      Lower    PORT 2,3 TX
-#        Upper    PORT 2 RX
+# BYTE   Nibble   PCS/PMA           Usage
+# --------------------------------------------------------------
+# 0      Lower    eth_pcs_pma_3_rx  PORT 3 RX, REF CLK 625MHz
+#        Upper                      Not connected
+# 1      Lower    eth_pcs_pma_0_1   PORT 0,1 RX
+#        Upper    eth_pcs_pma_0_1   PORT 0,1 TX
+# 2      Lower                      Not connected
+#        Upper    eth_pcs_pma_3_tx  PORT 3 TX
+# 3      Lower    eth_pcs_pma_2     PORT 2 TX
+#        Upper    eth_pcs_pma_2     PORT 2 RX
 
 # Bank 65 (1.2V)
 
 # BANK65_BYTE0 Lower nibble
-#set_property PACKAGE_PIN T2   [get_ports {ref_clk_port_0_clk_n}];  # "T2.CSI1_C_N" Clock capable DBC
-#set_property IOSTANDARD DIFF_SSTL15 [get_ports {ref_clk_port_0_clk_n}];
-#set_property PACKAGE_PIN T3   [get_ports {ref_clk_port_0_clk_p}];  # "T3.CSI1_C_P" Clock capable DBC
-#set_property IOSTANDARD DIFF_SSTL15 [get_ports {ref_clk_port_0_clk_p}];
-#set_property PACKAGE_PIN R3   [get_ports {CSI1_D0_N               }];  # "R3.CSI1_D0_N"
-#set_property PACKAGE_PIN P3   [get_ports {CSI1_D0_P               }];  # "P3.CSI1_D0_P"
+set_property PACKAGE_PIN T2   [get_ports {sgmii_port_3_rx_rxn}];  # "T2.CSI1_C_N" Clock capable DBC
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_rxn}];
+set_property PACKAGE_PIN T3   [get_ports {sgmii_port_3_rx_rxp}];  # "T3.CSI1_C_P" Clock capable DBC
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_rxp}];
+set_property PACKAGE_PIN R3   [get_ports {ref_clk_625mhz_clk_n}];  # "R3.CSI1_D0_N"
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {ref_clk_625mhz_clk_n}];
+set_property PACKAGE_PIN P3   [get_ports {ref_clk_625mhz_clk_p}];  # "P3.CSI1_D0_P"
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {ref_clk_625mhz_clk_p}];
 #set_property PACKAGE_PIN U1   [get_ports {CSI1_D1_N               }];  # "U1.CSI1_D1_N"
 #set_property PACKAGE_PIN U2   [get_ports {CSI1_D1_P               }];  # "U2.CSI1_D1_P"
 
+# BANK65_BYTE0 Upper nibble
+set_property PACKAGE_PIN T4   [get_ports {sgmii_port_3_rx_txn}];  # T4 Not connected
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_txn}];
+set_property PACKAGE_PIN R4   [get_ports {sgmii_port_3_rx_txp}];  # R4 Not connected
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_txp}];
+#set_property PACKAGE_PIN T1   [get_ports {sgmii_port_3_rx_txn}];  # T1 Not connected
+#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_txn}];
+#set_property PACKAGE_PIN R1   [get_ports {sgmii_port_3_rx_txp}];  # R1 Not connected
+#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_txp}];
+
 # BANK65_BYTE1 Lower nibble
-#set_property PACKAGE_PIN P1   [get_ports {ref_clk_port_0_clk_n}];  # "P1.CSI0_C_N" Clock capable QBC
-#set_property IOSTANDARD DIFF_SSTL15 [get_ports {ref_clk_port_0_clk_n}];
-#set_property PACKAGE_PIN N2   [get_ports {ref_clk_port_0_clk_p}];  # "N2.CSI0_C_P" Clock capable QBC
-#set_property IOSTANDARD DIFF_SSTL15 [get_ports {ref_clk_port_0_clk_p}];
 set_property PACKAGE_PIN P1   [get_ports {sgmii_port_0_rxn}];  # "P1.CSI0_C_N" Clock capable QBC
 set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_0_rxn}];
 set_property PACKAGE_PIN N2   [get_ports {sgmii_port_0_rxp}];  # "N2.CSI0_C_P" Clock capable QBC
@@ -45,10 +53,10 @@ set_property PACKAGE_PIN N4   [get_ports {sgmii_port_1_rxn}];  # "N4.CSI0_D0_N"
 set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_1_rxn}];
 set_property PACKAGE_PIN N5   [get_ports {sgmii_port_1_rxp}];  # "N5.CSI0_D0_P"
 set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_1_rxp}];
-set_property PACKAGE_PIN M1   [get_ports {sgmii_port_3_rx_rxn}];  # "M1.CSI0_D1_N"
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_rxn}];
-set_property PACKAGE_PIN M2   [get_ports {sgmii_port_3_rx_rxp}];  # "M2.CSI0_D1_P"
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_rxp}];
+#set_property PACKAGE_PIN M1   [get_ports {sgmii_port_3_rx_rxn}];  # "M1.CSI0_D1_N"
+#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_rxn}];
+#set_property PACKAGE_PIN M2   [get_ports {sgmii_port_3_rx_rxp}];  # "M2.CSI0_D1_P"
+#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_rxp}];
 
 # BANK65_BYTE1 Upper nibble
 set_property PACKAGE_PIN M4   [get_ports {sgmii_port_0_txn}];  # "M4.CSI0_D2_N" Clock capable QBC
@@ -59,40 +67,46 @@ set_property PACKAGE_PIN L1   [get_ports {sgmii_port_1_txn}];  # "L1.CSI0_D3_N" 
 set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_1_txn}];
 set_property PACKAGE_PIN L2   [get_ports {sgmii_port_1_txp}];  # "L2.CSI0_D3_P" Global clock capable
 set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_1_txp}];
-set_property PACKAGE_PIN L3   [get_ports {sgmii_port_3_rx_txn}];  # L3 Not connected
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_txn}];
-set_property PACKAGE_PIN L4   [get_ports {sgmii_port_3_rx_txp}];  # L4 Not connected
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_txp}];
+#set_property PACKAGE_PIN L3   [get_ports {sgmii_port_3_rx_txn}];  # L3 Not connected
+#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_txn}];
+#set_property PACKAGE_PIN L4   [get_ports {sgmii_port_3_rx_txp}];  # L4 Not connected
+#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_rx_txp}];
+
+# BANK65_BYTE2 Lower nibble
+set_property PACKAGE_PIN J2   [get_ports {sgmii_port_3_tx_rxn}];  # J2 Not connected
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_rxn}];
+set_property PACKAGE_PIN J3   [get_ports {sgmii_port_3_tx_rxp}];  # J3 Not connected
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_rxp}];
 
 # BANK65_BYTE2 Upper nibble
-set_property PACKAGE_PIN H5   [get_ports {ref_clk_625mhz_clk_n}];  # "H5.DSI_CLK_N" Clock capable QBC
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {ref_clk_625mhz_clk_n}];
-set_property PACKAGE_PIN J5   [get_ports {ref_clk_625mhz_clk_p}];  # "J5.DSI_CLK_P" Clock capable QBC
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {ref_clk_625mhz_clk_p}];
+set_property PACKAGE_PIN H5   [get_ports {sgmii_port_3_tx_txn}];  # "H5.DSI_CLK_N" Clock capable QBC
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_txn}];
+set_property PACKAGE_PIN J5   [get_ports {sgmii_port_3_tx_txp}];  # "J5.DSI_CLK_P" Clock capable QBC
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_txp}];
 
 # BANK65_BYTE3 Lower nibble
-set_property PACKAGE_PIN F1   [get_ports {sgmii_port_2_txn}];  # "F1.DSI_D0_N" Clock capable DBC
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_txn}];
-set_property PACKAGE_PIN G1   [get_ports {sgmii_port_2_txp}];  # "G1.DSI_D0_P" Clock capable DBC
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_txp}];
-set_property PACKAGE_PIN E3   [get_ports {sgmii_port_3_tx_txn}];  # "E3.DSI_D1_N"
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_txn}];
-set_property PACKAGE_PIN E4   [get_ports {sgmii_port_3_tx_txp}];  # "E4.DSI_D1_P"
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_txp}];
+set_property PACKAGE_PIN F1   [get_ports {sgmii_port_2_rxn}];  # "F1.DSI_D0_N" Clock capable DBC
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_rxn}];
+set_property PACKAGE_PIN G1   [get_ports {sgmii_port_2_rxp}];  # "G1.DSI_D0_P" Clock capable DBC
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_rxp}];
+#set_property PACKAGE_PIN E3   [get_ports {sgmii_port_3_tx_txn}];  # "E3.DSI_D1_N"
+#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_txn}];
+#set_property PACKAGE_PIN E4   [get_ports {sgmii_port_3_tx_txp}];  # "E4.DSI_D1_P"
+#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_txp}];
 #set_property PACKAGE_PIN D1   [get_ports {sgmii_port_0_txn}];  # "D1.DSI_D2_N"
 #set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_0_txn}];
 #set_property PACKAGE_PIN E1   [get_ports {sgmii_port_0_txp}];  # "E1.DSI_D2_P"
 #set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_0_txp}];
 
 # BANK65_BYTE3 Upper nibble
-set_property PACKAGE_PIN C3   [get_ports {sgmii_port_2_rxn}];  # "C3.DSI_D3_N" Clock capable DBC
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_rxn}];
-set_property PACKAGE_PIN D3   [get_ports {sgmii_port_2_rxp}];  # "D3.DSI_D3_P" Clock capable DBC
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_rxp}];
-set_property PACKAGE_PIN F2   [get_ports {sgmii_port_3_tx_rxn}];  # F2 Not connected
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_rxn}];
-set_property PACKAGE_PIN F3   [get_ports {sgmii_port_3_tx_rxp}];  # F3 Not connected
-set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_rxp}];
+set_property PACKAGE_PIN C3   [get_ports {sgmii_port_2_txn}];  # "C3.DSI_D3_N" Clock capable DBC
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_txn}];
+set_property PACKAGE_PIN D3   [get_ports {sgmii_port_2_txp}];  # "D3.DSI_D3_P" Clock capable DBC
+set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_txp}];
+#set_property PACKAGE_PIN F2   [get_ports {sgmii_port_3_tx_rxn}];  # F2 Not connected
+#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_rxn}];
+#set_property PACKAGE_PIN F3   [get_ports {sgmii_port_3_tx_rxp}];  # F3 Not connected
+#set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_3_tx_rxp}];
 #set_property PACKAGE_PIN C2   [get_ports {HSIC_DATA               }];  # "C2.HSIC_DATA"
 
 ## Bank 66
@@ -133,6 +147,18 @@ set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_3_mdio_io}];
 #set_property PACKAGE_PIN B6   [get_ports {HD_GPIO_14              }];  # "B6.HD_GPIO_14"
 #set_property PACKAGE_PIN C5   [get_ports {HD_GPIO_15              }];  # "C5.HD_GPIO_15"
 
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ultra96_qgige_i/gig_ethernet_pcs_pma_0/inst/clock_reset_i/iclkbuf/O]
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ultra96_qgige_i/eth_pcs_pma_0_1/inst/clock_reset_i/iclkbuf/O]
 
 set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets ultra96_qgige_i/util_ds_buf_1/U0/BUFG_O[0]]
+
+# DQS_BIAS is to be set to TRUE if internal DC biasing is used - this is recommended. 
+# If the signal is biased externally on the board, should be set to FALSE
+set_property DQS_BIAS TRUE [get_ports sgmii_port_0_rxp]
+set_property DQS_BIAS TRUE [get_ports sgmii_port_0_rxn]
+set_property DQS_BIAS TRUE [get_ports sgmii_port_1_rxp]
+set_property DQS_BIAS TRUE [get_ports sgmii_port_1_rxn]
+set_property DQS_BIAS TRUE [get_ports sgmii_port_2_rxp]
+set_property DQS_BIAS TRUE [get_ports sgmii_port_2_rxn]
+set_property DQS_BIAS TRUE [get_ports sgmii_port_3_rx_rxp]
+set_property DQS_BIAS TRUE [get_ports sgmii_port_3_rx_rxn]
+
