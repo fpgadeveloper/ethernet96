@@ -115,8 +115,13 @@ set_property IOSTANDARD DIFF_SSTL15 [get_ports {sgmii_port_2_txp}];
 ## Bank 26 (1.8V)
 set_property PACKAGE_PIN E8   [get_ports {ref_clk_125mhz_clk_p}];  # "E8.CSI0_MCLK"
 set_property IOSTANDARD DIFF_SSTL18_I [get_ports {ref_clk_125mhz_clk_p}];
+set_property ODT RTT_48 [get_ports {ref_clk_125mhz_clk_p}];
 set_property PACKAGE_PIN D8   [get_ports {ref_clk_125mhz_clk_n}];  # "D8.CSI1_MCLK"
 set_property IOSTANDARD DIFF_SSTL18_I [get_ports {ref_clk_125mhz_clk_n}];
+set_property ODT RTT_48 [get_ports {ref_clk_125mhz_clk_n}];
+
+# Set VREF to VCC/2 = 0.9V to enable the ref_clk input
+set_property INTERNAL_VREF 0.90 [get_iobanks 26]
 
 # ----------------------------------------------------------------------------
 # Low-speed expansion connector
