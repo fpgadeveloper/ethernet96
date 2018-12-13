@@ -31,8 +31,10 @@ set_property PACKAGE_PIN R3   [get_ports {ref_clk_625mhz_clk_n}];  # "R3.CSI1_D0
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {ref_clk_625mhz_clk_n}];
 set_property PACKAGE_PIN P3   [get_ports {ref_clk_625mhz_clk_p}];  # "P3.CSI1_D0_P"
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {ref_clk_625mhz_clk_p}];
-#set_property PACKAGE_PIN U1   [get_ports {CSI1_D1_N               }];  # "U1.CSI1_D1_N"
-#set_property PACKAGE_PIN U2   [get_ports {CSI1_D1_P               }];  # "U2.CSI1_D1_P"
+set_property PACKAGE_PIN U1   [get_ports {phy_gpio_tri_io[4]}];  # "U1.CSI1_D1_N"
+set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[4]}];
+set_property PACKAGE_PIN U2   [get_ports {phy_gpio_tri_io[5]}];  # "U2.CSI1_D1_P"
+set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[5]}];
 
 # BANK65_BYTE0 Upper nibble
 set_property PACKAGE_PIN T4   [get_ports {sgmii_port_3_rx_txn}];  # T4 Not connected
@@ -53,10 +55,10 @@ set_property PACKAGE_PIN N4   [get_ports {sgmii_port_1_rxn}];  # "N4.CSI0_D0_N"
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_1_rxn}];
 set_property PACKAGE_PIN N5   [get_ports {sgmii_port_1_rxp}];  # "N5.CSI0_D0_P"
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_1_rxp}];
-#set_property PACKAGE_PIN M1   [get_ports {sgmii_port_3_rx_rxn}];  # "M1.CSI0_D1_N"
-#set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_3_rx_rxn}];
-#set_property PACKAGE_PIN M2   [get_ports {sgmii_port_3_rx_rxp}];  # "M2.CSI0_D1_P"
-#set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_3_rx_rxp}];
+set_property PACKAGE_PIN M1   [get_ports {phy_gpio_tri_io[2]}];  # "M1.CSI0_D1_N"
+set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[2]}];
+set_property PACKAGE_PIN M2   [get_ports {phy_gpio_tri_io[3]}];  # "M2.CSI0_D1_P"
+set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[3]}];
 
 # BANK65_BYTE1 Upper nibble
 set_property PACKAGE_PIN M4   [get_ports {sgmii_port_0_txn}];  # "M4.CSI0_D2_N" Clock capable QBC
@@ -89,14 +91,14 @@ set_property PACKAGE_PIN F1   [get_ports {sgmii_port_2_rxn}];  # "F1.DSI_D0_N" C
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_2_rxn}];
 set_property PACKAGE_PIN G1   [get_ports {sgmii_port_2_rxp}];  # "G1.DSI_D0_P" Clock capable DBC
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_2_rxp}];
-#set_property PACKAGE_PIN E3   [get_ports {sgmii_port_3_tx_txn}];  # "E3.DSI_D1_N"
-#set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_3_tx_txn}];
-#set_property PACKAGE_PIN E4   [get_ports {sgmii_port_3_tx_txp}];  # "E4.DSI_D1_P"
-#set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_3_tx_txp}];
-#set_property PACKAGE_PIN D1   [get_ports {sgmii_port_0_txn}];  # "D1.DSI_D2_N"
-#set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_0_txn}];
-#set_property PACKAGE_PIN E1   [get_ports {sgmii_port_0_txp}];  # "E1.DSI_D2_P"
-#set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_0_txp}];
+set_property PACKAGE_PIN E3   [get_ports {phy_gpio_tri_io[0]}];  # "E3.DSI_D1_N"
+set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[0]}];
+set_property PACKAGE_PIN E4   [get_ports {phy_gpio_tri_io[1]}];  # "E4.DSI_D1_P"
+set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[1]}];
+set_property PACKAGE_PIN D1   [get_ports {phy_gpio_tri_io[7]}];  # "D1.DSI_D2_N"
+set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[7]}];
+set_property PACKAGE_PIN E1   [get_ports {phy_gpio_tri_io[6]}];  # "E1.DSI_D2_P"
+set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[6]}];
 
 # BANK65_BYTE3 Upper nibble
 set_property PACKAGE_PIN C3   [get_ports {sgmii_port_2_txn}];  # "C3.DSI_D3_N" Clock capable DBC
@@ -130,30 +132,38 @@ set_property INTERNAL_VREF 0.90 [get_iobanks 26]
 # Low-speed expansion connector
 # ---------------------------------------------------------------------------- 
 # Bank 23 (1.8V)
-set_property PACKAGE_PIN D7   [get_ports {mdio_port_0_mdc}];  # "D7.HD_GPIO_0"
-set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_0_mdc}];
-set_property PACKAGE_PIN F8   [get_ports {mdio_port_0_mdio_io}];  # "F8.HD_GPIO_1"
-set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_0_mdio_io}];
-set_property PACKAGE_PIN F7   [get_ports {mdio_port_1_mdc}];  # "F7.HD_GPIO_2"
-set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_1_mdc}];
-set_property PACKAGE_PIN G7   [get_ports {mdio_port_1_mdio_io}];  # "G7.HD_GPIO_3"
-set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_1_mdio_io}];
-set_property PACKAGE_PIN F6   [get_ports {mdio_port_2_mdc}];  # "F6.HD_GPIO_4"
-set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_2_mdc}];
-set_property PACKAGE_PIN G5   [get_ports {mdio_port_2_mdio_io}];  # "G5.HD_GPIO_5"
-set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_2_mdio_io}];
-set_property PACKAGE_PIN A6   [get_ports {mdio_port_3_mdc}];  # "A6.HD_GPIO_6"
-set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_3_mdc}];
-set_property PACKAGE_PIN A7   [get_ports {mdio_port_3_mdio_io}];  # "A7.HD_GPIO_7"
-set_property IOSTANDARD LVCMOS18 [get_ports {mdio_port_3_mdio_io}];
-#set_property PACKAGE_PIN G6   [get_ports {HD_GPIO_8               }];  # "G6.HD_GPIO_8"
-#set_property PACKAGE_PIN E6   [get_ports {HD_GPIO_9               }];  # "E6.HD_GPIO_9"
-#set_property PACKAGE_PIN E5   [get_ports {HD_GPIO_10              }];  # "E5.HD_GPIO_10"
-#set_property PACKAGE_PIN D6   [get_ports {HD_GPIO_11              }];  # "D6.HD_GPIO_11"
-#set_property PACKAGE_PIN D5   [get_ports {HD_GPIO_12              }];  # "D5.HD_GPIO_12"
-#set_property PACKAGE_PIN C7   [get_ports {HD_GPIO_13              }];  # "C7.HD_GPIO_13"
-#set_property PACKAGE_PIN B6   [get_ports {HD_GPIO_14              }];  # "B6.HD_GPIO_14"
-#set_property PACKAGE_PIN C5   [get_ports {HD_GPIO_15              }];  # "C5.HD_GPIO_15"
+#set_property PACKAGE_PIN D7   [get_ports {HD_GPIO_0}];  # "D7.HD_GPIO_0"
+#set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_0}];
+#set_property PACKAGE_PIN F8   [get_ports {HD_GPIO_1}];  # "F8.HD_GPIO_1"
+#set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_1}];
+#set_property PACKAGE_PIN F7   [get_ports {HD_GPIO_2}];  # "F7.HD_GPIO_2"
+#set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_2}];
+#set_property PACKAGE_PIN G7   [get_ports {HD_GPIO_3}];  # "G7.HD_GPIO_3"
+#set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_3}];
+#set_property PACKAGE_PIN F6   [get_ports {HD_GPIO_4}];  # "F6.HD_GPIO_4"
+#set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_4}];
+#set_property PACKAGE_PIN G5   [get_ports {HD_GPIO_5}];  # "G5.HD_GPIO_5"
+#set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_5}];
+set_property PACKAGE_PIN A6   [get_ports {reset_port_0_n}];  # "A6.HD_GPIO_6"
+set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_0_n}];
+set_property PACKAGE_PIN A7   [get_ports {reset_port_2_n}];  # "A7.HD_GPIO_7"
+set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_2_n}];
+set_property PACKAGE_PIN G6   [get_ports {mdio_mdio_io}];  # "G6.HD_GPIO_8"
+set_property IOSTANDARD LVCMOS18 [get_ports {mdio_mdio_io}];
+#set_property PACKAGE_PIN E6   [get_ports {HD_GPIO_9}];  # "E6.HD_GPIO_9"
+#set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_9}];
+#set_property PACKAGE_PIN E5   [get_ports {HD_GPIO_10}];  # "E5.HD_GPIO_10"
+#set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_10}];
+#set_property PACKAGE_PIN D6   [get_ports {HD_GPIO_11}];  # "D6.HD_GPIO_11"
+#set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_11}];
+#set_property PACKAGE_PIN D5   [get_ports {HD_GPIO_12}];  # "D5.HD_GPIO_12"
+#set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_12}];
+set_property PACKAGE_PIN C7   [get_ports {reset_port_1_n}];  # "C7.HD_GPIO_13"
+set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_1_n}];
+set_property PACKAGE_PIN B6   [get_ports {reset_port_3_n}];  # "B6.HD_GPIO_14"
+set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_3_n}];
+set_property PACKAGE_PIN C5   [get_ports {mdio_mdc}];  # "C5.HD_GPIO_15"
+set_property IOSTANDARD LVCMOS18 [get_ports {mdio_mdc}];
 
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ultra96_qgige_i/eth_pcs_pma_0_1/inst/clock_reset_i/iclkbuf/O]
 

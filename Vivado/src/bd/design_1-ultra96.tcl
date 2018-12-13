@@ -51,16 +51,18 @@ CONFIG.PSU__ENET0__PERIPHERAL__ENABLE {1} \
 CONFIG.PSU__ENET0__PERIPHERAL__IO {EMIO} \
 CONFIG.PSU__ENET1__PERIPHERAL__ENABLE {1} \
 CONFIG.PSU__ENET1__PERIPHERAL__IO {EMIO} \
-CONFIG.PSU__ENET1__GRP_MDIO__ENABLE {1} \
+CONFIG.PSU__ENET1__GRP_MDIO__ENABLE {0} \
 CONFIG.PSU__ENET1__GRP_MDIO__IO {EMIO} \
 CONFIG.PSU__ENET2__PERIPHERAL__ENABLE {1} \
 CONFIG.PSU__ENET2__PERIPHERAL__IO {EMIO} \
-CONFIG.PSU__ENET2__GRP_MDIO__ENABLE {1} \
+CONFIG.PSU__ENET2__GRP_MDIO__ENABLE {0} \
 CONFIG.PSU__ENET2__GRP_MDIO__IO {EMIO} \
 CONFIG.PSU__ENET3__PERIPHERAL__ENABLE {1} \
 CONFIG.PSU__ENET3__PERIPHERAL__IO {EMIO} \
-CONFIG.PSU__ENET3__GRP_MDIO__ENABLE {1} \
-CONFIG.PSU__ENET3__GRP_MDIO__IO {EMIO}] [get_bd_cells zynq_ultra_ps_e_0]
+CONFIG.PSU__ENET3__GRP_MDIO__ENABLE {0} \
+CONFIG.PSU__ENET3__GRP_MDIO__IO {EMIO} \
+CONFIG.PSU__GPIO_EMIO__PERIPHERAL__ENABLE {1} \
+CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {8}] [get_bd_cells zynq_ultra_ps_e_0]
 
 # Add the SGMII cores
 create_bd_cell -type ip -vlnv xilinx.com:ip:gig_ethernet_pcs_pma eth_pcs_pma_0_1
@@ -253,27 +255,27 @@ connect_bd_net [get_bd_pins clk_wiz_0/locked] [get_bd_pins proc_sys_reset_1/dcm_
 
 # Constants for the PHY addresses
 # ------------------------------------------------
-# External PHYs will have addresses: 1,2,3 and 4
-# PCS/PMA PHYs will have addresses: 5,6,7,8 and 9
+# External PHYs have addresses: 1,3,12 and 15
+# PCS/PMA PHYs have addresses: 2,4,13,16 and 17
 # Note that port 3 has two PCS/PMA PHYs
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_phyaddr_0
-set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {0x05}] [get_bd_cells const_phyaddr_0]
+set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {0x02}] [get_bd_cells const_phyaddr_0]
 connect_bd_net [get_bd_pins const_phyaddr_0/dout] [get_bd_pins eth_pcs_pma_0_1/phyaddr_0]
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_phyaddr_1
-set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {0x06}] [get_bd_cells const_phyaddr_1]
+set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {0x04}] [get_bd_cells const_phyaddr_1]
 connect_bd_net [get_bd_pins const_phyaddr_1/dout] [get_bd_pins eth_pcs_pma_0_1/phyaddr_1]
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_phyaddr_2
-set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {0x07}] [get_bd_cells const_phyaddr_2]
+set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {0x0D}] [get_bd_cells const_phyaddr_2]
 connect_bd_net [get_bd_pins const_phyaddr_2/dout] [get_bd_pins eth_pcs_pma_2/phyaddr_0]
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_phyaddr_3_rx
-set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {0x08}] [get_bd_cells const_phyaddr_3_rx]
+set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {0x10}] [get_bd_cells const_phyaddr_3_rx]
 connect_bd_net [get_bd_pins const_phyaddr_3_rx/dout] [get_bd_pins eth_pcs_pma_3_rx/phyaddr_0]
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_phyaddr_3_tx
-set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {0x09}] [get_bd_cells const_phyaddr_3_tx]
+set_property -dict [list CONFIG.CONST_WIDTH {5} CONFIG.CONST_VAL {0x11}] [get_bd_cells const_phyaddr_3_tx]
 connect_bd_net [get_bd_pins const_phyaddr_3_tx/dout] [get_bd_pins eth_pcs_pma_3_tx/phyaddr_0]
 
 # Create SGMII ports
@@ -288,15 +290,13 @@ connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_tx/sgmii_0] [get_bd_intf_por
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:sgmii_rtl:1.0 sgmii_port_3_rx
 connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_rx/sgmii_0] [get_bd_intf_ports sgmii_port_3_rx]
 
-# Create MDIO ports
-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_port_0
-connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_0_1/ext_mdio_pcs_pma_0] [get_bd_intf_ports mdio_port_0]
-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_port_1
-connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_0_1/ext_mdio_pcs_pma_1] [get_bd_intf_ports mdio_port_1]
-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_port_2
-connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_2/ext_mdio_pcs_pma_0] [get_bd_intf_ports mdio_port_2]
-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio_port_3
-connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_rx/ext_mdio_pcs_pma_0] [get_bd_intf_ports mdio_port_3]
+# Create MDIO port
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 mdio
+connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_0_1/ext_mdio_pcs_pma_0] [get_bd_intf_pins eth_pcs_pma_0_1/mdio_pcs_pma_1]
+connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_0_1/ext_mdio_pcs_pma_1] [get_bd_intf_pins eth_pcs_pma_2/mdio_pcs_pma_0]
+connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_2/ext_mdio_pcs_pma_0] [get_bd_intf_pins eth_pcs_pma_3_tx/mdio_pcs_pma_0]
+connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_tx/ext_mdio_pcs_pma_0] [get_bd_intf_pins eth_pcs_pma_3_rx/mdio_pcs_pma_0]
+connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_rx/ext_mdio_pcs_pma_0] [get_bd_intf_ports mdio]
 
 # Create the ref clk 625MHz port
 create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 ref_clk_625mhz
@@ -307,13 +307,7 @@ connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_0_1/refclk625_in] [get_bd_intf
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/GMII_ENET0] [get_bd_intf_pins eth_pcs_pma_0_1/gmii_pcs_pma_0]
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/MDIO_ENET0] [get_bd_intf_pins eth_pcs_pma_0_1/mdio_pcs_pma_0]
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/GMII_ENET1] [get_bd_intf_pins eth_pcs_pma_0_1/gmii_pcs_pma_1]
-connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/MDIO_ENET1] [get_bd_intf_pins eth_pcs_pma_0_1/mdio_pcs_pma_1]
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/GMII_ENET2] [get_bd_intf_pins eth_pcs_pma_2/gmii_pcs_pma_0]
-connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/MDIO_ENET2] [get_bd_intf_pins eth_pcs_pma_2/mdio_pcs_pma_0]
-
-# MDIO interface for port 3: MDIO bus passes through both PCS/PMA cores so that we can access both
-connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/MDIO_ENET3] [get_bd_intf_pins eth_pcs_pma_3_tx/mdio_pcs_pma_0]
-connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_tx/ext_mdio_pcs_pma_0] [get_bd_intf_pins eth_pcs_pma_3_rx/mdio_pcs_pma_0]
 
 # Connect the GMII RX clocks
 connect_bd_net [get_bd_pins eth_pcs_pma_0_1/gmii_rxclk_0] [get_bd_pins zynq_ultra_ps_e_0/emio_enet0_gmii_rx_clk]
@@ -336,6 +330,20 @@ connect_bd_net [get_bd_pins eth_pcs_pma_3_tx/gmii_txclk_0] [get_bd_pins zynq_ult
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_tx_en] [get_bd_pins eth_pcs_pma_3_tx/gmii_tx_en_0]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_tx_er] [get_bd_pins eth_pcs_pma_3_tx/gmii_tx_er_0]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_txd] [get_bd_pins eth_pcs_pma_3_tx/gmii_txd_0]
+
+# PHY RESET for all ports
+create_bd_port -dir O reset_port_0_n
+connect_bd_net [get_bd_pins /proc_sys_reset_0/peripheral_aresetn] [get_bd_ports reset_port_0_n]
+create_bd_port -dir O reset_port_1_n
+connect_bd_net [get_bd_pins /proc_sys_reset_0/peripheral_aresetn] [get_bd_ports reset_port_1_n]
+create_bd_port -dir O reset_port_2_n
+connect_bd_net [get_bd_pins /proc_sys_reset_0/peripheral_aresetn] [get_bd_ports reset_port_2_n]
+create_bd_port -dir O reset_port_3_n
+connect_bd_net [get_bd_pins /proc_sys_reset_0/peripheral_aresetn] [get_bd_ports reset_port_3_n]
+
+# Create port for the PHY GPIOs
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 phy_gpio
+connect_bd_intf_net [get_bd_intf_ports phy_gpio] [get_bd_intf_pins zynq_ultra_ps_e_0/GPIO_0]
 
 # Restore current instance
 current_bd_instance $oldCurInst
