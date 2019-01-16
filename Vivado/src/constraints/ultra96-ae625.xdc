@@ -165,9 +165,9 @@ set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_3_n}];
 set_property PACKAGE_PIN C5   [get_ports {mdio_mdc}];  # "C5.HD_GPIO_15"
 set_property IOSTANDARD LVCMOS18 [get_ports {mdio_mdc}];
 
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ultra96_qgige_i/eth_pcs_pma_0_1/inst/clock_reset_i/iclkbuf/O]
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets *_i/eth_pcs_pma_3_rx/inst/clock_reset_i/iclkbuf/O]
 
-set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets ultra96_qgige_i/util_ds_buf_1/U0/BUFG_O[0]]
+set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets *_i/util_ds_buf_1/U0/BUFG_O[0]]
 
 # DQS_BIAS is to be set to TRUE if internal DC biasing is used - this is recommended. 
 # If the signal is biased externally on the board, should be set to FALSE

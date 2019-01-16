@@ -27,10 +27,10 @@ set_property PACKAGE_PIN T2   [get_ports {sgmii_port_3_rx_rxn}];  # "T2.CSI1_C_N
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_3_rx_rxn}];
 set_property PACKAGE_PIN T3   [get_ports {sgmii_port_3_rx_rxp}];  # "T3.CSI1_C_P" Clock capable DBC
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_3_rx_rxp}];
-set_property PACKAGE_PIN R3   [get_ports {ref_clk_625mhz_clk_n}];  # "R3.CSI1_D0_N"
-set_property IOSTANDARD DIFF_SSTL12 [get_ports {ref_clk_625mhz_clk_n}];
-set_property PACKAGE_PIN P3   [get_ports {ref_clk_625mhz_clk_p}];  # "P3.CSI1_D0_P"
-set_property IOSTANDARD DIFF_SSTL12 [get_ports {ref_clk_625mhz_clk_p}];
+#set_property PACKAGE_PIN R3   [get_ports {ref_clk_625mhz_clk_n}];  # "R3.CSI1_D0_N"
+#set_property IOSTANDARD DIFF_SSTL12 [get_ports {ref_clk_625mhz_clk_n}];
+#set_property PACKAGE_PIN P3   [get_ports {ref_clk_625mhz_clk_p}];  # "P3.CSI1_D0_P"
+#set_property IOSTANDARD DIFF_SSTL12 [get_ports {ref_clk_625mhz_clk_p}];
 set_property PACKAGE_PIN U1   [get_ports {phy_gpio_tri_io[4]}];  # "U1.CSI1_D1_N"
 set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[4]}];
 set_property PACKAGE_PIN U2   [get_ports {phy_gpio_tri_io[5]}];  # "U2.CSI1_D1_P"
@@ -165,9 +165,9 @@ set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_3_n}];
 set_property PACKAGE_PIN C5   [get_ports {mdio_mdc}];  # "C5.HD_GPIO_15"
 set_property IOSTANDARD LVCMOS18 [get_ports {mdio_mdc}];
 
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ultra96_qgige_i/eth_pcs_pma_0_1/inst/clock_reset_i/iclkbuf/O]
+#set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ultra96_qgige_i/eth_pcs_pma_0_1/inst/clock_reset_i/iclkbuf/O]
 
-set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets ultra96_qgige_i/util_ds_buf_1/U0/BUFG_O[0]]
+set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets *_i/util_ds_buf_1/U0/BUFG_O[0]]
 
 # DQS_BIAS is to be set to TRUE if internal DC biasing is used - this is recommended. 
 # If the signal is biased externally on the board, should be set to FALSE

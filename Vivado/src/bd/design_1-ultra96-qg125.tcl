@@ -74,7 +74,7 @@ create_bd_cell -type ip -vlnv xilinx.com:ip:gig_ethernet_pcs_pma eth_pcs_pma_3_t
 set_property -dict [list CONFIG.Standard {SGMII} \
 CONFIG.Ext_Management_Interface {true} \
 CONFIG.EMAC_IF_TEMAC {GEM} \
-CONFIG.SupportLevel {Include_Shared_Logic_in_Core} \
+CONFIG.SupportLevel {Include_Shared_Logic_in_Example_Design} \
 CONFIG.NumOfLanes {2} \
 CONFIG.TxLane0_Placement {DIFF_PAIR_0} \
 CONFIG.TxLane1_Placement {DIFF_PAIR_1} \
@@ -130,106 +130,14 @@ CONFIG.ClockSelection {Async} \
 CONFIG.Ext_Management_Interface {true} \
 CONFIG.Auto_Negotiation {false}] [get_bd_cells eth_pcs_pma_3_tx]
 
-# eth_pcs_pma_0_1 to eth_pcs_pma_2
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bsc_rst_out] [get_bd_pins eth_pcs_pma_2/tx_bsc_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bsc_rst_out] [get_bd_pins eth_pcs_pma_2/rx_bsc_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bs_rst_out] [get_bd_pins eth_pcs_pma_2/tx_bs_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bs_rst_out] [get_bd_pins eth_pcs_pma_2/rx_bs_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_rst_dly_out] [get_bd_pins eth_pcs_pma_2/tx_rst_dly]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_rst_dly_out] [get_bd_pins eth_pcs_pma_2/rx_rst_dly]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_clk_out] [get_bd_pins eth_pcs_pma_2/riu_clk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_wr_en_out] [get_bd_pins eth_pcs_pma_2/riu_wr_en]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_pll_clk_out] [get_bd_pins eth_pcs_pma_2/tx_pll_clk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_pll_clk_out] [get_bd_pins eth_pcs_pma_2/rx_pll_clk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_rdclk_out] [get_bd_pins eth_pcs_pma_2/tx_rdclk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_addr_out] [get_bd_pins eth_pcs_pma_2/riu_addr]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_wr_data_out] [get_bd_pins eth_pcs_pma_2/riu_wr_data]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_nibble_sel_out] [get_bd_pins eth_pcs_pma_2/riu_nibble_sel]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_btval_2] [get_bd_pins eth_pcs_pma_2/rx_btval]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bsc_en_vtc_out] [get_bd_pins eth_pcs_pma_2/tx_bsc_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bsc_en_vtc_out] [get_bd_pins eth_pcs_pma_2/rx_bsc_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bs_en_vtc_out] [get_bd_pins eth_pcs_pma_2/tx_bs_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bs_en_vtc_out] [get_bd_pins eth_pcs_pma_2/rx_bs_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/clk125_out] [get_bd_pins eth_pcs_pma_2/clk125m]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/clk312_out] [get_bd_pins eth_pcs_pma_2/clk312]
-
-# eth_pcs_pma_0_1 to eth_pcs_pma_3_rx
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bsc_rst_out] [get_bd_pins eth_pcs_pma_3_rx/tx_bsc_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bsc_rst_out] [get_bd_pins eth_pcs_pma_3_rx/rx_bsc_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bs_rst_out] [get_bd_pins eth_pcs_pma_3_rx/tx_bs_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bs_rst_out] [get_bd_pins eth_pcs_pma_3_rx/rx_bs_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_rst_dly_out] [get_bd_pins eth_pcs_pma_3_rx/tx_rst_dly]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_rst_dly_out] [get_bd_pins eth_pcs_pma_3_rx/rx_rst_dly]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_clk_out] [get_bd_pins eth_pcs_pma_3_rx/riu_clk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_wr_en_out] [get_bd_pins eth_pcs_pma_3_rx/riu_wr_en]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_pll_clk_out] [get_bd_pins eth_pcs_pma_3_rx/tx_pll_clk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_pll_clk_out] [get_bd_pins eth_pcs_pma_3_rx/rx_pll_clk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_rdclk_out] [get_bd_pins eth_pcs_pma_3_rx/tx_rdclk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_addr_out] [get_bd_pins eth_pcs_pma_3_rx/riu_addr]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_wr_data_out] [get_bd_pins eth_pcs_pma_3_rx/riu_wr_data]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_nibble_sel_out] [get_bd_pins eth_pcs_pma_3_rx/riu_nibble_sel]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_btval_1] [get_bd_pins eth_pcs_pma_3_rx/rx_btval]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bsc_en_vtc_out] [get_bd_pins eth_pcs_pma_3_rx/tx_bsc_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bsc_en_vtc_out] [get_bd_pins eth_pcs_pma_3_rx/rx_bsc_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bs_en_vtc_out] [get_bd_pins eth_pcs_pma_3_rx/tx_bs_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bs_en_vtc_out] [get_bd_pins eth_pcs_pma_3_rx/rx_bs_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/clk125_out] [get_bd_pins eth_pcs_pma_3_rx/clk125m]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/clk312_out] [get_bd_pins eth_pcs_pma_3_rx/clk312]
-
-# eth_pcs_pma_0_1 to eth_pcs_pma_3_tx
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bsc_rst_out] [get_bd_pins eth_pcs_pma_3_tx/tx_bsc_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bsc_rst_out] [get_bd_pins eth_pcs_pma_3_tx/rx_bsc_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bs_rst_out] [get_bd_pins eth_pcs_pma_3_tx/tx_bs_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bs_rst_out] [get_bd_pins eth_pcs_pma_3_tx/rx_bs_rst]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_rst_dly_out] [get_bd_pins eth_pcs_pma_3_tx/tx_rst_dly]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_rst_dly_out] [get_bd_pins eth_pcs_pma_3_tx/rx_rst_dly]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_clk_out] [get_bd_pins eth_pcs_pma_3_tx/riu_clk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_wr_en_out] [get_bd_pins eth_pcs_pma_3_tx/riu_wr_en]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_pll_clk_out] [get_bd_pins eth_pcs_pma_3_tx/tx_pll_clk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_pll_clk_out] [get_bd_pins eth_pcs_pma_3_tx/rx_pll_clk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_rdclk_out] [get_bd_pins eth_pcs_pma_3_tx/tx_rdclk]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_addr_out] [get_bd_pins eth_pcs_pma_3_tx/riu_addr]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_wr_data_out] [get_bd_pins eth_pcs_pma_3_tx/riu_wr_data]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/riu_nibble_sel_out] [get_bd_pins eth_pcs_pma_3_tx/riu_nibble_sel]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_btval_3] [get_bd_pins eth_pcs_pma_3_tx/rx_btval]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bsc_en_vtc_out] [get_bd_pins eth_pcs_pma_3_tx/tx_bsc_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bsc_en_vtc_out] [get_bd_pins eth_pcs_pma_3_tx/rx_bsc_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/tx_bs_en_vtc_out] [get_bd_pins eth_pcs_pma_3_tx/tx_bs_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rx_bs_en_vtc_out] [get_bd_pins eth_pcs_pma_3_tx/rx_bs_en_vtc]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/clk125_out] [get_bd_pins eth_pcs_pma_3_tx/clk125m]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/clk312_out] [get_bd_pins eth_pcs_pma_3_tx/clk312]
-
-# Shared logic connections
-connect_bd_net [get_bd_pins eth_pcs_pma_3_rx/riu_rd_data] [get_bd_pins eth_pcs_pma_0_1/riu_rddata_1]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_rx/riu_valid] [get_bd_pins eth_pcs_pma_0_1/riu_valid_1]
-connect_bd_net [get_bd_pins eth_pcs_pma_2/riu_rd_data] [get_bd_pins eth_pcs_pma_0_1/riu_rddata_2]
-connect_bd_net [get_bd_pins eth_pcs_pma_2/riu_valid] [get_bd_pins eth_pcs_pma_0_1/riu_valid_2]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_tx/riu_rd_data] [get_bd_pins eth_pcs_pma_0_1/riu_rddata_3]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_tx/riu_valid] [get_bd_pins eth_pcs_pma_0_1/riu_valid_3]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_rx/riu_prsnt] [get_bd_pins eth_pcs_pma_0_1/riu_prsnt_1]
-connect_bd_net [get_bd_pins eth_pcs_pma_2/riu_prsnt] [get_bd_pins eth_pcs_pma_0_1/riu_prsnt_2]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_tx/riu_prsnt] [get_bd_pins eth_pcs_pma_0_1/riu_prsnt_3]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_rx/tx_dly_rdy] [get_bd_pins eth_pcs_pma_0_1/tx_dly_rdy_1]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_rx/rx_dly_rdy] [get_bd_pins eth_pcs_pma_0_1/rx_dly_rdy_1]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_rx/tx_vtc_rdy] [get_bd_pins eth_pcs_pma_0_1/tx_vtc_rdy_1]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_rx/rx_vtc_rdy] [get_bd_pins eth_pcs_pma_0_1/rx_vtc_rdy_1]
-connect_bd_net [get_bd_pins eth_pcs_pma_2/tx_dly_rdy] [get_bd_pins eth_pcs_pma_0_1/tx_dly_rdy_2]
-connect_bd_net [get_bd_pins eth_pcs_pma_2/rx_dly_rdy] [get_bd_pins eth_pcs_pma_0_1/rx_dly_rdy_2]
-connect_bd_net [get_bd_pins eth_pcs_pma_2/tx_vtc_rdy] [get_bd_pins eth_pcs_pma_0_1/tx_vtc_rdy_2]
-connect_bd_net [get_bd_pins eth_pcs_pma_2/rx_vtc_rdy] [get_bd_pins eth_pcs_pma_0_1/rx_vtc_rdy_2]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_tx/tx_dly_rdy] [get_bd_pins eth_pcs_pma_0_1/tx_dly_rdy_3]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_tx/rx_dly_rdy] [get_bd_pins eth_pcs_pma_0_1/rx_dly_rdy_3]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_tx/tx_vtc_rdy] [get_bd_pins eth_pcs_pma_0_1/tx_vtc_rdy_3]
-connect_bd_net [get_bd_pins eth_pcs_pma_3_tx/rx_vtc_rdy] [get_bd_pins eth_pcs_pma_0_1/rx_vtc_rdy_3]
-
 # Resets
 create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic reset_invert
 set_property -dict [list CONFIG.C_SIZE {1} CONFIG.C_OPERATION {not} CONFIG.LOGO_FILE {data/sym_notgate.png}] [get_bd_cells reset_invert]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0] [get_bd_pins reset_invert/Op1]
 connect_bd_net [get_bd_pins reset_invert/Res] [get_bd_pins eth_pcs_pma_0_1/reset]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rst_125_out] [get_bd_pins eth_pcs_pma_2/reset]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rst_125_out] [get_bd_pins eth_pcs_pma_3_tx/reset]
-connect_bd_net [get_bd_pins eth_pcs_pma_0_1/rst_125_out] [get_bd_pins eth_pcs_pma_3_rx/reset]
+connect_bd_net [get_bd_pins reset_invert/Res] [get_bd_pins eth_pcs_pma_2/reset]
+connect_bd_net [get_bd_pins reset_invert/Res] [get_bd_pins eth_pcs_pma_3_rx/reset]
+connect_bd_net [get_bd_pins reset_invert/Res] [get_bd_pins eth_pcs_pma_3_tx/reset]
 
 # Constants for the PHY addresses
 # ------------------------------------------------
@@ -284,11 +192,6 @@ connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_2/ext_mdio_pcs_pma_0] [get_bd_
 connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_tx/ext_mdio_pcs_pma_0] [get_bd_intf_pins eth_pcs_pma_3_rx/mdio_pcs_pma_0]
 connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_rx/ext_mdio_pcs_pma_0] [get_bd_intf_ports mdio]
 
-# Create the ref clk 625MHz port
-create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 ref_clk_625mhz
-set_property CONFIG.FREQ_HZ [get_property CONFIG.FREQ_HZ [get_bd_intf_pins eth_pcs_pma_0_1/refclk625_in]] [get_bd_intf_ports ref_clk_625mhz]
-connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_0_1/refclk625_in] [get_bd_intf_ports ref_clk_625mhz]
-
 # Connect the GMII and MDIO interfaces from the PS
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/GMII_ENET0] [get_bd_intf_pins eth_pcs_pma_0_1/gmii_pcs_pma_0]
 connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/MDIO_ENET0] [get_bd_intf_pins eth_pcs_pma_0_1/mdio_pcs_pma_0]
@@ -316,6 +219,58 @@ connect_bd_net [get_bd_pins eth_pcs_pma_3_tx/gmii_txclk_0] [get_bd_pins zynq_ult
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_tx_en] [get_bd_pins eth_pcs_pma_3_tx/gmii_tx_en_0]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_tx_er] [get_bd_pins eth_pcs_pma_3_tx/gmii_tx_er_0]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_txd] [get_bd_pins eth_pcs_pma_3_tx/gmii_txd_0]
+
+# Create the ref clk 125MHz port
+create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 ref_clk_125mhz
+set_property CONFIG.FREQ_HZ 125000000 [get_bd_intf_ports /ref_clk_125mhz]
+
+# IBUFDS for 125MHz
+create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf util_ds_buf_0
+set_property -dict [list CONFIG.C_BUF_TYPE {IBUFDS}] [get_bd_cells util_ds_buf_0]
+connect_bd_intf_net [get_bd_intf_ports ref_clk_125mhz] [get_bd_intf_pins util_ds_buf_0/CLK_IN_D]
+
+# BUFGCE for 125MHz
+create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf util_ds_buf_1
+set_property -dict [list CONFIG.C_BUF_TYPE {BUFG}] [get_bd_cells util_ds_buf_1]
+connect_bd_net [get_bd_pins util_ds_buf_0/IBUF_OUT] [get_bd_pins util_ds_buf_1/BUFG_I]
+
+# Create clock wizard
+create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz clk_wiz_0
+set_property -dict [list CONFIG.PRIM_IN_FREQ.VALUE_SRC USER] [get_bd_cells clk_wiz_0]
+set_property -dict [list CONFIG.PRIM_SOURCE {No_buffer} \
+CONFIG.PRIM_IN_FREQ {125} \
+CONFIG.CLKOUT2_USED {true} \
+CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {125} \
+CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {312} \
+CONFIG.USE_RESET {false} \
+CONFIG.CLKIN1_JITTER_PS {80.0} \
+CONFIG.MMCM_DIVCLK_DIVIDE {1} \
+CONFIG.MMCM_CLKFBOUT_MULT_F {10.000} \
+CONFIG.MMCM_CLKIN1_PERIOD {8.000} \
+CONFIG.MMCM_CLKIN2_PERIOD {10.000} \
+CONFIG.MMCM_CLKOUT0_DIVIDE_F {10.000} \
+CONFIG.MMCM_CLKOUT1_DIVIDE {4} \
+CONFIG.NUM_OUT_CLKS {2} \
+CONFIG.CLKOUT1_JITTER {105.587} \
+CONFIG.CLKOUT1_PHASE_ERROR {83.589} \
+CONFIG.CLKOUT2_JITTER {89.090} \
+CONFIG.CLKOUT2_PHASE_ERROR {83.589}] [get_bd_cells clk_wiz_0]
+connect_bd_net [get_bd_pins util_ds_buf_1/BUFG_O] [get_bd_pins clk_wiz_0/clk_in1]
+
+# Clocks
+connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins eth_pcs_pma_0_1/clk125m]
+connect_bd_net [get_bd_pins clk_wiz_0/clk_out2] [get_bd_pins eth_pcs_pma_0_1/clk312]
+connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins eth_pcs_pma_2/clk125m]
+connect_bd_net [get_bd_pins clk_wiz_0/clk_out2] [get_bd_pins eth_pcs_pma_2/clk312]
+connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins eth_pcs_pma_3_tx/clk125m]
+connect_bd_net [get_bd_pins clk_wiz_0/clk_out2] [get_bd_pins eth_pcs_pma_3_tx/clk312]
+connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins eth_pcs_pma_3_rx/clk125m]
+connect_bd_net [get_bd_pins clk_wiz_0/clk_out2] [get_bd_pins eth_pcs_pma_3_rx/clk312]
+
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins eth_pcs_pma_0_1/riu_clk]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins eth_pcs_pma_2/riu_clk]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins eth_pcs_pma_3_tx/riu_clk]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins eth_pcs_pma_3_rx/riu_clk]
 
 # PHY RESET for all ports
 create_bd_port -dir O reset_port_0_n
