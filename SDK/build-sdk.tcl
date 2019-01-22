@@ -224,10 +224,6 @@ proc create_sdk_ws {} {
 
   # Add each Vivado project to SDK workspace
   foreach {vivado_folder} $vivado_proj_list {
-    # Only certain projects
-    if {[string compare $vivado_folder "ultra96_ae625"] != 0} {
-      continue
-    }
     # Create the application name
     set app_name "${vivado_folder}$app_postfix"
     # If the application has already been created, then skip

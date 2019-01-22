@@ -169,6 +169,35 @@
 #define IEEE_CTRL_ISOLATE_DISABLE               0xFBFF
 #endif
 
+/* TI DP83867 PHY Registers */
+#define DP83867_R32_RGMIICTL1					0x32
+#define DP83867_R86_RGMIIDCTL					0x86
+
+#define TI_PHY_REGCR			0xD
+#define TI_PHY_ADDDR			0xE
+#define TI_PHY_PHYCTRL			0x10
+#define TI_PHY_CFGR2			0x14
+#define TI_PHY_SGMIITYPE		0xD3
+#define TI_PHY_CFGR2_SGMII_AUTONEG_EN	0x0080
+#define TI_PHY_SGMIICLK_EN		0x4000
+#define TI_PHY_REGCR_DEVAD_EN		0x001F
+#define TI_PHY_REGCR_DEVAD_DATAEN	0x4000
+#define TI_PHY_CFGR2_MASK		0x003F
+#define TI_PHY_REGCFG4			0x31
+#define TI_PHY_REGCR_DATA		0x401F
+#define TI_PHY_CFG4RESVDBIT7		0x80
+#define TI_PHY_CFG4RESVDBIT8		0x100
+#define TI_PHY_CFG4_AUTONEG_TIMER	0x60
+
+#define TI_PHY_CFG2_SPEEDOPT_10EN          0x0040
+#define TI_PHY_CFG2_SGMII_AUTONEGEN        0x0080
+#define TI_PHY_CFG2_SPEEDOPT_ENH           0x0100
+#define TI_PHY_CFG2_SPEEDOPT_CNT           0x0800
+#define TI_PHY_CFG2_SPEEDOPT_INTLOW        0x2000
+
+#define TI_PHY_CR_SGMII_EN		0x0800
+
+
 u32_t phymapemac0[32];
 u32_t phymapemac1[32];
 
@@ -182,12 +211,35 @@ static u32_t configure_IEEE_phy_speed(XEmacPs *xemacpsp, u32_t phy_addr, u32_t s
 #endif
 
 #ifdef PCM_PMA_CORE_PRESENT
+
+unsigned enable_sgmii_clk (XEmacPs *xemacpsp, u32 phy_addr)
+{
+	xil_printf("Enabling SGMII clock output of port 3 PHY\r\n");
+
+	/* Enable SGMII Clock */
+	XEmacPs_PhyWrite(xemacpsp, phy_addr, TI_PHY_REGCR,
+			      TI_PHY_REGCR_DEVAD_EN);
+	XEmacPs_PhyWrite(xemacpsp, phy_addr, TI_PHY_ADDDR,
+			      TI_PHY_SGMIITYPE);
+	XEmacPs_PhyWrite(xemacpsp, phy_addr, TI_PHY_REGCR,
+			      TI_PHY_REGCR_DEVAD_EN | TI_PHY_REGCR_DEVAD_DATAEN);
+	XEmacPs_PhyWrite(xemacpsp, phy_addr, TI_PHY_ADDDR,
+			      TI_PHY_SGMIICLK_EN);
+
+	xil_printf("SGMII clock enabled\n\r");
+
+	return 0;
+
+}
+
+
 u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 {
 	u32_t link_speed;
 	u16_t regval;
 	u16_t phy_id;
 
+	/*
 	if(phy_addr == 0) {
 		for (phy_addr = 31; phy_addr > 0; phy_addr--) {
 			XEmacPs_PhyRead(xemacpsp, phy_addr, PHY_IDENTIFIER_1_REG,
@@ -197,7 +249,7 @@ u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 				XEmacPs_PhyRead(xemacpsp, phy_addr, PHY_IDENTIFIER_2_REG,
 						&phy_id);
 				if (phy_id == PHY_XILINX_PCS_PMA_ID2) {
-					/* Found a valid PHY address */
+					// Found a valid PHY address
 					LWIP_DEBUGF(NETIF_DEBUG, ("XEmacPs detect_phy: PHY detected at address %d.\r\n",
 							phy_addr));
 					break;
@@ -205,6 +257,12 @@ u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 			}
 		}
 	}
+	*/
+	phy_addr = 15;
+
+	enable_sgmii_clk(xemacpsp,phy_addr);
+
+	phy_addr = 2;
 
 	link_speed = get_IEEE_phy_speed(xemacpsp, phy_addr);
 	if (link_speed == 1000)

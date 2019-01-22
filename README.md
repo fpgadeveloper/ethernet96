@@ -18,4 +18,5 @@ These are the different projects in the repo at the moment.
 These projects have been tested on hardware so far:
 
 * ultra96_ae625: Port 0 has been tested on hardware with lwIP echo server
+* ultra96_qgige: Port 0 has been tested on hardware with lwIP echo server
 
