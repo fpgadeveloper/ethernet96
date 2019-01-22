@@ -157,6 +157,25 @@ CONFIG.RXCSUM {Full} \
 CONFIG.Frame_Filter {false} \
 CONFIG.axisclkrate {125}] [get_bd_cells axi_ethernet_3]
 
+# DMA configuration
+set_property -dict [list CONFIG.c_sg_length_width {16} \
+CONFIG.c_include_mm2s_dre {1} \
+CONFIG.c_sg_use_stsapp_length {1} \
+CONFIG.c_include_s2mm_dre {1}] [get_bd_cells axi_ethernet_0_dma]
+set_property -dict [list CONFIG.c_sg_length_width {16} \
+CONFIG.c_include_mm2s_dre {1} \
+CONFIG.c_sg_use_stsapp_length {1} \
+CONFIG.c_include_s2mm_dre {1}] [get_bd_cells axi_ethernet_1_dma]
+set_property -dict [list CONFIG.c_sg_length_width {16} \
+CONFIG.c_include_mm2s_dre {1} \
+CONFIG.c_sg_use_stsapp_length {1} \
+CONFIG.c_include_s2mm_dre {1}] [get_bd_cells axi_ethernet_2_dma]
+set_property -dict [list CONFIG.c_sg_length_width {16} \
+CONFIG.c_include_mm2s_dre {1} \
+CONFIG.c_sg_use_stsapp_length {1} \
+CONFIG.c_include_s2mm_dre {1}] [get_bd_cells axi_ethernet_3_dma]
+
+
 # Constant for the AXI Ethernet clk_en signal
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_clk_en
 set_property -dict [list CONFIG.CONST_WIDTH {1} CONFIG.CONST_VAL {0x01}] [get_bd_cells const_clk_en]
@@ -367,6 +386,13 @@ connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_0_1/ext_mdio_pcs_pma_1] [get_b
 connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_2/ext_mdio_pcs_pma_0] [get_bd_intf_pins eth_pcs_pma_3_tx/mdio_pcs_pma_0]
 connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_tx/ext_mdio_pcs_pma_0] [get_bd_intf_pins eth_pcs_pma_3_rx/mdio_pcs_pma_0]
 connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_rx/ext_mdio_pcs_pma_0] [get_bd_intf_ports mdio]
+
+# Connect the tri-state inputs for the MDIO bus
+connect_bd_net [get_bd_pins axi_ethernet_0/mdio_mdio_t] [get_bd_pins eth_pcs_pma_0_1/mdio_t_in_0]
+connect_bd_net [get_bd_pins eth_pcs_pma_0_1/ext_mdio_t_0] [get_bd_pins eth_pcs_pma_0_1/mdio_t_in_1]
+connect_bd_net [get_bd_pins eth_pcs_pma_0_1/ext_mdio_t_1] [get_bd_pins eth_pcs_pma_2/mdio_t_in_0]
+connect_bd_net [get_bd_pins eth_pcs_pma_2/ext_mdio_t_0] [get_bd_pins eth_pcs_pma_3_tx/mdio_t_in_0]
+connect_bd_net [get_bd_pins eth_pcs_pma_3_tx/ext_mdio_t_0] [get_bd_pins eth_pcs_pma_3_rx/mdio_t_in_0]
 
 # Create the ref clk 625MHz port
 create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 ref_clk_625mhz

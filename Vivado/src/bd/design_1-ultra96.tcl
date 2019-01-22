@@ -284,6 +284,13 @@ connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_2/ext_mdio_pcs_pma_0] [get_bd_
 connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_tx/ext_mdio_pcs_pma_0] [get_bd_intf_pins eth_pcs_pma_3_rx/mdio_pcs_pma_0]
 connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_rx/ext_mdio_pcs_pma_0] [get_bd_intf_ports mdio]
 
+# Connect the tri-state inputs for the MDIO bus
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet0_mdio_t] [get_bd_pins eth_pcs_pma_0_1/mdio_t_in_0]
+connect_bd_net [get_bd_pins eth_pcs_pma_0_1/ext_mdio_t_0] [get_bd_pins eth_pcs_pma_0_1/mdio_t_in_1]
+connect_bd_net [get_bd_pins eth_pcs_pma_0_1/ext_mdio_t_1] [get_bd_pins eth_pcs_pma_2/mdio_t_in_0]
+connect_bd_net [get_bd_pins eth_pcs_pma_2/ext_mdio_t_0] [get_bd_pins eth_pcs_pma_3_tx/mdio_t_in_0]
+connect_bd_net [get_bd_pins eth_pcs_pma_3_tx/ext_mdio_t_0] [get_bd_pins eth_pcs_pma_3_rx/mdio_t_in_0]
+
 # Create the ref clk 625MHz port
 create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 ref_clk_625mhz
 set_property CONFIG.FREQ_HZ [get_property CONFIG.FREQ_HZ [get_bd_intf_pins eth_pcs_pma_0_1/refclk625_in]] [get_bd_intf_ports ref_clk_625mhz]
