@@ -118,6 +118,18 @@
 #include "xil_smc.h"
 #endif
 
+/* 96B Quad Ethernet Mezzanine PHY addresses */
+#define XPAR_GIGE_PCS_PMA_SGMII_CORE_PRESENT 1U
+#define PORT0_SGMII_PHYADDR 2
+#define PORT0_EXT_PHY_ADDR 1
+#define PORT1_SGMII_PHYADDR 4
+#define PORT1_EXT_PHY_ADDR 3
+#define PORT2_SGMII_PHYADDR 13
+#define PORT2_EXT_PHY_ADDR 12
+#define PORT3_SGMII_RX_PHYADDR 16
+#define PORT3_SGMII_TX_PHYADDR 17
+#define PORT3_EXT_PHY_ADDR 15
+
 #define PHY_DETECT_REG  						1
 #define PHY_IDENTIFIER_1_REG					2
 #define PHY_IDENTIFIER_2_REG					3
@@ -212,6 +224,26 @@ static u32_t configure_IEEE_phy_speed(XEmacPs *xemacpsp, u32_t phy_addr, u32_t s
 
 #ifdef PCM_PMA_CORE_PRESENT
 
+XEmacPs xemac_p0;
+XEmacPs_Config *mac_config_p0;
+
+unsigned init_xemac_p0()
+{
+	s32_t status = XST_SUCCESS;
+	/* obtain config of this emac */
+	mac_config_p0 = (XEmacPs_Config *)xemacps_lookup_config((unsigned)XPAR_XEMACPS_0_BASEADDR);
+
+	status = XEmacPs_CfgInitialize(&xemac_p0, mac_config_p0,
+						mac_config_p0->BaseAddress);
+	if (status != XST_SUCCESS) {
+		xil_printf("In %s:EmacPs Configuration Failed....\r\n", __func__);
+	}
+
+	XEmacPs_SetMdioDivisor(&xemac_p0, MDC_DIV_224);
+
+	return 0;
+}
+
 unsigned enable_sgmii_clk (XEmacPs *xemacpsp, u32 phy_addr)
 {
 	xil_printf("Enabling SGMII clock output of port 3 PHY\r\n");
@@ -236,35 +268,48 @@ unsigned enable_sgmii_clk (XEmacPs *xemacpsp, u32 phy_addr)
 u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 {
 	u32_t link_speed;
-	u16_t regval;
-	u16_t phy_id;
+	XEmacPs *xemacpsp_gem0;
+	u32 sgmii_phy_addr;
+	u32 sgmii_p3_rx_phy_addr;
+	u32 sgmii_p3_tx_phy_addr;
+	u32 ext_phy_addr;
 
-	/*
-	if(phy_addr == 0) {
-		for (phy_addr = 31; phy_addr > 0; phy_addr--) {
-			XEmacPs_PhyRead(xemacpsp, phy_addr, PHY_IDENTIFIER_1_REG,
-					&phy_id);
-
-			if (phy_id == PHY_XILINX_PCS_PMA_ID1) {
-				XEmacPs_PhyRead(xemacpsp, phy_addr, PHY_IDENTIFIER_2_REG,
-						&phy_id);
-				if (phy_id == PHY_XILINX_PCS_PMA_ID2) {
-					// Found a valid PHY address
-					LWIP_DEBUGF(NETIF_DEBUG, ("XEmacPs detect_phy: PHY detected at address %d.\r\n",
-							phy_addr));
-					break;
-				}
-			}
-		}
+	// If the enabled port is not port 0, then we need to initialize
+	// GEM0 so that we can use it's MDIO interface
+	if(xemacpsp->Config.BaseAddress != XPAR_XEMACPS_0_BASEADDR){
+		// Initialize GEM0 which is used for the MDIO interface
+		init_xemac_p0();
+		xemacpsp_gem0 = &xemac_p0;
 	}
-	*/
-	phy_addr = 15;
+	// If the enabled port is port 0, then GEM0 is already initialized
+	else {
+		xemacpsp_gem0 = xemacpsp;
+	}
 
-	enable_sgmii_clk(xemacpsp,phy_addr);
+	// Determine the correct PHY addresses for the enabled port
+	if(xemacpsp->Config.BaseAddress == XPAR_XEMACPS_0_BASEADDR){
+		sgmii_phy_addr = PORT0_SGMII_PHYADDR;
+		ext_phy_addr = PORT0_EXT_PHY_ADDR;
+	}
+	else if(xemacpsp->Config.BaseAddress == XPAR_XEMACPS_1_BASEADDR){
+		sgmii_phy_addr = PORT1_SGMII_PHYADDR;
+		ext_phy_addr = PORT1_EXT_PHY_ADDR;
+	}
+	else if(xemacpsp->Config.BaseAddress == XPAR_XEMACPS_2_BASEADDR){
+		sgmii_phy_addr = PORT2_SGMII_PHYADDR;
+		ext_phy_addr = PORT2_EXT_PHY_ADDR;
+	}
+	else if(xemacpsp->Config.BaseAddress == XPAR_XEMACPS_3_BASEADDR){
+		// TODO: Need to deal with this case properly
+		ext_phy_addr = PORT3_EXT_PHY_ADDR;
+		sgmii_p3_rx_phy_addr = PORT3_SGMII_RX_PHYADDR;
+		sgmii_p3_tx_phy_addr = PORT3_SGMII_TX_PHYADDR;
+	}
 
-	phy_addr = 2;
+	// Enable the 625MHz clock from port 3's PHY
+	enable_sgmii_clk(xemacpsp_gem0,PORT3_EXT_PHY_ADDR);
 
-	link_speed = get_IEEE_phy_speed(xemacpsp, phy_addr);
+	link_speed = get_IEEE_phy_speed(xemacpsp_gem0, sgmii_phy_addr);
 	if (link_speed == 1000)
 		SetUpSLCRDivisors(xemacpsp->Config.BaseAddress,1000);
 	else if (link_speed == 100)
@@ -272,7 +317,7 @@ u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 	else
 		SetUpSLCRDivisors(xemacpsp->Config.BaseAddress,10);
 
-	xil_printf("link speed for phy address %d: %d\r\n", phy_addr, link_speed);
+	xil_printf("link speed for phy address %d: %d\r\n", sgmii_phy_addr, link_speed);
 	return link_speed;
 }
 
