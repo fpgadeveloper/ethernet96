@@ -43,7 +43,15 @@ Selection of the Ethernet port can be changed by modifying the defines contained
 `platform_config.h` file in the application sources. Set `PLATFORM_EMAC_BASEADDR`
 to one of the following values:
 
-* Ethernet FMC Port 0: `XPAR_AXIETHERNET_0_BASEADDR`
-* Ethernet FMC Port 1: `XPAR_AXIETHERNET_1_BASEADDR`
-* Ethernet FMC Port 2: `XPAR_AXIETHERNET_2_BASEADDR`
-* Ethernet FMC Port 3: `XPAR_AXIETHERNET_3_BASEADDR`
+For designs using the GEMs:
+* Port 0: `XPAR_XEMACPS_0_BASEADDR`
+* Port 1: `XPAR_XEMACPS_1_BASEADDR`
+* Port 2: `XPAR_XEMACPS_2_BASEADDR`
+* Port 3: `XPAR_XEMACPS_3_BASEADDR`
+
+For designs using AXI Ethernet:
+* Port 0: `XPAR_AXIETHERNET_0_BASEADDR`
+* Port 1: `XPAR_AXIETHERNET_1_BASEADDR`
+* Port 2: `XPAR_AXIETHERNET_2_BASEADDR`
+* Port 3: `XPAR_AXIETHERNET_2_BASEADDR`
+
