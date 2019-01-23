@@ -119,7 +119,6 @@
 #endif
 
 /* 96B Quad Ethernet Mezzanine PHY addresses */
-#define XPAR_GIGE_PCS_PMA_SGMII_CORE_PRESENT 1U
 #define PORT0_SGMII_PHYADDR 2
 #define PORT0_EXT_PHY_ADDR 1
 #define PORT1_SGMII_PHYADDR 4
@@ -129,6 +128,10 @@
 #define PORT3_SGMII_RX_PHYADDR 16
 #define PORT3_SGMII_TX_PHYADDR 17
 #define PORT3_EXT_PHY_ADDR 15
+
+/* Control register masks for PCS/PMA SGMII core */
+#define IEEE_CTRL_ISOLATE_MASK                   0x0400
+#define IEEE_CTRL_UNIDIRECTIONAL_MASK            0x0020
 
 #define PHY_DETECT_REG  						1
 #define PHY_IDENTIFIER_1_REG					2
@@ -215,6 +218,7 @@ u32_t phymapemac1[32];
 
 #if defined (PCM_PMA_CORE_PRESENT) || defined (CONFIG_LINKSPEED_AUTODETECT)
 static u32_t get_IEEE_phy_speed(XEmacPs *xemacpsp, u32_t phy_addr);
+static u32_t configure_IEEE_phy_speed_port3(XEmacPs *xemacpsp, u32_t ext_phy_addr, u32_t rx_phy_addr, u32_t tx_phy_addr, u32_t speed);
 #endif
 static void SetUpSLCRDivisors(u32_t mac_baseaddr, s32_t speed);
 #if defined (CONFIG_LINKSPEED1000) || defined (CONFIG_LINKSPEED100) \
@@ -269,10 +273,11 @@ u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 {
 	u32_t link_speed;
 	XEmacPs *xemacpsp_gem0;
-	u32 sgmii_phy_addr;
+	u32 sgmii_phy_addr = 0;
 	u32 sgmii_p3_rx_phy_addr;
 	u32 sgmii_p3_tx_phy_addr;
 	u32 ext_phy_addr;
+	u32 port_num;
 
 	// If the enabled port is not port 0, then we need to initialize
 	// GEM0 so that we can use it's MDIO interface
@@ -290,34 +295,49 @@ u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 	if(xemacpsp->Config.BaseAddress == XPAR_XEMACPS_0_BASEADDR){
 		sgmii_phy_addr = PORT0_SGMII_PHYADDR;
 		ext_phy_addr = PORT0_EXT_PHY_ADDR;
+		port_num = 0;
 	}
 	else if(xemacpsp->Config.BaseAddress == XPAR_XEMACPS_1_BASEADDR){
 		sgmii_phy_addr = PORT1_SGMII_PHYADDR;
 		ext_phy_addr = PORT1_EXT_PHY_ADDR;
+		port_num = 1;
 	}
 	else if(xemacpsp->Config.BaseAddress == XPAR_XEMACPS_2_BASEADDR){
 		sgmii_phy_addr = PORT2_SGMII_PHYADDR;
 		ext_phy_addr = PORT2_EXT_PHY_ADDR;
+		port_num = 2;
 	}
 	else if(xemacpsp->Config.BaseAddress == XPAR_XEMACPS_3_BASEADDR){
 		// TODO: Need to deal with this case properly
 		ext_phy_addr = PORT3_EXT_PHY_ADDR;
 		sgmii_p3_rx_phy_addr = PORT3_SGMII_RX_PHYADDR;
 		sgmii_p3_tx_phy_addr = PORT3_SGMII_TX_PHYADDR;
+		port_num = 3;
 	}
+
+	xil_printf("Enabled port: %d, Ext PHY addr: %d\r\n", port_num, ext_phy_addr);
 
 	// Enable the 625MHz clock from port 3's PHY
 	enable_sgmii_clk(xemacpsp_gem0,PORT3_EXT_PHY_ADDR);
 
-	link_speed = get_IEEE_phy_speed(xemacpsp_gem0, sgmii_phy_addr);
-	if (link_speed == 1000)
+	// If port 3 is enabled, then we will manually configure it to 1Gbps
+	if(port_num == 3){
 		SetUpSLCRDivisors(xemacpsp->Config.BaseAddress,1000);
-	else if (link_speed == 100)
-		SetUpSLCRDivisors(xemacpsp->Config.BaseAddress,100);
-	else
-		SetUpSLCRDivisors(xemacpsp->Config.BaseAddress,10);
+		link_speed = 1000;
+		configure_IEEE_phy_speed_port3(xemacpsp_gem0, ext_phy_addr, sgmii_p3_rx_phy_addr, sgmii_p3_tx_phy_addr, link_speed);
+	}
+	// For ports 0-2 we will let the link auto-negotiate a speed
+	else{
+		link_speed = get_IEEE_phy_speed(xemacpsp_gem0, sgmii_phy_addr);
+		if (link_speed == 1000)
+			SetUpSLCRDivisors(xemacpsp->Config.BaseAddress,1000);
+		else if (link_speed == 100)
+			SetUpSLCRDivisors(xemacpsp->Config.BaseAddress,100);
+		else
+			SetUpSLCRDivisors(xemacpsp->Config.BaseAddress,10);
+	}
 
-	xil_printf("link speed for phy address %d: %d\r\n", sgmii_phy_addr, link_speed);
+	xil_printf("Link speed: %d\r\n", link_speed);
 	return link_speed;
 }
 
@@ -380,6 +400,142 @@ static u32_t get_IEEE_phy_speed(XEmacPs *xemacpsp, u32_t phy_addr)
 	}
 #endif
 
+}
+
+static u32_t configure_IEEE_phy_speed_port3(XEmacPs *xemacpsp, u32_t ext_phy_addr, u32_t rx_phy_addr, u32_t tx_phy_addr, u32_t speed)
+{
+	u16_t control;
+	u16_t autonereg;
+
+	/*
+	 * Port 3 configuration
+	 * --------------------
+	 *
+	 * The PCS/PMA SGMII core requires that the RX and TX lanes of a single
+	 * SGMII interface be connected to the same byte group of a bank, with the
+	 * TX lane placed in the upper or lower nibble, and the RX lane placed in
+	 * the other nibble.
+	 *
+	 * Due to the limitations imposed by the pin assignment of the high-speed
+	 * expansion port of the Ultra96, port 3 of the 96B Ethernet Mezzanine is
+	 * connected through two different byte groups of bank 65. For this reason,
+	 * we have to use two different PCS/PMA SGMII cores, one for the RX lane
+	 * and another for the TX lane. This separation means that it is not
+	 * possible for the core to perform auto-negotiation of the SGMII link.
+	 * The only way for the port 3 SGMII link to function is if we manually
+	 * configure both PCS/PMA SGMII cores with a predetermined link speed. To
+	 * do this we must make the following configurations:
+	 *
+	 * - Disable SGMII autonegotiation in the external PHY (address 15)
+	 *   (SGMII speed mode will be forced to the MDI resolved speed)
+	 * - Disable autonegotiation in the PCS/PMA SGMII cores (addresses 16,17)
+	 * - Set the link speed to 1Gbps in the PCS/PMA SGMII cores
+	 * - Enable the unidirectional mask in the PCS/PMA SGMII cores
+	 *   (this allows the core to transmit even though a valid link has not
+	 *   been achieved)
+	 *
+	 *
+	 * */
+
+	// Disable SGMII autonegotiation in the external PHY (address 15)
+	XEmacPs_PhyRead(xemacpsp, ext_phy_addr, TI_PHY_CFGR2, &control);
+	control &= ~TI_PHY_CFG2_SGMII_AUTONEGEN;
+	XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, TI_PHY_CFGR2, control);
+
+	// Disable autonegotiation in the PCS/PMA SGMII cores (addresses 16,17)
+	control &= (~IEEE_CTRL_AUTONEGOTIATE_ENABLE);
+	control |= IEEE_CTRL_LINKSPEED_1000M;
+	control &= (~IEEE_CTRL_ISOLATE_MASK);
+	control |= IEEE_CTRL_UNIDIRECTIONAL_MASK;
+
+	XEmacPs_PhyWrite(xemacpsp,rx_phy_addr,IEEE_CONTROL_REG_OFFSET,control);
+	XEmacPs_PhyWrite(xemacpsp,tx_phy_addr,IEEE_CONTROL_REG_OFFSET,control);
+
+	/*
+
+	XEmacPs_PhyWrite(xemacpsp,ext_phy_addr, IEEE_PAGE_ADDRESS_REGISTER, 2);
+	XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_CONTROL_REG_MAC, &control);
+	control |= IEEE_RGMII_TXRX_CLOCK_DELAYED_MASK;
+	XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_CONTROL_REG_MAC, control);
+
+	XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_PAGE_ADDRESS_REGISTER, 0);
+
+	XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, &autonereg);
+	autonereg |= IEEE_ASYMMETRIC_PAUSE_MASK;
+	autonereg |= IEEE_PAUSE_MASK;
+	XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, autonereg);
+
+	XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_CONTROL_REG_OFFSET, &control);
+	control &= ~IEEE_CTRL_LINKSPEED_1000M;
+	control &= ~IEEE_CTRL_LINKSPEED_100M;
+	control &= ~IEEE_CTRL_LINKSPEED_10M;
+
+	if (speed == 1000) {
+		control |= IEEE_CTRL_LINKSPEED_1000M;
+
+		// Dont advertise PHY speed of 100 Mbps
+		XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, &autonereg);
+		autonereg &= (~ADVERTISE_100);
+		XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, autonereg);
+
+		// Dont advertise PHY speed of 10 Mbps
+		XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, &autonereg);
+		autonereg &= (~ADVERTISE_10);
+		XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, autonereg);
+
+		// Advertise PHY speed of 1000 Mbps
+		XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_1000_ADVERTISE_REG_OFFSET, &autonereg);
+		autonereg |= ADVERTISE_1000;
+		XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_1000_ADVERTISE_REG_OFFSET, autonereg);
+	}
+
+	else if (speed == 100) {
+		control |= IEEE_CTRL_LINKSPEED_100M;
+
+		// Dont advertise PHY speed of 1000 Mbps
+		XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_1000_ADVERTISE_REG_OFFSET, &autonereg);
+		autonereg &= (~ADVERTISE_1000);
+		XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_1000_ADVERTISE_REG_OFFSET, autonereg);
+
+		// Dont advertise PHY speed of 10 Mbps
+		XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, &autonereg);
+		autonereg &= (~ADVERTISE_10);
+		XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, autonereg);
+
+		// Advertise PHY speed of 100 Mbps
+		XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, &autonereg);
+		autonereg |= ADVERTISE_100;
+		XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, autonereg);
+	}
+
+	else if (speed == 10) {
+		control |= IEEE_CTRL_LINKSPEED_10M;
+
+		// Dont advertise PHY speed of 1000 Mbps
+		XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_1000_ADVERTISE_REG_OFFSET, &autonereg);
+		autonereg &= (~ADVERTISE_1000);
+		XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_1000_ADVERTISE_REG_OFFSET, autonereg);
+
+		// Dont advertise PHY speed of 100 Mbps
+		XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, &autonereg);
+		autonereg &= (~ADVERTISE_100);
+		XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, autonereg);
+
+		// Advertise PHY speed of 10 Mbps
+		XEmacPs_PhyRead(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, &autonereg);
+		autonereg |= ADVERTISE_10;
+		XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_AUTONEGO_ADVERTISE_REG, autonereg);
+	}
+
+	XEmacPs_PhyWrite(xemacpsp, ext_phy_addr, IEEE_CONTROL_REG_OFFSET,
+											control | IEEE_CTRL_RESET_MASK);
+	{
+		volatile s32_t wait;
+		for (wait=0; wait < 100000; wait++);
+	}
+
+	*/
+	return 0;
 }
 
 #else /*PCM_PMA_CORE_PRESENT not defined, GMII/RGMII case*/
