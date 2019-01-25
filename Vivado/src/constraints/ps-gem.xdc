@@ -118,15 +118,15 @@ set_property INTERNAL_VREF 0.60 [get_iobanks 65]
 #set_property PACKAGE_PIN A2   [get_ports {HSIC_STR                }];  # "A2.HSIC_STR"
 
 ## Bank 26 (1.8V)
-set_property PACKAGE_PIN E8   [get_ports {ref_clk_125mhz_clk_p}];  # "E8.CSI0_MCLK"
-set_property IOSTANDARD DIFF_SSTL18_I [get_ports {ref_clk_125mhz_clk_p}];
-set_property ODT RTT_48 [get_ports {ref_clk_125mhz_clk_p}];
-set_property PACKAGE_PIN D8   [get_ports {ref_clk_125mhz_clk_n}];  # "D8.CSI1_MCLK"
-set_property IOSTANDARD DIFF_SSTL18_I [get_ports {ref_clk_125mhz_clk_n}];
-set_property ODT RTT_48 [get_ports {ref_clk_125mhz_clk_n}];
+#set_property PACKAGE_PIN E8   [get_ports {ref_clk_125mhz_clk_p}];  # "E8.CSI0_MCLK"
+#set_property IOSTANDARD DIFF_SSTL18_I [get_ports {ref_clk_125mhz_clk_p}];
+#set_property ODT RTT_48 [get_ports {ref_clk_125mhz_clk_p}];
+#set_property PACKAGE_PIN D8   [get_ports {ref_clk_125mhz_clk_n}];  # "D8.CSI1_MCLK"
+#set_property IOSTANDARD DIFF_SSTL18_I [get_ports {ref_clk_125mhz_clk_n}];
+#set_property ODT RTT_48 [get_ports {ref_clk_125mhz_clk_n}];
 
 # Set VREF to VCC/2 = 0.9V to enable the ref_clk input
-set_property INTERNAL_VREF 0.90 [get_iobanks 26]
+#set_property INTERNAL_VREF 0.90 [get_iobanks 26]
 
 # ----------------------------------------------------------------------------
 # Low-speed expansion connector
@@ -167,7 +167,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports {mdio_mdc}];
 
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets *_i/eth_pcs_pma_0_1/inst/clock_reset_i/iclkbuf/O]
 
-set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets *_i/util_ds_buf_1/U0/BUFG_O[0]]
+#set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets *_i/util_ds_buf_1/U0/BUFG_O[0]]
 
 # DQS_BIAS is to be set to TRUE if internal DC biasing is used - this is recommended. 
 # If the signal is biased externally on the board, should be set to FALSE

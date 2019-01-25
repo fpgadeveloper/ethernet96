@@ -1,7 +1,7 @@
 SET vivado=C:\Xilinx\Vivado\2018.2\bin\vivado.bat
 @ECHO OFF
 if exist %vivado% (
-  %vivado% -mode batch -source build-ultra96-ae625.tcl
+  %vivado% -mode batch -source build-axi-eth.tcl
 ) else (
   ECHO.
   ECHO ###############################

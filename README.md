@@ -9,7 +9,7 @@ of this repository. Refer to the [list of commits](https://github.com/fpgadevelo
 to find links to the older versions of this repository.
 
 * Vivado 2018.2
-* 96B Quad Ethernet Mezzanine](expected availability: April 2019)
+* 96B Quad Ethernet Mezzanine (expected availability: April 2019)
 * [Ultra96](http://zedboard.org/product/ultra96 "Ultra96")
 * For designs containing AXI Ethernet Subsystem IP: [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
 
@@ -22,11 +22,15 @@ Avnet [Ultra96](http://zedboard.org/product/ultra96 "Ultra96").
 
 These are the different projects in the repo at the moment.
 
-* ultra96_ae625
-  * Uses AXI Ethernet + SGMII core, 625MHz clock from port 3 PHY, shared logic in SGMII core for port 3 RX
+* AXI Ethernet (axi-eth):
+  * Uses soft AXI Ethernet IP to implement the MAC
+  * Uses PCS/PMA or SGMII IP to implement the SGMII over LVDS links
+  * Uses 625MHz clock from port 3 PHY, shared logic in SGMII core for port 3 RX
   * Port 0 has been tested on hardware with lwIP echo server
-* ultra96_qgige
-  * Uses PS GEMs + SGMII core, 625MHz clock from port 3 PHY, shared logic in SGMII core for ports 0 and 1
+* PS GEM (ps-gem):
+  * Uses PS integrated Gigabit Ethernet MACs (GEM)
+  * Uses PCS/PMA or SGMII IP to implement the SGMII over LVDS links
+  * Uses 625MHz clock from port 3 PHY, shared logic in SGMII core for ports 0 and 1
   * All 4 ports have been tested on hardware with lwIP echo server
 
 ## Build instructions

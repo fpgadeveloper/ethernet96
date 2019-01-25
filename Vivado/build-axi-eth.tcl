@@ -1,5 +1,5 @@
 #
-# build.tcl: Tcl script for re-creating project 'ultra96_ae625'
+# build.tcl: Tcl script for re-creating project 'axi_eth'
 #
 #*****************************************************************************************
 
@@ -17,7 +17,7 @@ if {![string equal $ver $version_required]} {
   return
 }
 
-set design_name ultra96_ae625
+set design_name axi_eth
 
 # Set the reference directory for source file relative paths (by default the value is script directory path)
 set origin_dir "."
@@ -58,16 +58,16 @@ if {[string equal [get_filesets -quiet constrs_1] ""]} {
 set obj [get_filesets constrs_1]
 
 # Add/Import constrs file and set constrs file properties
-set file "[file normalize "$origin_dir/src/constraints/ultra96-ae625.xdc"]"
+set file "[file normalize "$origin_dir/src/constraints/axi-eth.xdc"]"
 set file_added [add_files -norecurse -fileset $obj $file]
-set file "$origin_dir/src/constraints/ultra96-ae625.xdc"
+set file "$origin_dir/src/constraints/axi-eth.xdc"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
 set_property "file_type" "XDC" $file_obj
 
 # Set 'constrs_1' fileset properties
 set obj [get_filesets constrs_1]
-set_property "target_constrs_file" "[file normalize "$origin_dir/src/constraints/ultra96-ae625.xdc"]" $obj
+set_property "target_constrs_file" "[file normalize "$origin_dir/src/constraints/axi-eth.xdc"]" $obj
 
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {
@@ -114,7 +114,7 @@ puts "INFO: Project created:${design_name}"
 set num_gems 4
 
 # Create block design
-source $origin_dir/src/bd/design_1-ultra96-ae625.tcl
+source $origin_dir/src/bd/design_1-axi-eth.tcl
 
 # Generate the wrapper
 make_wrapper -files [get_files *${design_name}.bd] -top
