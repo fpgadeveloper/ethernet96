@@ -62,7 +62,8 @@ CONFIG.PSU__ENET3__PERIPHERAL__IO {EMIO} \
 CONFIG.PSU__ENET3__GRP_MDIO__ENABLE {0} \
 CONFIG.PSU__ENET3__GRP_MDIO__IO {EMIO} \
 CONFIG.PSU__GPIO_EMIO__PERIPHERAL__ENABLE {1} \
-CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {8}] [get_bd_cells zynq_ultra_ps_e_0]
+CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {8} \
+CONFIG.PSU__NUM_FABRIC_RESETS {2}] [get_bd_cells zynq_ultra_ps_e_0]
 
 # Add the SGMII cores
 create_bd_cell -type ip -vlnv xilinx.com:ip:gig_ethernet_pcs_pma eth_pcs_pma_0_1
@@ -326,13 +327,13 @@ connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_txd] [get_bd_pins 
 
 # PHY RESET for all ports
 create_bd_port -dir O reset_port_0_n
-connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn0] [get_bd_ports reset_port_0_n]
+connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn1] [get_bd_ports reset_port_0_n]
 create_bd_port -dir O reset_port_1_n
-connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn0] [get_bd_ports reset_port_1_n]
+connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn1] [get_bd_ports reset_port_1_n]
 create_bd_port -dir O reset_port_2_n
-connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn0] [get_bd_ports reset_port_2_n]
+connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn1] [get_bd_ports reset_port_2_n]
 create_bd_port -dir O reset_port_3_n
-connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn0] [get_bd_ports reset_port_3_n]
+connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn1] [get_bd_ports reset_port_3_n]
 
 # Create port for the PHY GPIOs
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 phy_gpio

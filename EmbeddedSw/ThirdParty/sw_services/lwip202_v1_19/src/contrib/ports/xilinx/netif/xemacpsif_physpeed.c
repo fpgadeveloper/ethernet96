@@ -212,6 +212,11 @@
 
 #define TI_PHY_CR_SGMII_EN		0x0800
 
+// PL Resets driven via PS GPIO bank 5
+#define GPIO_DATA_BANK_5     0XFF0A0054
+#define GPIO_PL_RESETN0_MASK 0x80000000
+#define GPIO_PL_RESETN1_MASK 0x40000000
+
 
 u32_t phymapemac0[32];
 u32_t phymapemac1[32];
@@ -248,11 +253,38 @@ unsigned init_xemac_p0()
 	return 0;
 }
 
+unsigned pl_reset_assert(u32 mask)
+{
+	u32_t pl_reset_reg = 0;
+	pl_reset_reg = *(volatile u32_t *)(GPIO_DATA_BANK_5);
+	pl_reset_reg &= ~(mask);
+	*(volatile u32_t *)(GPIO_DATA_BANK_5) = pl_reset_reg;
+	return 0;
+}
+
+unsigned pl_reset_deassert(u32 mask)
+{
+	u32_t pl_reset_reg = 0;
+	pl_reset_reg = *(volatile u32_t *)(GPIO_DATA_BANK_5);
+	pl_reset_reg |= mask;
+	*(volatile u32_t *)(GPIO_DATA_BANK_5) = pl_reset_reg;
+	return 0;
+}
+
 unsigned enable_sgmii_clk (XEmacPs *xemacpsp, u32 phy_addr)
 {
-	xil_printf("Enabling SGMII clock output of port 3 PHY\r\n");
+	u16 control;
 
-	/* Enable SGMII Clock */
+	xil_printf("Enabling SGMII clock output of port 3 PHY @ addr %d\r\n",phy_addr);
+
+	// Make sure that we can read from the external PHY
+	XEmacPs_PhyRead(xemacpsp, phy_addr, PHY_IDENTIFIER_1_REG, &control);
+	if(control != PHY_TI_IDENTIFIER) {
+		xil_printf("External PHY returned ID 0x%04X. Failed to enable SGMII clock.\r\n",control);
+		return(1);
+	}
+
+	// Enable SGMII Clock
 	XEmacPs_PhyWrite(xemacpsp, phy_addr, TI_PHY_REGCR,
 			      TI_PHY_REGCR_DEVAD_EN);
 	XEmacPs_PhyWrite(xemacpsp, phy_addr, TI_PHY_ADDDR,
@@ -261,6 +293,20 @@ unsigned enable_sgmii_clk (XEmacPs *xemacpsp, u32 phy_addr)
 			      TI_PHY_REGCR_DEVAD_EN | TI_PHY_REGCR_DEVAD_DATAEN);
 	XEmacPs_PhyWrite(xemacpsp, phy_addr, TI_PHY_ADDDR,
 			      TI_PHY_SGMIICLK_EN);
+
+	// Verify the register
+	XEmacPs_PhyWrite(xemacpsp, phy_addr, TI_PHY_REGCR,
+					  TI_PHY_REGCR_DEVAD_EN);
+	XEmacPs_PhyWrite(xemacpsp, phy_addr, TI_PHY_ADDDR,
+					  TI_PHY_SGMIITYPE);
+	XEmacPs_PhyWrite(xemacpsp, phy_addr, TI_PHY_REGCR,
+					  TI_PHY_REGCR_DEVAD_EN | TI_PHY_REGCR_DEVAD_DATAEN);
+	XEmacPs_PhyRead(xemacpsp, phy_addr, TI_PHY_ADDDR, &control);
+
+	if((control & TI_PHY_SGMIICLK_EN) == 0){
+		xil_printf("Failed to enable SGMII clock (0x%04X)\n\r",control);
+		return(1);
+	}
 
 	xil_printf("SGMII clock enabled\n\r");
 
@@ -278,6 +324,12 @@ u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 	u32 sgmii_p3_tx_phy_addr;
 	u32 ext_phy_addr;
 	u32 port_num;
+
+	// Hardware Reset the external PHYs
+	pl_reset_assert(GPIO_PL_RESETN1_MASK);
+	sleep(1);
+	pl_reset_deassert(GPIO_PL_RESETN1_MASK);
+	sleep(1);
 
 	// If the enabled port is not port 0, then we need to initialize
 	// GEM0 so that we can use it's MDIO interface
