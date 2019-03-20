@@ -132,8 +132,8 @@ set_property INTERNAL_VREF 0.60 [get_iobanks 65]
 # Low-speed expansion connector
 # ---------------------------------------------------------------------------- 
 # Bank 23 (1.8V)
-#set_property PACKAGE_PIN D7   [get_ports {HD_GPIO_0}];  # "D7.HD_GPIO_0"
-#set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_0}];
+set_property PACKAGE_PIN D7   [get_ports {clk125_test}];  # "D7.HD_GPIO_0"
+set_property IOSTANDARD LVCMOS18 [get_ports {clk125_test}];
 #set_property PACKAGE_PIN F8   [get_ports {HD_GPIO_1}];  # "F8.HD_GPIO_1"
 #set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_1}];
 #set_property PACKAGE_PIN F7   [get_ports {HD_GPIO_2}];  # "F7.HD_GPIO_2"

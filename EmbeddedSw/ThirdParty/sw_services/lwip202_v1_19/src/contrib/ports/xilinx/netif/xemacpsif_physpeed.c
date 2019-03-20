@@ -212,8 +212,18 @@
 
 #define TI_PHY_CR_SGMII_EN		0x0800
 
-// PL Resets driven via PS GPIO bank 5
+// PS GPIO defines
+// * SGMII core reset driven by pl_resetn0 (GPIO bank 5, bit 31)
+// * PHY resets driven by GPIO bank 3, bits 0-3
+#define GPIO_DIRM_BANK_3     0xFF0A02C4
+#define GPIO_OPEN_BANK_3     0xFF0A02C8
+#define GPIO_DATA_BANK_3     0XFF0A004C
+#define GPIO_DATA_BANK_4     0XFF0A0050
 #define GPIO_DATA_BANK_5     0XFF0A0054
+#define GPIO_EMIO_0_MASK     0x00000001
+#define GPIO_EMIO_1_MASK     0x00000002
+#define GPIO_EMIO_2_MASK     0x00000004
+#define GPIO_EMIO_3_MASK     0x00000008
 #define GPIO_PL_RESETN0_MASK 0x80000000
 #define GPIO_PL_RESETN1_MASK 0x40000000
 
@@ -253,21 +263,22 @@ unsigned init_xemac_p0()
 	return 0;
 }
 
-unsigned pl_reset_assert(u32 mask)
+unsigned ps_gpio_set(u32 mask,u32 value)
 {
-	u32_t pl_reset_reg = 0;
-	pl_reset_reg = *(volatile u32_t *)(GPIO_DATA_BANK_5);
-	pl_reset_reg &= ~(mask);
-	*(volatile u32_t *)(GPIO_DATA_BANK_5) = pl_reset_reg;
-	return 0;
-}
-
-unsigned pl_reset_deassert(u32 mask)
-{
-	u32_t pl_reset_reg = 0;
-	pl_reset_reg = *(volatile u32_t *)(GPIO_DATA_BANK_5);
-	pl_reset_reg |= mask;
-	*(volatile u32_t *)(GPIO_DATA_BANK_5) = pl_reset_reg;
+	u32_t reg = 0;
+	// Set as outputs
+	reg = *(volatile u32_t *)(GPIO_DIRM_BANK_3);
+	reg |= mask;
+	*(volatile u32_t *)(GPIO_DIRM_BANK_3) = reg;
+	// Enable outputs
+	reg = *(volatile u32_t *)(GPIO_OPEN_BANK_3);
+	reg |= mask;
+	*(volatile u32_t *)(GPIO_OPEN_BANK_3) = reg;
+	// Set to value
+	reg = *(volatile u32_t *)(GPIO_DATA_BANK_3);
+	reg |= (value & mask);
+	reg &= ~(~value & mask);
+	*(volatile u32_t *)(GPIO_DATA_BANK_3) = reg;
 	return 0;
 }
 
@@ -326,9 +337,9 @@ u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 	u32 port_num;
 
 	// Hardware Reset the external PHYs
-	pl_reset_assert(GPIO_PL_RESETN1_MASK);
+	ps_gpio_set(GPIO_EMIO_0_MASK | GPIO_EMIO_1_MASK | GPIO_EMIO_2_MASK | GPIO_EMIO_3_MASK,0x00000000);
 	sleep(1);
-	pl_reset_deassert(GPIO_PL_RESETN1_MASK);
+	ps_gpio_set(GPIO_EMIO_0_MASK | GPIO_EMIO_1_MASK | GPIO_EMIO_2_MASK | GPIO_EMIO_3_MASK,0x0000000F);
 	sleep(1);
 
 	// If the enabled port is not port 0, then we need to initialize

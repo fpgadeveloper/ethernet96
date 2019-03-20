@@ -62,8 +62,9 @@ CONFIG.PSU__ENET3__PERIPHERAL__IO {EMIO} \
 CONFIG.PSU__ENET3__GRP_MDIO__ENABLE {0} \
 CONFIG.PSU__ENET3__GRP_MDIO__IO {EMIO} \
 CONFIG.PSU__GPIO_EMIO__PERIPHERAL__ENABLE {1} \
-CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {8} \
-CONFIG.PSU__NUM_FABRIC_RESETS {2}] [get_bd_cells zynq_ultra_ps_e_0]
+CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {12} \
+CONFIG.PSU__NUM_FABRIC_RESETS {1} \
+CONFIG.PSU__UART0__MODEM__ENABLE {1}] [get_bd_cells zynq_ultra_ps_e_0]
 
 # Add the SGMII cores
 create_bd_cell -type ip -vlnv xilinx.com:ip:gig_ethernet_pcs_pma eth_pcs_pma_0_1
@@ -325,19 +326,26 @@ connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_tx_en] [get_bd_pin
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_tx_er] [get_bd_pins eth_pcs_pma_3_tx/gmii_tx_er_0]
 connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_enet3_gmii_txd] [get_bd_pins eth_pcs_pma_3_tx/gmii_txd_0]
 
-# PHY RESET for all ports
-create_bd_port -dir O reset_port_0_n
-connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn1] [get_bd_ports reset_port_0_n]
-create_bd_port -dir O reset_port_1_n
-connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn1] [get_bd_ports reset_port_1_n]
-create_bd_port -dir O reset_port_2_n
-connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn1] [get_bd_ports reset_port_2_n]
-create_bd_port -dir O reset_port_3_n
-connect_bd_net [get_bd_pins /zynq_ultra_ps_e_0/pl_resetn1] [get_bd_ports reset_port_3_n]
+# Create port for the EMIO GPIOs
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 gpio
+connect_bd_intf_net [get_bd_intf_ports gpio] [get_bd_intf_pins zynq_ultra_ps_e_0/GPIO_0]
 
-# Create port for the PHY GPIOs
-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 phy_gpio
-connect_bd_intf_net [get_bd_intf_ports phy_gpio] [get_bd_intf_pins zynq_ultra_ps_e_0/GPIO_0]
+# Create ports for Bluetooth UART0
+create_bd_port -dir I BT_ctsn
+connect_bd_net [get_bd_ports BT_ctsn] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_ctsn]
+create_bd_port -dir O BT_rtsn
+connect_bd_net [get_bd_ports BT_rtsn] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_rtsn]
+
+# # Binary counter to generate a test signal for the 125MHz output clock
+# # Uncomment the following block if you want to use this test signal
+# create_bd_cell -type ip -vlnv xilinx.com:ip:c_counter_binary c_counter_binary_0
+# set_property -dict [list CONFIG.Output_Width {2}] [get_bd_cells c_counter_binary_0]
+# connect_bd_net [get_bd_pins eth_pcs_pma_0_1/clk125_out] [get_bd_pins c_counter_binary_0/CLK]
+# create_bd_port -dir O clk125_test
+# create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice counter_slice
+# set_property -dict [list CONFIG.DIN_TO {1} CONFIG.DIN_FROM {1} CONFIG.DIN_WIDTH {2} CONFIG.DIN_FROM {1} CONFIG.DOUT_WIDTH {1}] [get_bd_cells counter_slice]
+# connect_bd_net [get_bd_pins c_counter_binary_0/Q] [get_bd_pins counter_slice/Din]
+# connect_bd_net [get_bd_ports clk125_test] [get_bd_pins counter_slice/Dout]
 
 # Restore current instance
 current_bd_instance $oldCurInst

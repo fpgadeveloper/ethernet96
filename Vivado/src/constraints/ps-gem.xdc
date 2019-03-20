@@ -31,10 +31,10 @@ set_property PACKAGE_PIN R3   [get_ports {ref_clk_625mhz_clk_n}];  # "R3.CSI1_D0
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {ref_clk_625mhz_clk_n}];
 set_property PACKAGE_PIN P3   [get_ports {ref_clk_625mhz_clk_p}];  # "P3.CSI1_D0_P"
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {ref_clk_625mhz_clk_p}];
-set_property PACKAGE_PIN U1   [get_ports {phy_gpio_tri_io[4]}];  # "U1.CSI1_D1_N"
-set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[4]}];
-set_property PACKAGE_PIN U2   [get_ports {phy_gpio_tri_io[5]}];  # "U2.CSI1_D1_P"
-set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[5]}];
+set_property PACKAGE_PIN U1   [get_ports {gpio_tri_io[8]}];  # "U1.CSI1_D1_N"
+set_property IOSTANDARD SSTL12 [get_ports {gpio_tri_io[8]}];
+set_property PACKAGE_PIN U2   [get_ports {gpio_tri_io[9]}];  # "U2.CSI1_D1_P"
+set_property IOSTANDARD SSTL12 [get_ports {gpio_tri_io[9]}];
 
 # BANK65_BYTE0 Upper nibble
 set_property PACKAGE_PIN T4   [get_ports {sgmii_port_3_rx_txn}];  # T4 Not connected
@@ -55,10 +55,10 @@ set_property PACKAGE_PIN N4   [get_ports {sgmii_port_1_rxn}];  # "N4.CSI0_D0_N"
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_1_rxn}];
 set_property PACKAGE_PIN N5   [get_ports {sgmii_port_1_rxp}];  # "N5.CSI0_D0_P"
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_1_rxp}];
-set_property PACKAGE_PIN M1   [get_ports {phy_gpio_tri_io[2]}];  # "M1.CSI0_D1_N"
-set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[2]}];
-set_property PACKAGE_PIN M2   [get_ports {phy_gpio_tri_io[3]}];  # "M2.CSI0_D1_P"
-set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[3]}];
+set_property PACKAGE_PIN M1   [get_ports {gpio_tri_io[6]}];  # "M1.CSI0_D1_N"
+set_property IOSTANDARD SSTL12 [get_ports {gpio_tri_io[6]}];
+set_property PACKAGE_PIN M2   [get_ports {gpio_tri_io[7]}];  # "M2.CSI0_D1_P"
+set_property IOSTANDARD SSTL12 [get_ports {gpio_tri_io[7]}];
 
 # BANK65_BYTE1 Upper nibble
 set_property PACKAGE_PIN M4   [get_ports {sgmii_port_0_txn}];  # "M4.CSI0_D2_N" Clock capable QBC
@@ -91,14 +91,14 @@ set_property PACKAGE_PIN F1   [get_ports {sgmii_port_2_rxn}];  # "F1.DSI_D0_N" C
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_2_rxn}];
 set_property PACKAGE_PIN G1   [get_ports {sgmii_port_2_rxp}];  # "G1.DSI_D0_P" Clock capable DBC
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {sgmii_port_2_rxp}];
-set_property PACKAGE_PIN E3   [get_ports {phy_gpio_tri_io[0]}];  # "E3.DSI_D1_N"
-set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[0]}];
-set_property PACKAGE_PIN E4   [get_ports {phy_gpio_tri_io[1]}];  # "E4.DSI_D1_P"
-set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[1]}];
-set_property PACKAGE_PIN D1   [get_ports {phy_gpio_tri_io[7]}];  # "D1.DSI_D2_N"
-set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[7]}];
-set_property PACKAGE_PIN E1   [get_ports {phy_gpio_tri_io[6]}];  # "E1.DSI_D2_P"
-set_property IOSTANDARD SSTL12 [get_ports {phy_gpio_tri_io[6]}];
+set_property PACKAGE_PIN E3   [get_ports {gpio_tri_io[4]}];  # "E3.DSI_D1_N"
+set_property IOSTANDARD SSTL12 [get_ports {gpio_tri_io[4]}];
+set_property PACKAGE_PIN E4   [get_ports {gpio_tri_io[5]}];  # "E4.DSI_D1_P"
+set_property IOSTANDARD SSTL12 [get_ports {gpio_tri_io[5]}];
+set_property PACKAGE_PIN D1   [get_ports {gpio_tri_io[11]}];  # "D1.DSI_D2_N"
+set_property IOSTANDARD SSTL12 [get_ports {gpio_tri_io[11]}];
+set_property PACKAGE_PIN E1   [get_ports {gpio_tri_io[10]}];  # "E1.DSI_D2_P"
+set_property IOSTANDARD SSTL12 [get_ports {gpio_tri_io[10]}];
 
 # BANK65_BYTE3 Upper nibble
 set_property PACKAGE_PIN C3   [get_ports {sgmii_port_2_txn}];  # "C3.DSI_D3_N" Clock capable DBC
@@ -144,10 +144,10 @@ set_property INTERNAL_VREF 0.60 [get_iobanks 65]
 #set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_4}];
 #set_property PACKAGE_PIN G5   [get_ports {HD_GPIO_5}];  # "G5.HD_GPIO_5"
 #set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_5}];
-set_property PACKAGE_PIN A6   [get_ports {reset_port_0_n}];  # "A6.HD_GPIO_6"
-set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_0_n}];
-set_property PACKAGE_PIN A7   [get_ports {reset_port_2_n}];  # "A7.HD_GPIO_7"
-set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_2_n}];
+set_property PACKAGE_PIN A6   [get_ports {gpio_tri_io[0]}];  # "A6.HD_GPIO_6"
+set_property IOSTANDARD LVCMOS18 [get_ports {gpio_tri_io[0]}];
+set_property PACKAGE_PIN A7   [get_ports {gpio_tri_io[2]}];  # "A7.HD_GPIO_7"
+set_property IOSTANDARD LVCMOS18 [get_ports {gpio_tri_io[2]}];
 set_property PACKAGE_PIN G6   [get_ports {mdio_mdio_io}];  # "G6.HD_GPIO_8"
 set_property IOSTANDARD LVCMOS18 [get_ports {mdio_mdio_io}];
 #set_property PACKAGE_PIN E6   [get_ports {HD_GPIO_9}];  # "E6.HD_GPIO_9"
@@ -158,10 +158,10 @@ set_property IOSTANDARD LVCMOS18 [get_ports {mdio_mdio_io}];
 #set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_11}];
 #set_property PACKAGE_PIN D5   [get_ports {HD_GPIO_12}];  # "D5.HD_GPIO_12"
 #set_property IOSTANDARD LVCMOS18 [get_ports {HD_GPIO_12}];
-set_property PACKAGE_PIN C7   [get_ports {reset_port_1_n}];  # "C7.HD_GPIO_13"
-set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_1_n}];
-set_property PACKAGE_PIN B6   [get_ports {reset_port_3_n}];  # "B6.HD_GPIO_14"
-set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_3_n}];
+set_property PACKAGE_PIN C7   [get_ports {gpio_tri_io[1]}];  # "C7.HD_GPIO_13"
+set_property IOSTANDARD LVCMOS18 [get_ports {gpio_tri_io[1]}];
+set_property PACKAGE_PIN B6   [get_ports {gpio_tri_io[3]}];  # "B6.HD_GPIO_14"
+set_property IOSTANDARD LVCMOS18 [get_ports {gpio_tri_io[3]}];
 set_property PACKAGE_PIN C5   [get_ports {mdio_mdc}];  # "C5.HD_GPIO_15"
 set_property IOSTANDARD LVCMOS18 [get_ports {mdio_mdc}];
 
@@ -193,3 +193,9 @@ set_property ODT RTT_48 [get_ports sgmii_port_3_rx_rxn]
 set_property ODT RTT_48 [get_ports ref_clk_625mhz_clk_p]
 set_property ODT RTT_48 [get_ports ref_clk_625mhz_clk_n]
 
+# Bluetooth UART0 pins
+set_property IOSTANDARD LVCMOS18 [get_ports BT*]
+#BT_HCI_RTS on FPGA /  emio_uart0_ctsn connect to 
+set_property PACKAGE_PIN B7 [get_ports BT_ctsn]
+#BT_HCI_CTS on FPGA / emio_uart0_rtsn
+set_property PACKAGE_PIN B5 [get_ports BT_rtsn]

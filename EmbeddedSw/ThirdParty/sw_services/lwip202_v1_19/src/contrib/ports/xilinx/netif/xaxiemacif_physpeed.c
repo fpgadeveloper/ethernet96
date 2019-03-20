@@ -66,6 +66,13 @@
 #define PORT3_SGMII_TX_PHYADDR 17
 #define PORT3_EXT_PHY_ADDR 15
 
+/* Generic PHY Registers */
+#define IEEE_PHY_CONTROL_REG                                    0x00
+#define IEEE_PHY_STATUS_REG                                     0x01
+#define IEEE_PHY_STATUS_AUTO_NEGOTIATION_COMPLETE            (0x0020)
+#define IEEE_PHY_DETECT_1_REG                                   0x02
+#define IEEE_PHY_DETECT_2_REG                                   0x03
+
 #define PHY_R0_ISOLATE  						0x0400
 #define PHY_DETECT_REG  						1
 #define PHY_IDENTIFIER_1_REG					2
@@ -116,6 +123,16 @@
 #define TI_PHY_CFG2_SPEEDOPT_INTLOW        0x2000
 
 #define TI_PHY_CR_SGMII_EN		0x0800
+
+/* TI DP83867 Datasheet Section 8.6.15 page 57 */
+#define TI_DP83867_PHYSTS                             0x11
+#define TI_DP83867_PHYSTS_SPEED_SELECTION_MASK        0xC000
+#define TI_DP83867_PHYSTS_SPEED_SELECTION_1000_MBPS   0x8000
+#define TI_DP83867_PHYSTS_SPEED_SELECTION_100_MBPS    0x4000
+#define TI_DP83867_PHYSTS_SPEED_SELECTION_10_MBPS     0x0000
+#define TI_DP83867_PHYSTS_DUPLEX_FULL                 0x2000
+#define TI_DP83867_PHYSTS_LINK_STATUS_UP              0x0400
+
 
 /* Loop counters to check for reset done
  */
@@ -350,78 +367,60 @@ unsigned int get_phy_negotiated_speed (XAxiEthernet *xaxiemacp, u32 phy_addr)
 
 unsigned int get_phy_speed_TI_DP83867_SGMII(XAxiEthernet *xaxiemacp, u32 sgmii_phy_addr, u32 ext_phy_addr)
 {
-	u16 control;
+	u32 link_speed;
 	u16 temp;
-	u16 phyregtemp;
+	u16 physts;
+	u16 status;
+	u32 control;
 
-	xil_printf("Start TI PHY autonegotiation \r\n");
+	if(sgmii_phy_addr == 0) {
+		// Disable SGMII autonegotiation in the external PHY (address 15)
+		XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr, TI_PHY_CFGR2, &control);
+		control &= ~TI_PHY_CFG2_SGMII_AUTONEGEN;
+		XAxiEthernet_PhyWrite(xaxiemacp, ext_phy_addr, TI_PHY_CFGR2, control);
 
-	/* Enable SGMII Clock */
-	/*
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_REGCR,
-			      TI_PHY_REGCR_DEVAD_EN);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_ADDDR,
-			      TI_PHY_SGMIITYPE);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_REGCR,
-			      TI_PHY_REGCR_DEVAD_EN | TI_PHY_REGCR_DEVAD_DATAEN);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_ADDDR,
-			      TI_PHY_SGMIICLK_EN);
-	*/
-	/*
-	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_CONTROL_REG_OFFSET,
-			     &control);
-	control |= (IEEE_CTRL_AUTONEGOTIATE_ENABLE | IEEE_CTRL_LINKSPEED_1000M |
-		    IEEE_CTRL_FULL_DUPLEX);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_CONTROL_REG_OFFSET,
-			      control);
-
-	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, TI_PHY_CFGR2, &control);
-	control &= TI_PHY_CFGR2_MASK;
-	control |= (TI_PHY_CFG2_SPEEDOPT_10EN   |
-		    TI_PHY_CFG2_SGMII_AUTONEGEN |
-		    TI_PHY_CFG2_SPEEDOPT_ENH    |
-		    TI_PHY_CFG2_SPEEDOPT_CNT    |
-		    TI_PHY_CFG2_SPEEDOPT_INTLOW);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_CFGR2, control);
-	*/
-	/* Disable RGMII */
-	/*
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_REGCR,
-			      TI_PHY_REGCR_DEVAD_EN);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_ADDDR,
-			      DP83867_R32_RGMIICTL1);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_REGCR,
-			      TI_PHY_REGCR_DEVAD_EN | TI_PHY_REGCR_DEVAD_DATAEN);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_ADDDR, 0);
-
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_PHYCTRL,
-			      TI_PHY_CR_SGMII_EN);
-	 */
-	xil_printf("Waiting for Link to be up \r\n");
-	XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr,
-			     IEEE_PARTNER_ABILITIES_1_REG_OFFSET, &temp);
-	while(!(temp & 0x4000)) {
-		XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr,
-				IEEE_PARTNER_ABILITIES_1_REG_OFFSET, &temp);
+		// Disable autonegotiation in the PCS/PMA SGMII cores (addresses 16,17)
+		XAxiEthernet_PhyWrite(xaxiemacp,0x10,IEEE_CONTROL_REG_OFFSET,0x0160);
+		XAxiEthernet_PhyWrite(xaxiemacp,0x11,IEEE_CONTROL_REG_OFFSET,0x0160);
 	}
-	xil_printf("Auto negotiation completed for TI PHY\n\r");
 
-	/* SW workaround for unstable link when RX_CTRL is not STRAP MODE 3 or 4 */
-	/*
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_REGCR, TI_PHY_REGCR_DEVAD_EN);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_ADDDR, TI_PHY_REGCFG4);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_REGCR, TI_PHY_REGCR_DATA);
-	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, TI_PHY_ADDDR, (u16_t *)&phyregtemp);
-	phyregtemp &= ~(TI_PHY_CFG4RESVDBIT7);
-	phyregtemp |= TI_PHY_CFG4RESVDBIT8;
-	phyregtemp &= ~(TI_PHY_CFG4_AUTONEG_TIMER);
-	phyregtemp |= TI_PHY_CFG4_AUTONEG_TIMER;
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_REGCR, TI_PHY_REGCR_DEVAD_EN);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_ADDDR, TI_PHY_REGCFG4);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_REGCR, TI_PHY_REGCR_DATA);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_ADDDR, phyregtemp);
-	*/
-	return get_phy_negotiated_speed(xaxiemacp, sgmii_phy_addr);
+	xil_printf("Waiting for Link to be up \r\n");
+	do
+	{
+		usleep(100);
+		XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr, IEEE_PHY_STATUS_REG, &status);
+	} while( !(status & IEEE_PHY_STATUS_AUTO_NEGOTIATION_COMPLETE) );
+
+	xil_printf("Auto negotiation completed for TI PHY\n\r");
+	xil_printf("Link speed: ");
+
+	/* Get link state */
+	do
+	{
+		usleep(100);
+		XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr, TI_DP83867_PHYSTS, &physts);
+	} while( !(physts & TI_DP83867_PHYSTS_LINK_STATUS_UP) );
+	if( (physts & TI_DP83867_PHYSTS_SPEED_SELECTION_MASK) == TI_DP83867_PHYSTS_SPEED_SELECTION_1000_MBPS ) {
+		xil_printf("1000 MBPS ");
+		link_speed = 1000;
+	}
+	else if( (physts & TI_DP83867_PHYSTS_SPEED_SELECTION_MASK) == TI_DP83867_PHYSTS_SPEED_SELECTION_100_MBPS ) {
+		xil_printf("100 MBPS ");
+		link_speed = 100;
+	}
+	else {
+		xil_printf("10 MBPS "); /* TODO: should check for corner case of 0xC000... */
+		link_speed = 10;
+	}
+	if( physts & TI_DP83867_PHYSTS_DUPLEX_FULL )
+		xil_printf("full duplex\r\n");
+	else
+		xil_printf("half duplex\r\n");
+
+	if(sgmii_phy_addr == 0)
+		return(link_speed);
+	else
+		return get_phy_negotiated_speed(xaxiemacp, sgmii_phy_addr);
 }
 
 
@@ -641,7 +640,7 @@ unsigned phy_setup_axiemac (XAxiEthernet *xaxiemacp)
 #ifdef  CONFIG_LINKSPEED_AUTODETECT
 	// If port 3 is enabled, then we will manually configure it to 1Gbps
 	if(port_num == 3){
-		link_speed = 1000;
+		link_speed = get_IEEE_phy_speed(xaxiemacp_p0, 0, ext_phy_addr);
 		//configure_IEEE_phy_speed_port3(xemacpsp_gem0, ext_phy_addr, sgmii_p3_rx_phy_addr, sgmii_p3_tx_phy_addr, link_speed);
 	}
 	// For ports 0-2 we will let the link auto-negotiate a speed

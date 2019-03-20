@@ -49,7 +49,8 @@ CONFIG.PSU__USE__S_AXI_GP2 {1} \
 CONFIG.PSU__USE__IRQ0 {1} \
 CONFIG.PSU__USE__IRQ1 {1} \
 CONFIG.PSU__GPIO_EMIO__PERIPHERAL__ENABLE {1} \
-CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {8}] [get_bd_cells zynq_ultra_ps_e_0]
+CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {8} \
+CONFIG.PSU__UART0__MODEM__ENABLE {1}] [get_bd_cells zynq_ultra_ps_e_0]
 
 # Add the SGMII cores
 create_bd_cell -type ip -vlnv xilinx.com:ip:gig_ethernet_pcs_pma eth_pcs_pma_0_1
@@ -513,6 +514,23 @@ apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ul
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_slave {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/axi_ethernet_2_dma/M_AXI_SG} Slave {/zynq_ultra_ps_e_0/S_AXI_HP0_FPD} intc_ip {/axi_smc} master_apm {0}}  [get_bd_intf_pins axi_ethernet_3_dma/M_AXI_SG]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_slave {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/axi_ethernet_2_dma/M_AXI_MM2S} Slave {/zynq_ultra_ps_e_0/S_AXI_HP0_FPD} intc_ip {/axi_smc} master_apm {0}}  [get_bd_intf_pins axi_ethernet_3_dma/M_AXI_MM2S]
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_slave {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/axi_ethernet_2_dma/M_AXI_S2MM} Slave {/zynq_ultra_ps_e_0/S_AXI_HP0_FPD} intc_ip {/axi_smc} master_apm {0}}  [get_bd_intf_pins axi_ethernet_3_dma/M_AXI_S2MM]
+
+# Create ports for Bluetooth UART0
+create_bd_port -dir I BT_ctsn
+connect_bd_net [get_bd_ports BT_ctsn] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_ctsn]
+create_bd_port -dir O BT_rtsn
+connect_bd_net [get_bd_ports BT_rtsn] [get_bd_pins zynq_ultra_ps_e_0/emio_uart0_rtsn]
+
+# # Binary counter to generate a test signal for the 125MHz output clock
+# # Uncomment the following block if you want to use this test signal
+# create_bd_cell -type ip -vlnv xilinx.com:ip:c_counter_binary c_counter_binary_0
+# set_property -dict [list CONFIG.Output_Width {2}] [get_bd_cells c_counter_binary_0]
+# connect_bd_net [get_bd_pins eth_pcs_pma_3_rx/clk125_out] [get_bd_pins c_counter_binary_0/CLK]
+# create_bd_port -dir O clk125_test
+# create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice counter_slice
+# set_property -dict [list CONFIG.DIN_TO {1} CONFIG.DIN_FROM {1} CONFIG.DIN_WIDTH {2} CONFIG.DIN_FROM {1} CONFIG.DOUT_WIDTH {1}] [get_bd_cells counter_slice]
+# connect_bd_net [get_bd_pins c_counter_binary_0/Q] [get_bd_pins counter_slice/Din]
+# connect_bd_net [get_bd_ports clk125_test] [get_bd_pins counter_slice/Dout]
 
 # Restore current instance
 current_bd_instance $oldCurInst

@@ -26,7 +26,7 @@ These are the different projects in the repo at the moment.
   * Uses soft AXI Ethernet IP to implement the MAC
   * Uses PCS/PMA or SGMII IP to implement the SGMII over LVDS links
   * Uses 625MHz clock from port 3 PHY, shared logic in SGMII core for port 3 RX
-  * Port 0 has been tested on hardware with lwIP echo server
+  * All 4 ports have been tested on hardware with lwIP echo server
 * PS GEM (ps-gem):
   * Uses PS integrated Gigabit Ethernet MACs (GEM)
   * Uses PCS/PMA or SGMII IP to implement the SGMII over LVDS links
