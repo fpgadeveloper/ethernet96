@@ -1,0 +1,719 @@
+From 8960b2e6042b829d4e1273ca97bd118a851bfa66 Mon Sep 17 00:00:00 2001
+From: Harini Katakam <harini.katakam@xilinx.com>
+Date: Fri, 31 Aug 2018 12:40:25 +0530
+Subject: [PATCH] net: macb: Add MDIO driver for accessing multiple PHY devices
+
+This patch is to add support for the hardware with multiple ethernet
+MAC controllers and a single MDIO bus connected to multiple PHY devices.
+MDIO lines are connected to any one of the ethernet MAC controllers and
+all the PHY devices will be accessed using the PHY maintenance interface
+in that MAC controller. This handling along with PHY functionality is
+moved to macb_mdio.c
+
+Effectively nullify runtime support by not disabling clocks because
+this affects the ability for mdio bus to be shared if the the primary
+MAC is down.
+
+Signed-off-by: Punnaiah Choudary Kalluri <punnaia@xilinx.com>
+Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
+---
+ drivers/net/ethernet/cadence/Makefile    |   2 +-
+ drivers/net/ethernet/cadence/macb.h      |   1 +
+ drivers/net/ethernet/cadence/macb_main.c | 285 +++++--------------------------
+ drivers/net/ethernet/cadence/macb_mdio.c | 275 +++++++++++++++++++++++++++++
+ 4 files changed, 315 insertions(+), 248 deletions(-)
+ create mode 100644 drivers/net/ethernet/cadence/macb_mdio.c
+
+diff --git a/drivers/net/ethernet/cadence/Makefile b/drivers/net/ethernet/cadence/Makefile
+index 1f33cdc..b26c83e 100644
+--- a/drivers/net/ethernet/cadence/Makefile
++++ b/drivers/net/ethernet/cadence/Makefile
+@@ -8,5 +8,5 @@ ifeq ($(CONFIG_MACB_USE_HWSTAMP),y)
+ macb-y	+= macb_ptp.o
+ endif
+ 
+-obj-$(CONFIG_MACB) += macb.o
++obj-$(CONFIG_MACB) += macb.o macb_mdio.o
+ obj-$(CONFIG_MACB_PCI) += macb_pci.o
+diff --git a/drivers/net/ethernet/cadence/macb.h b/drivers/net/ethernet/cadence/macb.h
+index 70252f2..1173310 100644
+--- a/drivers/net/ethernet/cadence/macb.h
++++ b/drivers/net/ethernet/cadence/macb.h
+@@ -1047,6 +1047,7 @@ struct macb {
+ 	struct mii_bus		*mii_bus;
+ 	struct phy_device	*phy_dev;
+ 	struct device_node	*phy_node;
++	int 			phy_irq;
+ 	int 			link;
+ 	int 			speed;
+ 	int 			duplex;
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 2624fc2..4731735 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -321,117 +321,6 @@ static void macb_get_hwaddr(struct macb *bp)
+ 	eth_hw_addr_random(bp->dev);
+ }
+ 
+-static int macb_mdio_read(struct mii_bus *bus, int mii_id, int regnum)
+-{
+-	struct macb *bp = bus->priv;
+-	int value;
+-	int err;
+-	ulong timeout;
+-
+-	err = pm_runtime_get_sync(&bp->pdev->dev);
+-	if (err < 0)
+-		return err;
+-
+-	timeout = jiffies + msecs_to_jiffies(1000);
+-	/* wait for end of transfer */
+-	do {
+-		if (MACB_BFEXT(IDLE, macb_readl(bp, NSR)))
+-			break;
+-
+-		cpu_relax();
+-	} while (!time_after_eq(jiffies, timeout));
+-
+-	if (time_after_eq(jiffies, timeout)) {
+-		netdev_err(bp->dev, "wait for end of transfer timed out\n");
+-		pm_runtime_mark_last_busy(&bp->pdev->dev);
+-		pm_runtime_put_autosuspend(&bp->pdev->dev);
+-		return -ETIMEDOUT;
+-	}
+-
+-	macb_writel(bp, MAN, (MACB_BF(SOF, MACB_MAN_SOF)
+-			      | MACB_BF(RW, MACB_MAN_READ)
+-			      | MACB_BF(PHYA, mii_id)
+-			      | MACB_BF(REGA, regnum)
+-			      | MACB_BF(CODE, MACB_MAN_CODE)));
+-
+-	timeout = jiffies + msecs_to_jiffies(1000);
+-	/* wait for end of transfer */
+-	do {
+-		if (MACB_BFEXT(IDLE, macb_readl(bp, NSR)))
+-			break;
+-
+-		cpu_relax();
+-	} while (!time_after_eq(jiffies, timeout));
+-
+-	if (time_after_eq(jiffies, timeout)) {
+-		netdev_err(bp->dev, "wait for end of transfer timed out\n");
+-		pm_runtime_mark_last_busy(&bp->pdev->dev);
+-		pm_runtime_put_autosuspend(&bp->pdev->dev);
+-		return -ETIMEDOUT;
+-	}
+-
+-	value = MACB_BFEXT(DATA, macb_readl(bp, MAN));
+-
+-	pm_runtime_mark_last_busy(&bp->pdev->dev);
+-	pm_runtime_put_autosuspend(&bp->pdev->dev);
+-	return value;
+-}
+-
+-static int macb_mdio_write(struct mii_bus *bus, int mii_id, int regnum,
+-			   u16 value)
+-{
+-	struct macb *bp = bus->priv;
+-	int err;
+-	ulong timeout;
+-
+-	err = pm_runtime_get_sync(&bp->pdev->dev);
+-	if (err < 0)
+-		return err;
+-
+-	timeout = jiffies + msecs_to_jiffies(1000);
+-	/* wait for end of transfer */
+-	do {
+-		if (MACB_BFEXT(IDLE, macb_readl(bp, NSR)))
+-			break;
+-
+-		cpu_relax();
+-	} while (!time_after_eq(jiffies, timeout));
+-
+-	if (time_after_eq(jiffies, timeout)) {
+-		netdev_err(bp->dev, "wait for end of transfer timed out\n");
+-		pm_runtime_mark_last_busy(&bp->pdev->dev);
+-		pm_runtime_put_autosuspend(&bp->pdev->dev);
+-		return -ETIMEDOUT;
+-	}
+-
+-	macb_writel(bp, MAN, (MACB_BF(SOF, MACB_MAN_SOF)
+-			      | MACB_BF(RW, MACB_MAN_WRITE)
+-			      | MACB_BF(PHYA, mii_id)
+-			      | MACB_BF(REGA, regnum)
+-			      | MACB_BF(CODE, MACB_MAN_CODE)
+-			      | MACB_BF(DATA, value)));
+-
+-	timeout = jiffies + msecs_to_jiffies(1000);
+-	/* wait for end of transfer */
+-	do {
+-		if (MACB_BFEXT(IDLE, macb_readl(bp, NSR)))
+-			break;
+-
+-		cpu_relax();
+-	} while (!time_after_eq(jiffies, timeout));
+-
+-	if (time_after_eq(jiffies, timeout)) {
+-		netdev_err(bp->dev, "wait for end of transfer timed out\n");
+-		pm_runtime_mark_last_busy(&bp->pdev->dev);
+-		pm_runtime_put_autosuspend(&bp->pdev->dev);
+-		return -ETIMEDOUT;
+-	}
+-
+-	pm_runtime_mark_last_busy(&bp->pdev->dev);
+-	pm_runtime_put_autosuspend(&bp->pdev->dev);
+-	return 0;
+-}
+-
+ /**
+  * macb_set_tx_clk - Set a clock to a new frequency
+  * @clk:	Pointer to the clock to change
+@@ -546,42 +435,25 @@ static void macb_handle_link_change(struct net_device *dev)
+ static int macb_mii_probe(struct net_device *dev)
+ {
+ 	struct macb *bp = netdev_priv(dev);
+-	struct macb_platform_data *pdata;
+ 	struct phy_device *phydev;
+-	int phy_irq;
+ 	int ret;
+ 
+-	if (bp->phy_node) {
+-		phydev = of_phy_connect(dev, bp->phy_node,
+-					&macb_handle_link_change, 0,
+-					bp->phy_interface);
+-		if (!phydev)
+-			return -ENODEV;
+-	} else {
+-		phydev = phy_find_first(bp->mii_bus);
+-		if (!phydev) {
+-			netdev_err(dev, "no PHY found\n");
+-			return -ENXIO;
+-		}
+-
+-		pdata = dev_get_platdata(&bp->pdev->dev);
+-		if (pdata && gpio_is_valid(pdata->phy_irq_pin)) {
+-			ret = devm_gpio_request(&bp->pdev->dev,
+-						pdata->phy_irq_pin, "phy int");
+-			if (!ret) {
+-				phy_irq = gpio_to_irq(pdata->phy_irq_pin);
+-				phydev->irq = (phy_irq < 0) ?
+-					      PHY_POLL : phy_irq;
+-			}
+-		}
++	if (bp->phy_dev)
++		return 0;
+ 
+-		/* attach the mac to the phy */
+-		ret = phy_connect_direct(dev, phydev, &macb_handle_link_change,
+-					 bp->phy_interface);
+-		if (ret) {
+-			netdev_err(dev, "Could not attach to PHY\n");
+-			return ret;
+-		}
++	phydev = of_phy_find_device(bp->phy_node);
++	if (!phydev) {
++		netdev_err(dev, "no PHY found\n");
++		return -ENXIO;
++	}
++	if (bp->phy_irq)
++		phydev->irq = bp->phy_irq;
++	/* attach the mac to the phy */
++	ret = phy_connect_direct(dev, phydev, &macb_handle_link_change,
++				 bp->phy_interface);
++	if (ret) {
++		netdev_err(dev, "Could not attach to PHY\n");
++		return ret;
+ 	}
+ 
+ 	/* mask with MAC supported features */
+@@ -600,86 +472,9 @@ static int macb_mii_probe(struct net_device *dev)
+ 	bp->duplex = -1;
+ 	bp->phy_dev = phydev;
+ 
+-	return 0;
+-}
+-
+-static int macb_mii_init(struct macb *bp)
+-{
+-	struct macb_platform_data *pdata;
+-	struct device_node *np, *mdio_np;
+-	int err = -ENXIO, i;
+-
+-	/* Enable management port */
+-	macb_writel(bp, NCR, MACB_BIT(MPE));
+-
+-	bp->mii_bus = mdiobus_alloc();
+-	if (!bp->mii_bus) {
+-		err = -ENOMEM;
+-		goto err_out;
+-	}
+-
+-	bp->mii_bus->name = "MACB_mii_bus";
+-	bp->mii_bus->read = &macb_mdio_read;
+-	bp->mii_bus->write = &macb_mdio_write;
+-	snprintf(bp->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
+-		 bp->pdev->name, bp->pdev->id);
+-	bp->mii_bus->priv = bp;
+-	bp->mii_bus->parent = &bp->dev->dev;
+-	pdata = dev_get_platdata(&bp->pdev->dev);
+-
+-	dev_set_drvdata(&bp->dev->dev, bp->mii_bus);
+-
+-	np = bp->pdev->dev.of_node;
+-	mdio_np = of_get_child_by_name(np, "mdio");
+-	if (mdio_np) {
+-		of_node_put(mdio_np);
+-		err = of_mdiobus_register(bp->mii_bus, mdio_np);
+-		if (err)
+-			goto err_out_unregister_bus;
+-	} else if (np) {
+-		/* try dt phy registration */
+-		err = of_mdiobus_register(bp->mii_bus, np);
+-
+-		/* fallback to standard phy registration if no phy were
+-		 * found during dt phy registration
+-		 */
+-		if (!err && !phy_find_first(bp->mii_bus)) {
+-			for (i = 0; i < PHY_MAX_ADDR; i++) {
+-				struct phy_device *phydev;
+-
+-				phydev = mdiobus_scan(bp->mii_bus, i);
+-				if (IS_ERR(phydev) &&
+-				    PTR_ERR(phydev) != -ENODEV) {
+-					err = PTR_ERR(phydev);
+-					break;
+-				}
+-			}
+-
+-			if (err)
+-				goto err_out_unregister_bus;
+-		}
+-	} else {
+-		if (pdata)
+-			bp->mii_bus->phy_mask = pdata->phy_mask;
+-
+-		err = mdiobus_register(bp->mii_bus);
+-	}
+-
+-	if (err)
+-		goto err_out_free_mdiobus;
+-
+-	err = macb_mii_probe(bp->dev);
+-	if (err)
+-		goto err_out_unregister_bus;
++	phy_attached_info(bp->phy_dev);
+ 
+ 	return 0;
+-
+-err_out_unregister_bus:
+-	mdiobus_unregister(bp->mii_bus);
+-err_out_free_mdiobus:
+-	mdiobus_free(bp->mii_bus);
+-err_out:
+-	return err;
+ }
+ 
+ static void macb_update_stats(struct macb *bp)
+@@ -2076,15 +1871,18 @@ static void macb_init_rings(struct macb *bp)
+ static void macb_reset_hw(struct macb *bp)
+ {
+ 	struct macb_queue *queue;
+-	unsigned int q;
++	unsigned int q, ctrl;
+ 
+ 	/* Disable RX and TX (XXX: Should we halt the transmission
+ 	 * more gracefully?)
+ 	 */
+-	macb_writel(bp, NCR, 0);
++	ctrl = macb_readl(bp, NCR);
++	ctrl &= ~(MACB_BIT(RE) | MACB_BIT(TE));
++	macb_writel(bp, NCR, ctrl);
+ 
+ 	/* Clear the stats registers (XXX: Update stats first?) */
+-	macb_writel(bp, NCR, MACB_BIT(CLRSTAT));
++	ctrl |= MACB_BIT(CLRSTAT);
++	macb_writel(bp, NCR, ctrl);
+ 
+ 	/* Clear all status flags */
+ 	macb_writel(bp, TSR, -1);
+@@ -2434,7 +2232,8 @@ static int macb_open(struct net_device *dev)
+ 	netif_carrier_off(dev);
+ 
+ 	/* if the phy is not yet register, retry later*/
+-	if (!bp->phy_dev)
++	err = macb_mii_probe(dev);
++	if (err)
+ 		return -EAGAIN;
+ 
+ 	/* RX buffers initialization */
+@@ -3655,16 +3454,16 @@ static int macb_probe(struct platform_device *pdev)
+ 	unsigned int queue_mask, num_queues;
+ 	struct macb_platform_data *pdata;
+ 	bool native_io;
+-	struct phy_device *phydev;
+ 	struct net_device *dev;
+ 	struct resource *regs;
+ 	void __iomem *mem;
+ 	const char *mac;
+ 	struct macb *bp;
++	int phy_irq;
+ 	int err;
+ 
+ 	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	mem = devm_ioremap_resource(&pdev->dev, regs);
++	mem = devm_ioremap(&pdev->dev, regs->start, resource_size(regs));
+ 	if (IS_ERR(mem))
+ 		return PTR_ERR(mem);
+ 
+@@ -3802,9 +3601,18 @@ static int macb_probe(struct platform_device *pdev)
+ 		goto err_out_unregister_netdev;
+ 	}
+ 
+-	err = macb_mii_init(bp);
+-	if (err)
+-		goto err_out_unregister_netdev;
++	bp->phy_node = of_parse_phandle(bp->pdev->dev.of_node,
++					"phy-handle", 0);
++
++	pdata = dev_get_platdata(&bp->pdev->dev);
++	if (pdata && gpio_is_valid(pdata->phy_irq_pin)) {
++		err = devm_gpio_request(&bp->pdev->dev, pdata->phy_irq_pin,
++					"phy int");
++		if (!err) {
++			phy_irq = gpio_to_irq(pdata->phy_irq_pin);
++			bp->phy_irq = (phy_irq < 0) ? PHY_POLL : phy_irq;
++		}
++	}
+ 
+ 	netif_carrier_off(dev);
+ 
+@@ -3818,8 +3626,6 @@ static int macb_probe(struct platform_device *pdev)
+ 		    macb_is_gem(bp) ? "GEM" : "MACB", macb_readl(bp, MID),
+ 		    dev->base_addr, dev->irq, dev->dev_addr);
+ 
+-	phydev = bp->phy_dev;
+-	phy_attached_info(phydev);
+ 	pm_runtime_mark_last_busy(&bp->pdev->dev);
+ 	pm_runtime_put_autosuspend(&bp->pdev->dev);
+ 
+@@ -3858,9 +3664,6 @@ static int macb_remove(struct platform_device *pdev)
+ 		bp = netdev_priv(dev);
+ 		if (bp->phy_dev)
+ 			phy_disconnect(bp->phy_dev);
+-		mdiobus_unregister(bp->mii_bus);
+-		dev->phydev = NULL;
+-		mdiobus_free(bp->mii_bus);
+ 
+ 		/* Shutdown the PHY if there is a GPIO reset */
+ 		if (bp->reset_gpio)
+@@ -3996,12 +3799,6 @@ static int __maybe_unused macb_runtime_suspend(struct device *dev)
+ 	struct net_device *netdev = platform_get_drvdata(pdev);
+ 	struct macb *bp = netdev_priv(netdev);
+ 
+-	if (!(device_may_wakeup(&bp->dev->dev))) {
+-		clk_disable_unprepare(bp->tx_clk);
+-		clk_disable_unprepare(bp->hclk);
+-		clk_disable_unprepare(bp->pclk);
+-		clk_disable_unprepare(bp->rx_clk);
+-	}
+ 	clk_disable_unprepare(bp->tsu_clk);
+ 
+ 	return 0;
+@@ -4013,12 +3810,6 @@ static int __maybe_unused macb_runtime_resume(struct device *dev)
+ 	struct net_device *netdev = platform_get_drvdata(pdev);
+ 	struct macb *bp = netdev_priv(netdev);
+ 
+-	if (!(device_may_wakeup(&bp->dev->dev))) {
+-		clk_prepare_enable(bp->pclk);
+-		clk_prepare_enable(bp->hclk);
+-		clk_prepare_enable(bp->tx_clk);
+-		clk_prepare_enable(bp->rx_clk);
+-	}
+ 	clk_prepare_enable(bp->tsu_clk);
+ 
+ 	return 0;
+diff --git a/drivers/net/ethernet/cadence/macb_mdio.c b/drivers/net/ethernet/cadence/macb_mdio.c
+new file mode 100644
+index 0000000..a3de21b
+--- /dev/null
++++ b/drivers/net/ethernet/cadence/macb_mdio.c
+@@ -0,0 +1,275 @@
++/*
++ * Cadence Macb mdio controller driver
++ *
++ * Copyright (C) 2014 - 2018 Xilinx, Inc.
++ *
++ * This program is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU General Public License version 2 as published by the
++ * Free Software Foundation; either version 2 of the License, or (at your
++ * option) any later version.
++ */
++#include <linux/clk.h>
++#include <linux/delay.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/netdevice.h>
++#include <linux/of_address.h>
++#include <linux/of_mdio.h>
++#include <linux/io.h>
++#include <linux/phy.h>
++#include <linux/platform_device.h>
++#include <linux/ptp_clock_kernel.h>
++#include "macb.h"
++
++
++struct macb_mdio_data {
++	void __iomem *regs;
++
++	struct clk *pclk;
++	struct clk *hclk;
++};
++
++#define macb_mdio_reg_writel(bp, offset, value)	\
++	writel_relaxed(value, bp->regs + offset)
++#define macb_mdio_writel(bp, reg, value)	\
++	macb_mdio_reg_writel(bp, MACB_##reg, value)
++
++#define macb_mdio_reg_readl(bp, offset)	readl_relaxed(bp->regs + offset)
++#define macb_mdio_readl(bp, reg)	macb_mdio_reg_readl(bp, MACB_##reg)
++
++#define MACB_MDIO_TIMEOUT	1000
++
++static int macb_mdio_wait_for_idle(struct macb_mdio_data *bp)
++{
++	ulong timeout;
++
++	timeout = jiffies + msecs_to_jiffies(MACB_MDIO_TIMEOUT);
++	/* wait for end of transfer */
++	while (1) {
++		if (MACB_BFEXT(IDLE, macb_mdio_readl(bp, NSR)))
++			break;
++
++		if (time_after_eq(jiffies, timeout)) {
++			//netdev_err(bp->dev, "wait for end of transfer timed out\n");
++			return -ETIMEDOUT;
++		}
++
++		cpu_relax();
++	}
++
++	return 0;
++}
++
++static int macb_mdio_read(struct mii_bus *bus, int mii_id, int regnum)
++{
++	struct macb_mdio_data *bp = bus->priv;
++	int value;
++	int err;
++
++	err = macb_mdio_wait_for_idle(bp);
++	if (err < 0)
++		return err;
++
++	macb_mdio_writel(bp, MAN, (MACB_BF(SOF, MACB_MAN_SOF) |
++				   MACB_BF(RW, MACB_MAN_READ) |
++				   MACB_BF(PHYA, mii_id) |
++				   MACB_BF(REGA, regnum) |
++				   MACB_BF(CODE, MACB_MAN_CODE)));
++
++	err = macb_mdio_wait_for_idle(bp);
++	if (err < 0)
++		return err;
++
++	value = MACB_BFEXT(DATA, macb_mdio_readl(bp, MAN));
++
++	return value;
++}
++
++static int macb_mdio_write(struct mii_bus *bus, int mii_id, int regnum,
++			   u16 value)
++{
++	struct macb_mdio_data *bp = bus->priv;
++	int err;
++
++	err = macb_mdio_wait_for_idle(bp);
++	if (err < 0)
++		return err;
++
++	macb_mdio_writel(bp, MAN, (MACB_BF(SOF, MACB_MAN_SOF) |
++				   MACB_BF(RW, MACB_MAN_WRITE) |
++				   MACB_BF(PHYA, mii_id) |
++				   MACB_BF(REGA, regnum) |
++				   MACB_BF(CODE, MACB_MAN_CODE) |
++				   MACB_BF(DATA, value)));
++
++	err = macb_mdio_wait_for_idle(bp);
++	if (err < 0)
++		return err;
++
++	return 0;
++}
++
++static u32 gem_mdc_clk_div(struct macb_mdio_data *bp)
++{
++	u32 config;
++	unsigned long pclk_hz = clk_get_rate(bp->pclk);
++
++	if (pclk_hz <= 20000000)
++		config = GEM_BF(CLK, GEM_CLK_DIV8);
++	else if (pclk_hz <= 40000000)
++		config = GEM_BF(CLK, GEM_CLK_DIV16);
++	else if (pclk_hz <= 80000000)
++		config = GEM_BF(CLK, GEM_CLK_DIV32);
++	else if (pclk_hz <= 120000000)
++		config = GEM_BF(CLK, GEM_CLK_DIV48);
++	else if (pclk_hz <= 160000000)
++		config = GEM_BF(CLK, GEM_CLK_DIV64);
++	else
++		config = GEM_BF(CLK, GEM_CLK_DIV96);
++
++	return config;
++}
++
++static int macb_mdio_probe(struct platform_device *pdev)
++{
++	struct device_node *np = pdev->dev.of_node;
++	struct mii_bus *bus;
++	struct macb_mdio_data *bp;
++	struct resource *res;
++	int ret;
++	u32 config, i;
++
++	bus = mdiobus_alloc_size(sizeof(*bp));
++	if (!bus)
++		return -ENOMEM;
++
++	bus->name = "macb_mii_bus";
++	bus->read = &macb_mdio_read;
++	bus->write = &macb_mdio_write;
++	snprintf(bus->id, MII_BUS_ID_SIZE, "%s-mii", dev_name(&pdev->dev));
++	bus->parent = &pdev->dev;
++
++	bp = bus->priv;
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	bp->regs = devm_ioremap(&pdev->dev, res->start, resource_size(res));
++	if (IS_ERR(bp->regs)) {
++		ret = PTR_ERR(bp->regs);
++		goto err_out_free_mdiobus;
++	}
++
++	bp->pclk = devm_clk_get(&pdev->dev, "pclk");
++	if (IS_ERR(bp->pclk)) {
++		ret = PTR_ERR(bp->pclk);
++		dev_err(&pdev->dev, "failed to get macb_clk (%u)\n", ret);
++		goto err_out_free_mdiobus;
++	}
++
++	bp->hclk = devm_clk_get(&pdev->dev, "hclk");
++	if (IS_ERR(bp->hclk)) {
++		ret = PTR_ERR(bp->hclk);
++		dev_err(&pdev->dev, "failed to get hclk (%u)\n", ret);
++		goto err_out_free_mdiobus;
++	}
++
++	ret = clk_prepare_enable(bp->pclk);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to enable pclk (%u)\n", ret);
++		goto err_out_free_mdiobus;
++	}
++
++	ret = clk_prepare_enable(bp->hclk);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to enable hclk (%u)\n", ret);
++		goto err_disable_pclk;
++	}
++
++	platform_set_drvdata(pdev, bus);
++
++	/* Enable management port */
++	config = macb_mdio_readl(bp, NCR);
++	config |= MACB_BIT(MPE);
++	macb_mdio_writel(bp, NCR, config);
++	config = gem_mdc_clk_div(bp);
++	macb_mdio_writel(bp, NCFGR, config);
++
++	np = pdev->dev.of_node;
++	if (np) {
++		/* try dt phy registration */
++		ret = of_mdiobus_register(bus, np);
++
++		/* Fallback to standard phy registration if no phy were
++		 * found during dt phy registration
++		 */
++		if (!ret && !phy_find_first(bus)) {
++			for (i = 0; i < PHY_MAX_ADDR; i++) {
++				struct phy_device *phydev;
++
++				phydev = mdiobus_scan(bus, i);
++				if (IS_ERR(phydev) &&
++				    PTR_ERR(phydev) != -ENODEV) {
++					ret = PTR_ERR(phydev);
++					break;
++				}
++			}
++
++			if (ret)
++				goto err_out_unregister_bus;
++		}
++	} else {
++		ret = of_mdiobus_register(bus, np);
++	}
++
++	if (ret)
++		goto err_disable_pclk;
++
++	return 0;
++
++err_out_unregister_bus:
++	mdiobus_unregister(bus);
++err_disable_pclk:
++	clk_disable_unprepare(bp->pclk);
++	clk_disable_unprepare(bp->hclk);
++err_out_free_mdiobus:
++	mdiobus_free(bus);
++	return ret;
++}
++
++static int macb_mdio_remove(struct platform_device *pdev)
++{
++	struct mii_bus *bus = platform_get_drvdata(pdev);
++	struct macb_mdio_data *bp = bus->priv;
++	u32 config;
++
++	/* Disable management port */
++	config = macb_mdio_readl(bp, NCR);
++	config &= ~MACB_BIT(MPE);
++	macb_mdio_writel(bp, NCR, config);
++	mdiobus_unregister(bus);
++	clk_disable_unprepare(bp->hclk);
++	clk_disable_unprepare(bp->pclk);
++	mdiobus_free(bus);
++
++	return 0;
++}
++
++static const struct of_device_id macb_mdio_dt_ids[] = {
++	{ .compatible = "cdns,macb-mdio" },
++
++};
++MODULE_DEVICE_TABLE(of, macb_mdio_dt_ids);
++
++static struct platform_driver macb_mdio_driver = {
++	.probe = macb_mdio_probe,
++	.remove = macb_mdio_remove,
++	.driver = {
++		.name = "macb-mdio",
++		.of_match_table = macb_mdio_dt_ids,
++	},
++};
++
++module_platform_driver(macb_mdio_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Cadence MACB MDIO driver");
++MODULE_AUTHOR("Xilinx");
+-- 
+2.7.4
+

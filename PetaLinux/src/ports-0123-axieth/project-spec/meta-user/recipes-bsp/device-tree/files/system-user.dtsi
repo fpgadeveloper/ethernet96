@@ -1,0 +1,60 @@
+/include/ "system-conf.dtsi"
+/ {
+};
+
+    &axi_ethernet_0 {  
+        local-mac-address = [00 0a 35 00 01 22];  
+        phy-handle = <&phy0>;  
+        xlnx,has-mdio = <0x1>;  
+        phy-mode = "gmii";  
+        mdio {  
+            #address-cells = <1>;  
+            #size-cells = <0>;  
+            phy0: phy@2 {
+                compatible = "Xilinx PCS/PMA PHY";
+                device_type = "ethernet-phy";
+                xlnx,phy-type = <0x4>;
+                reg = <2>;
+            };
+            phy1: phy@4 {
+                compatible = "Xilinx PCS/PMA PHY";
+                device_type = "ethernet-phy";
+                xlnx,phy-type = <0x4>;
+                reg = <4>;
+            };
+            phy2: phy@13 {
+                compatible = "Xilinx PCS/PMA PHY";
+                device_type = "ethernet-phy";
+                xlnx,phy-type = <0x4>;
+                reg = <13>;
+            };
+            phy3: phy@15 {  
+                compatible = "ti,dp83867";
+                device_type = "ethernet-phy";  
+                reg = <15>;  
+                ti,rx-internal-delay = <0x8>;
+                ti,tx-internal-delay = <0xa>;
+                ti,fifo-depth = <0x1>;
+                ti,dp83867-sgmii-clk-en;
+            };  
+        };  
+    };  
+      
+    &axi_ethernet_1 {  
+        local-mac-address = [00 0a 35 00 01 23];  
+        phy-handle = <&phy1>;  
+        phy-mode = "gmii";  
+    };  
+      
+    &axi_ethernet_2 {  
+        local-mac-address = [00 0a 35 00 01 24];  
+        phy-handle = <&phy2>;  
+        phy-mode = "gmii";  
+    };  
+      
+    &axi_ethernet_3 {
+        local-mac-address = [00 0a 35 00 01 25];
+        phy-handle = <&phy3>;
+        phy-mode = "gmii";
+    };  
+      

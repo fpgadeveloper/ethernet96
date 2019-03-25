@@ -1,0 +1,81 @@
+/include/ "system-conf.dtsi"
+/include/ "openamp-overlay.dtsi"
+/ {
+
+    mdio {
+        compatible = "cdns,macb-mdio";
+        reg = <0x0 0xff0b0000 0x0 0x1000>;
+        clocks = <&clk 31>, <&clk 49>, <&clk 45>;
+        clock-names = "pclk", "hclk", "tx_clk";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        phy0: phy@1 {
+            device_type = "ethernet-phy";
+            reg = <0x1>;
+            ti,rx-internal-delay = <0x8>;
+            ti,tx-internal-delay = <0xa>;
+            ti,fifo-depth = <0x1>;
+        };
+        phy1: phy@3 {
+            device_type = "ethernet-phy";
+            reg = <0x3>;
+            ti,rx-internal-delay = <0x8>;
+            ti,tx-internal-delay = <0xa>;
+            ti,fifo-depth = <0x1>;
+        };
+        phy2: phy@12 {
+            device_type = "ethernet-phy";
+            reg = <0xc>;
+            ti,rx-internal-delay = <0x8>;
+            ti,tx-internal-delay = <0xa>;
+            ti,fifo-depth = <0x1>;
+        };
+        phy3: phy@15 {
+            device_type = "ethernet-phy";
+            reg = <0xf>;
+            ti,rx-internal-delay = <0x8>;
+            ti,tx-internal-delay = <0xa>;
+            ti,fifo-depth = <0x1>;
+            ti,dp83867-sgmii-autoneg-dis;
+            ti,dp83867-sgmii-clk-en;
+        };
+    };
+};
+
+    &gem0 {
+        local-mac-address = [00 0a 35 00 01 22];
+        phy-handle = <&phy0>;
+        phy-mode = "gmii";
+        status = "okay";
+        phy-reset-gpio = <&gpio 416 1>;
+        phy-reset-active-low;
+    };  
+      
+    &gem1 {
+        local-mac-address = [00 0a 35 00 01 23];
+        phy-handle = <&phy1>;
+        phy-mode = "gmii";
+        status = "okay";
+        phy-reset-gpio = <&gpio 417 1>;
+        phy-reset-active-low;
+    };  
+      
+    &gem2 {
+        local-mac-address = [00 0a 35 00 01 24];
+        phy-handle = <&phy2>;
+        phy-mode = "gmii";
+        status = "okay";
+        phy-reset-gpio = <&gpio 418 1>;
+        phy-reset-active-low;
+    };  
+      
+    &gem3 {
+        local-mac-address = [00 0a 35 00 01 25];
+        phy-handle = <&phy3>;
+        phy-mode = "gmii";
+        status = "okay";
+        phy-reset-gpio = <&gpio 419 1>;
+        phy-reset-active-low;
+    };  
+      
+
