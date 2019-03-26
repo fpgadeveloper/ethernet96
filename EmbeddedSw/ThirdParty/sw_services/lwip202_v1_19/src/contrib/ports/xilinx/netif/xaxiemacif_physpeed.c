@@ -55,16 +55,25 @@
 
 /* Definitions related to PCS PMA PL IP*/
 #define XPAR_GIGE_PCS_PMA_SGMII_CORE_PRESENT 1U
-/* 96B Quad Ethernet Mezzanine PHY addresses */
-#define PORT0_SGMII_PHYADDR 2
-#define PORT0_EXT_PHY_ADDR 1
-#define PORT1_SGMII_PHYADDR 4
-#define PORT1_EXT_PHY_ADDR 3
-#define PORT2_SGMII_PHYADDR 13
-#define PORT2_EXT_PHY_ADDR 12
-#define PORT3_SGMII_RX_PHYADDR 16
-#define PORT3_SGMII_TX_PHYADDR 17
-#define PORT3_EXT_PHY_ADDR 15
+
+/* Registers for PCS/PMA SGMII core */
+#define PHY_CTRL_REG	  						0
+#define PHY_STATUS_REG  						1
+#define PHY_IDENTIFIER_1_REG					2
+#define PHY_IDENTIFIER_2_REG					3
+
+/* Control register masks for PCS/PMA SGMII core */
+#define IEEE_CTRL_RESET_MASK                   	0x8000
+#define IEEE_CTRL_LOOPBACK_MASK                	0x4000
+#define IEEE_CTRL_SPEED_LSB_MASK               	0x2000
+#define IEEE_CTRL_AUTONEG_MASK                  0x1000
+#define IEEE_CTRL_PWRDOWN_MASK                  0x0800
+#define IEEE_CTRL_ISOLATE_MASK                  0x0400
+#define IEEE_CTRL_RESTART_AN_MASK               0x0200
+#define IEEE_CTRL_DUPLEX_MASK               	0x0100
+#define IEEE_CTRL_COLLISION_MASK               	0x0080
+#define IEEE_CTRL_SPEED_MSB_MASK               	0x0040
+#define IEEE_CTRL_UNIDIRECTIONAL_MASK           0x0020
 
 /* Generic PHY Registers */
 #define IEEE_PHY_CONTROL_REG                                    0x00
@@ -110,19 +119,22 @@
 #define TI_PHY_REGCR_DEVAD_EN		0x001F
 #define TI_PHY_REGCR_DEVAD_DATAEN	0x4000
 #define TI_PHY_CFGR2_MASK		0x003F
-#define TI_PHY_REGCFG4			0x31
+#define TI_PHY_REGCFG4			0x0031
+#define TI_PHY_RGMIICTL			0x0032
 #define TI_PHY_REGCR_DATA		0x401F
 #define TI_PHY_CFG4RESVDBIT7		0x80
 #define TI_PHY_CFG4RESVDBIT8		0x100
-#define TI_PHY_CFG4_AUTONEG_TIMER	0x60
+#define TI_PHY_10M_SGMII_CFG		0x016F
 
+/* TI DP83867 PHY Masks */
 #define TI_PHY_CFG2_SPEEDOPT_10EN          0x0040
 #define TI_PHY_CFG2_SGMII_AUTONEGEN        0x0080
 #define TI_PHY_CFG2_SPEEDOPT_ENH           0x0100
 #define TI_PHY_CFG2_SPEEDOPT_CNT           0x0800
 #define TI_PHY_CFG2_SPEEDOPT_INTLOW        0x2000
-
-#define TI_PHY_CR_SGMII_EN		0x0800
+#define TI_PHY_10M_SGMII_RATE_ADAPT		   0x0080
+#define TI_PHY_CR_SGMII_EN				   0x0800
+#define TI_PHY_CFG4_SGMII_AN_TIMER         0x0060
 
 /* TI DP83867 Datasheet Section 8.6.15 page 57 */
 #define TI_DP83867_PHYSTS                             0x11
@@ -133,6 +145,33 @@
 #define TI_DP83867_PHYSTS_DUPLEX_FULL                 0x2000
 #define TI_DP83867_PHYSTS_LINK_STATUS_UP              0x0400
 
+// PS GPIO defines
+// * SGMII core reset driven by pl_resetn0 (GPIO bank 5, bit 31)
+// * PHY resets driven by GPIO bank 3, bits 0-3
+#define GPIO_DIRM_BANK_0     0xFF0A0204
+#define GPIO_DIRM_BANK_1     0xFF0A0244
+#define GPIO_DIRM_BANK_2     0xFF0A0284
+#define GPIO_DIRM_BANK_3     0xFF0A02C4
+#define GPIO_DIRM_BANK_4     0xFF0A0304
+#define GPIO_DIRM_BANK_5     0xFF0A0344
+#define GPIO_OPEN_BANK_0     0xFF0A0208
+#define GPIO_OPEN_BANK_1     0xFF0A0248
+#define GPIO_OPEN_BANK_2     0xFF0A0288
+#define GPIO_OPEN_BANK_3     0xFF0A02C8
+#define GPIO_OPEN_BANK_4     0xFF0A0308
+#define GPIO_OPEN_BANK_5     0xFF0A0348
+#define GPIO_DATA_BANK_0     0XFF0A0040
+#define GPIO_DATA_BANK_1     0XFF0A0044
+#define GPIO_DATA_BANK_2     0XFF0A0048
+#define GPIO_DATA_BANK_3     0XFF0A004C
+#define GPIO_DATA_BANK_4     0XFF0A0050
+#define GPIO_DATA_BANK_5     0XFF0A0054
+#define GPIO_EMIO_0_MASK     0x00000001
+#define GPIO_EMIO_1_MASK     0x00000002
+#define GPIO_EMIO_2_MASK     0x00000004
+#define GPIO_EMIO_3_MASK     0x00000008
+#define GPIO_PL_RESETN0_MASK 0x80000000
+#define GPIO_PL_RESETN1_MASK 0x40000000
 
 /* Loop counters to check for reset done
  */
@@ -155,6 +194,11 @@
 #define PHY_XILINX_PCS_PMA_ID2			0x0C00
 
 extern u32_t phyaddrforemac;
+
+// External PHY addresses on 96B Quad Ethernet Mezzanine
+const u16 extphyaddr[4] = {0x1,0x3,0xC,0xF};
+// SGMII PHY addresses determined in Vivado design
+const u16 sgmiiphyaddr[5] = {0x2,0x4,0xD,0x10,0x11};
 
 XAxiEthernet *axi_ethernet_0;
 
@@ -241,6 +285,32 @@ void XAxiEthernet_PhyWriteExtended(XAxiEthernet *InstancePtr, u32 PhyAddress,
 
 }
 
+unsigned ps_gpio_set(u32 bank,u32 mask,u32 value)
+{
+	const u32 dirm[6] = {GPIO_DIRM_BANK_0,GPIO_DIRM_BANK_1,GPIO_DIRM_BANK_2,
+			GPIO_DIRM_BANK_3,GPIO_DIRM_BANK_4,GPIO_DIRM_BANK_5};
+	const u32 open[6] = {GPIO_OPEN_BANK_0,GPIO_OPEN_BANK_1,GPIO_OPEN_BANK_2,
+			GPIO_OPEN_BANK_3,GPIO_OPEN_BANK_4,GPIO_OPEN_BANK_5};
+	const u32 data[6] = {GPIO_DATA_BANK_0,GPIO_DATA_BANK_1,GPIO_DATA_BANK_2,
+			GPIO_DATA_BANK_3,GPIO_DATA_BANK_4,GPIO_DATA_BANK_5};
+
+	u32_t reg = 0;
+	// Set as outputs
+	reg = *(volatile u32_t *)(dirm[bank]);
+	reg |= mask;
+	*(volatile u32_t *)(dirm[bank]) = reg;
+	// Enable outputs
+	reg = *(volatile u32_t *)(open[bank]);
+	reg |= mask;
+	*(volatile u32_t *)(open[bank]) = reg;
+	// Set to value
+	reg = *(volatile u32_t *)(data[bank]);
+	reg |= (value & mask);
+	reg &= ~(~value & mask);
+	*(volatile u32_t *)(data[bank]) = reg;
+	return 0;
+}
+
 unsigned int get_phy_negotiated_speed (XAxiEthernet *xaxiemacp, u32 phy_addr)
 {
 	u16 control;
@@ -250,18 +320,6 @@ unsigned int get_phy_negotiated_speed (XAxiEthernet *xaxiemacp, u32 phy_addr)
 	u16 phylinkspeed;
 	u16 temp;
 
-	/*
-	xil_printf("Reset PHY\r\n");
-
-	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_CONTROL_REG_OFFSET,
-																	&control);
-
-	control |= IEEE_CTRL_RESET_MASK;
-
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_CONTROL_REG_OFFSET,
-														control);
-	AxiEthernetUtilPhyDelay(1);
-	*/
 	xil_printf("Start PHY autonegotiation \r\n");
 	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_CONTROL_REG_OFFSET,
 																	&control);
@@ -278,7 +336,6 @@ unsigned int get_phy_negotiated_speed (XAxiEthernet *xaxiemacp, u32 phy_addr)
 		AxiEthernetUtilPhyDelay(1);
 		XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_STATUS_REG_OFFSET,
 									&status);
-		xil_printf("Status reg: 0x%04X\r\n",status);
 	}
 
 	xil_printf("Autonegotiation complete \r\n");
@@ -365,23 +422,23 @@ unsigned int get_phy_negotiated_speed (XAxiEthernet *xaxiemacp, u32 phy_addr)
 	}
 }
 
-unsigned int get_phy_speed_TI_DP83867_SGMII(XAxiEthernet *xaxiemacp, u32 sgmii_phy_addr, u32 ext_phy_addr)
+unsigned get_IEEE_phy_speed(XAxiEthernet *xaxiemacp, u32 sgmii_phy_addr, u32 ext_phy_addr)
 {
+	u16 phy_identifier;
+	u16 phy_model;
 	u32 link_speed;
-	u16 temp;
 	u16 physts;
 	u16 status;
-	u32 control;
+	u16 control;
 
-	if(sgmii_phy_addr == 0) {
-		// Disable SGMII autonegotiation in the external PHY (address 15)
-		XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr, TI_PHY_CFGR2, &control);
-		control &= ~TI_PHY_CFG2_SGMII_AUTONEGEN;
-		XAxiEthernet_PhyWrite(xaxiemacp, ext_phy_addr, TI_PHY_CFGR2, control);
+	/* Make sure that the PHY model is correct */
+	XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr, PHY_IDENTIFIER_1_REG, &phy_identifier);
+	XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr, PHY_IDENTIFIER_2_REG, &phy_model);
 
-		// Disable autonegotiation in the PCS/PMA SGMII cores (addresses 16,17)
-		XAxiEthernet_PhyWrite(xaxiemacp,0x10,IEEE_CONTROL_REG_OFFSET,0x0160);
-		XAxiEthernet_PhyWrite(xaxiemacp,0x11,IEEE_CONTROL_REG_OFFSET,0x0160);
+	if ((phy_identifier != TI_PHY_IDENTIFIER) ||
+			(phy_model != TI_PHY_DP83867_MODEL)) {
+		xil_printf("Incorrect PHY ID (0x%04X) or PHY model (0x%04X) for TI DP83867\r\n");
+		return(0);
 	}
 
 	xil_printf("Waiting for Link to be up \r\n");
@@ -401,61 +458,33 @@ unsigned int get_phy_speed_TI_DP83867_SGMII(XAxiEthernet *xaxiemacp, u32 sgmii_p
 		XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr, TI_DP83867_PHYSTS, &physts);
 	} while( !(physts & TI_DP83867_PHYSTS_LINK_STATUS_UP) );
 	if( (physts & TI_DP83867_PHYSTS_SPEED_SELECTION_MASK) == TI_DP83867_PHYSTS_SPEED_SELECTION_1000_MBPS ) {
-		xil_printf("1000 MBPS ");
+		xil_printf("1000 Mbps ");
 		link_speed = 1000;
 	}
 	else if( (physts & TI_DP83867_PHYSTS_SPEED_SELECTION_MASK) == TI_DP83867_PHYSTS_SPEED_SELECTION_100_MBPS ) {
-		xil_printf("100 MBPS ");
+		xil_printf("100 Mbps ");
 		link_speed = 100;
 	}
 	else {
-		xil_printf("10 MBPS "); /* TODO: should check for corner case of 0xC000... */
+		xil_printf("10 Mbps "); /* TODO: should check for corner case of 0xC000... */
 		link_speed = 10;
 	}
 	if( physts & TI_DP83867_PHYSTS_DUPLEX_FULL )
-		xil_printf("full duplex\r\n");
+		xil_printf("Full duplex\r\n");
 	else
-		xil_printf("half duplex\r\n");
+		xil_printf("Half duplex\r\n");
 
+	// If port 3 enabled, then just return the external PHYs negotiated speed
 	if(sgmii_phy_addr == 0)
 		return(link_speed);
+	// Otherwise go on to check the SGMII core's negotiated speed
 	else
 		return get_phy_negotiated_speed(xaxiemacp, sgmii_phy_addr);
-}
-
-
-unsigned get_IEEE_phy_speed(XAxiEthernet *xaxiemacp, u32 sgmii_phy_addr, u32 ext_phy_addr)
-{
-	u16 phy_identifier;
-	u16 phy_model;
-	u8 phytype;
-
-	/* Get the PHY Identifier and Model number */
-	XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr, PHY_IDENTIFIER_1_REG, &phy_identifier);
-	XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr, PHY_IDENTIFIER_2_REG, &phy_model);
-
-	xil_printf("PHY address (%d), ID (0x%04X), Model (0x%04X)\r\n",ext_phy_addr,phy_identifier,phy_model);
-
-/* Depending upon what manufacturer PHY is connected, a different mask is
- * needed to determine the specific model number of the PHY. */
-	if (phy_identifier == TI_PHY_IDENTIFIER) {
-		phy_model = phy_model & TI_PHY_DP83867_MODEL;
-		phytype = XAxiEthernet_GetPhysicalInterface(xaxiemacp);
-
-		if (phy_model == TI_PHY_DP83867_MODEL && phytype == XAE_PHY_TYPE_GMII) {
-			return get_phy_speed_TI_DP83867_SGMII(xaxiemacp, sgmii_phy_addr, ext_phy_addr);
-		}
-	}
-	else {
-	    LWIP_DEBUGF(NETIF_DEBUG, ("XAxiEthernet get_IEEE_phy_speed: Detected PHY with unknown identifier/model.\r\n"));
-	}
-	return 0;
 }
 
 unsigned configure_IEEE_phy_speed(XAxiEthernet *xaxiemacp, u32 sgmii_phy_addr, u32 ext_phy_addr, unsigned speed)
 {
 	u16 control;
-	u16 phy_val;
 
 	XAxiEthernet_PhyRead(xaxiemacp, ext_phy_addr,
 				IEEE_CONTROL_REG_OFFSET,
@@ -513,35 +542,92 @@ unsigned configure_IEEE_phy_speed(XAxiEthernet *xaxiemacp, u32 sgmii_phy_addr, u
 	return 0;
 }
 
-unsigned enable_sgmii_clk (XAxiEthernet *xaxiemacp, u32 phy_addr)
+static u32_t init_dp83867_phy(XAxiEthernet *xaxiemacp, u32_t phy_addr)
 {
-	u16 control;
-	u16 temp;
-	u16 phyregtemp;
+	u16_t control;
+	/*
+	 * There are a few things that need to be configured in the
+	 * DP83867 PHY for optimal operation:
+	 * - Enable 10Mbps operation (clear bit 7 of register 0x016F)
+	 * - Set SGMII Auto-negotiation timer to 11ms
+	 * - Disable RGMII
+	 */
+	// Enable 10Mbps operation
+	XAxiEthernet_PhyReadExtended(xaxiemacp, phy_addr, TI_PHY_10M_SGMII_CFG, &control);
+	control &= ~(TI_PHY_10M_SGMII_RATE_ADAPT);
+	XAxiEthernet_PhyWriteExtended(xaxiemacp, phy_addr, TI_PHY_10M_SGMII_CFG, control);
 
+	// Set SGMII autonegotiation timer to 11ms
+	XAxiEthernet_PhyReadExtended(xaxiemacp, phy_addr, TI_PHY_REGCFG4, &control);
+	control |= TI_PHY_CFG4_SGMII_AN_TIMER;
+	XAxiEthernet_PhyWriteExtended(xaxiemacp, phy_addr, TI_PHY_REGCFG4, control);
+
+	// Disable RGMII
+	XAxiEthernet_PhyWriteExtended(xaxiemacp, phy_addr, TI_PHY_RGMIICTL, 0x0);
+}
+
+static u32_t init_hardware(XAxiEthernet *xaxiemacp)
+{
+	u16_t control;
+	u32 i;
+
+	// Assert reset of the SGMII core (active low)
+	ps_gpio_set(5,GPIO_PL_RESETN1_MASK,0x0);
+
+	// Hardware Reset the external PHYs
+	// In the GEM design, we hardware reset the PHYs here but the
+	// AXI Ethernet IP already handles the reset properly,
+	// asserting reset for 10ms.
+
+	// Make sure that we can read from all of the TI DP83867 PHYs
+	for(i = 0; i<4; i++){
+		XAxiEthernet_PhyRead(xaxiemacp, extphyaddr[i], PHY_IDENTIFIER_1_REG, &control);
+		if(control != PHY_TI_IDENTIFIER) {
+			xil_printf("init_hardware: ERROR: PHY @ %d returned bad ID 0x%04X.\r\n",extphyaddr[i],control);
+			return(1);
+		}
+	}
+
+	// Enable the 625MHz clock from port 3's PHY
 	xil_printf("Enabling SGMII clock output of port 3 PHY\r\n");
-
-	/* Enable SGMII Clock */
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_REGCR,
-			      TI_PHY_REGCR_DEVAD_EN);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_ADDDR,
-			      TI_PHY_SGMIITYPE);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_REGCR,
-			      TI_PHY_REGCR_DEVAD_EN | TI_PHY_REGCR_DEVAD_DATAEN);
-	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, TI_PHY_ADDDR,
-			      TI_PHY_SGMIICLK_EN);
-
+	XAxiEthernet_PhyReadExtended(xaxiemacp,extphyaddr[3],TI_PHY_SGMIITYPE,&control);
+	control |= TI_PHY_SGMIICLK_EN;
+	XAxiEthernet_PhyWriteExtended(xaxiemacp,extphyaddr[3],TI_PHY_SGMIITYPE,control);
 	xil_printf("SGMII clock enabled\n\r");
+	usleep(500);
 
-	return 0;
+	// Release reset of the SGMII core (active low)
+	ps_gpio_set(5,GPIO_PL_RESETN1_MASK,GPIO_PL_RESETN1_MASK);
 
+	// Configure the SGMII cores
+	// (disable ISOLATE, auto-neg enable, full duplex, 1Gbps)
+	for(i = 0; i<3; i++){
+		// Ports 0-2 use SGMII auto-negotiation
+		XAxiEthernet_PhyWrite(xaxiemacp, sgmiiphyaddr[i], PHY_CTRL_REG,
+				IEEE_CTRL_DUPLEX_MASK | IEEE_CTRL_SPEED_MSB_MASK |
+				IEEE_CTRL_AUTONEG_MASK);
+	}
+	for(i = 3; i<5; i++){
+		// Port 3 does not use SGMII auto-negotiation
+		XAxiEthernet_PhyWrite(xaxiemacp, sgmiiphyaddr[i], PHY_CTRL_REG,
+				IEEE_CTRL_DUPLEX_MASK | IEEE_CTRL_SPEED_MSB_MASK |
+				IEEE_CTRL_UNIDIRECTIONAL_MASK);
+	}
+
+	// Initialize all 4x TI DP83867 PHYs
+	for(i = 0; i<4; i++){
+		init_dp83867_phy(xaxiemacp,extphyaddr[i]);
+	}
+
+	// Disable SGMII auto-negotiation in the external PHY of port 3
+	XAxiEthernet_PhyRead(xaxiemacp, extphyaddr[3], TI_PHY_CFGR2, &control);
+	control &= ~TI_PHY_CFG2_SGMII_AUTONEGEN;
+	XAxiEthernet_PhyWrite(xaxiemacp, extphyaddr[3], TI_PHY_CFGR2, control);
 }
 
 unsigned init_axi_ethernet_0()
 {
 	XAxiEthernet_Config *mac_config;
-
-	xil_printf("Initializing axi_ethernet_0 for MDIO interface\n\r");
 
 	axi_ethernet_0 = mem_malloc(sizeof *axi_ethernet_0);
 	if (axi_ethernet_0 == NULL) {
@@ -556,7 +642,6 @@ unsigned init_axi_ethernet_0()
 				mac_config->BaseAddress);
 
 	XAxiEthernet_Reset(axi_ethernet_0);
-	xil_printf("MDIO ready\n\r");
 
 	return 0;
 }
@@ -566,99 +651,59 @@ unsigned phy_setup_axiemac (XAxiEthernet *xaxiemacp)
 {
 	unsigned link_speed = 1000;
 	XAxiEthernet *xaxiemacp_p0;
-	u32 sgmii_phy_addr = 0;
-	u32 sgmii_p3_rx_phy_addr;
-	u32 sgmii_p3_tx_phy_addr;
-	u32 ext_phy_addr;
 	u32 port_num;
 
-	if (XAxiEthernet_GetPhysicalInterface(xaxiemacp) ==
-						XAE_PHY_TYPE_RGMII_1_3) {
-		; /* Add PHY initialization code for RGMII 1.3 */
-	} else if (XAxiEthernet_GetPhysicalInterface(xaxiemacp) ==
-						XAE_PHY_TYPE_RGMII_2_0) {
-		; /* Add PHY initialization code for RGMII 2.0 */
-	} else if ((XAxiEthernet_GetPhysicalInterface(xaxiemacp) ==
-						XAE_PHY_TYPE_SGMII) || (XAxiEthernet_GetPhysicalInterface(xaxiemacp) ==
-						XAE_PHY_TYPE_GMII)) {
 #ifdef  CONFIG_LINKSPEED_AUTODETECT
-		// If the enabled port is not port 0, then we need to initialize
-		// axi_ethernet_0 so that we can use it's MDIO interface
-		if(xaxiemacp->Config.BaseAddress != XPAR_AXI_ETHERNET_0_BASEADDR){
-			// Initialize axi_ethernet_0 which is used for the MDIO interface
-			init_axi_ethernet_0();
-			xaxiemacp_p0 = axi_ethernet_0;
-		}
-		// If the enabled port is port 0, then GEM0 is already initialized
-		else {
-			xaxiemacp_p0 = xaxiemacp;
-		}
-
-		// Determine the correct PHY addresses for the enabled port
-		if(xaxiemacp->Config.BaseAddress == XPAR_AXI_ETHERNET_0_BASEADDR){
-			sgmii_phy_addr = PORT0_SGMII_PHYADDR;
-			ext_phy_addr = PORT0_EXT_PHY_ADDR;
-			port_num = 0;
-		}
-		else if(xaxiemacp->Config.BaseAddress == XPAR_AXI_ETHERNET_1_BASEADDR){
-			sgmii_phy_addr = PORT1_SGMII_PHYADDR;
-			ext_phy_addr = PORT1_EXT_PHY_ADDR;
-			port_num = 1;
-		}
-		else if(xaxiemacp->Config.BaseAddress == XPAR_AXI_ETHERNET_2_BASEADDR){
-			sgmii_phy_addr = PORT2_SGMII_PHYADDR;
-			ext_phy_addr = PORT2_EXT_PHY_ADDR;
-			port_num = 2;
-		}
-		else{
-			ext_phy_addr = PORT3_EXT_PHY_ADDR;
-			sgmii_p3_rx_phy_addr = PORT3_SGMII_RX_PHYADDR;
-			sgmii_p3_tx_phy_addr = PORT3_SGMII_TX_PHYADDR;
-			port_num = 3;
-		}
-
-		xil_printf("Enabled port: %d, Ext PHY addr: %d\r\n", port_num, ext_phy_addr);
-
-		// Enable 625MHz SGMII clock
-		enable_sgmii_clk(xaxiemacp_p0,PORT3_EXT_PHY_ADDR);
-
-		// Enable SGMII auto negotiation
-		u32 phy_wr_data = IEEE_CTRL_AUTONEGOTIATE_ENABLE |
-					IEEE_CTRL_LINKSPEED_1000M;
-		phy_wr_data &= (~PHY_R0_ISOLATE);
-
-		XAxiEthernet_PhyWrite(xaxiemacp_p0,
-				sgmii_phy_addr,
-				IEEE_CONTROL_REG_OFFSET,
-				phy_wr_data);
-#endif
-	} else if (XAxiEthernet_GetPhysicalInterface(xaxiemacp) ==
-						XAE_PHY_TYPE_1000BASE_X) {
-		; /* Add PHY initialization code for 1000 Base-X */
+	// If the enabled port is not port 0, then we need to initialize
+	// axi_ethernet_0 so that we can use it's MDIO interface
+	if(xaxiemacp->Config.BaseAddress != XPAR_AXI_ETHERNET_0_BASEADDR){
+		// Initialize axi_ethernet_0 which is used for the MDIO interface
+		init_axi_ethernet_0();
+		xaxiemacp_p0 = axi_ethernet_0;
 	}
-/* set PHY <--> MAC data clock */
-#ifdef  CONFIG_LINKSPEED_AUTODETECT
-	// If port 3 is enabled, then we will manually configure it to 1Gbps
-	if(port_num == 3){
-		link_speed = get_IEEE_phy_speed(xaxiemacp_p0, 0, ext_phy_addr);
-		//configure_IEEE_phy_speed_port3(xemacpsp_gem0, ext_phy_addr, sgmii_p3_rx_phy_addr, sgmii_p3_tx_phy_addr, link_speed);
+	// If the enabled port is port 0, then GEM0 is already initialized
+	else {
+		xaxiemacp_p0 = xaxiemacp;
 	}
-	// For ports 0-2 we will let the link auto-negotiate a speed
+
+	// Initialize the hardware
+	init_hardware(xaxiemacp_p0);
+
+	// Determine the enabled port number
+	if(xaxiemacp->Config.BaseAddress == XPAR_AXI_ETHERNET_0_BASEADDR){
+		port_num = 0;
+	}
+	else if(xaxiemacp->Config.BaseAddress == XPAR_AXI_ETHERNET_1_BASEADDR){
+		port_num = 1;
+	}
+	else if(xaxiemacp->Config.BaseAddress == XPAR_AXI_ETHERNET_2_BASEADDR){
+		port_num = 2;
+	}
 	else{
-		link_speed = get_IEEE_phy_speed(xaxiemacp_p0, sgmii_phy_addr, ext_phy_addr);
+		port_num = 3;
 	}
-	xil_printf("Link speed: %d\r\n", link_speed);
+
+	xil_printf("Enabled port: %d, Ext PHY addr: %d\r\n", port_num, extphyaddr[port_num]);
+
+	// If port 3 is enabled, then the external PHY will tell us link speed
+	if(port_num == 3){
+		link_speed = get_IEEE_phy_speed(xaxiemacp_p0, 0, extphyaddr[port_num]);
+	}
+	// For ports 0-2, the SGMII core tells us link speed
+	else{
+		link_speed = get_IEEE_phy_speed(xaxiemacp_p0, sgmiiphyaddr[port_num], extphyaddr[port_num]);
+	}
 #elif	defined(CONFIG_LINKSPEED1000)
 	link_speed = 1000;
-	configure_IEEE_phy_speed(xaxiemacp_p0, sgmii_phy_addr, ext_phy_addr, link_speed);
+	configure_IEEE_phy_speed(xaxiemacp_p0, sgmii_phy_addr, extphyaddr[port_num], link_speed);
 	xil_printf("link speed: %d\r\n", link_speed);
 #elif	defined(CONFIG_LINKSPEED100)
 	link_speed = 100;
-	configure_IEEE_phy_speed(xaxiemacp_p0, sgmii_phy_addr, ext_phy_addr, link_speed);
+	configure_IEEE_phy_speed(xaxiemacp_p0, sgmii_phy_addr, extphyaddr[port_num], link_speed);
 	xil_printf("link speed: %d\r\n", link_speed);
 #elif	defined(CONFIG_LINKSPEED10)
 	link_speed = 10;
-	configure_IEEE_phy_speed(xaxiemacp_p0, sgmii_phy_addr, ext_phy_addr, link_speed);
+	configure_IEEE_phy_speed(xaxiemacp_p0, sgmii_phy_addr, extphyaddr[port_num], link_speed);
 	xil_printf("link speed: %d\r\n", link_speed);
 #endif
 	return link_speed;

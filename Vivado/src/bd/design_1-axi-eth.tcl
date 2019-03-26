@@ -50,7 +50,8 @@ CONFIG.PSU__USE__IRQ0 {1} \
 CONFIG.PSU__USE__IRQ1 {1} \
 CONFIG.PSU__GPIO_EMIO__PERIPHERAL__ENABLE {1} \
 CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {8} \
-CONFIG.PSU__UART0__MODEM__ENABLE {1}] [get_bd_cells zynq_ultra_ps_e_0]
+CONFIG.PSU__UART0__MODEM__ENABLE {1} \
+CONFIG.PSU__NUM_FABRIC_RESETS {2}] [get_bd_cells zynq_ultra_ps_e_0]
 
 # Add the SGMII cores
 create_bd_cell -type ip -vlnv xilinx.com:ip:gig_ethernet_pcs_pma eth_pcs_pma_0_1
@@ -314,7 +315,7 @@ connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins axi_ethernet
 # Resets
 create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic reset_invert
 set_property -dict [list CONFIG.C_SIZE {1} CONFIG.C_OPERATION {not} CONFIG.LOGO_FILE {data/sym_notgate.png}] [get_bd_cells reset_invert]
-connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0] [get_bd_pins reset_invert/Op1]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_resetn1] [get_bd_pins reset_invert/Op1]
 connect_bd_net [get_bd_pins reset_invert/Res] [get_bd_pins eth_pcs_pma_3_rx/reset]
 connect_bd_net [get_bd_pins eth_pcs_pma_3_rx/rst_125_out] [get_bd_pins eth_pcs_pma_0_1/reset]
 connect_bd_net [get_bd_pins eth_pcs_pma_3_rx/rst_125_out] [get_bd_pins eth_pcs_pma_2/reset]
