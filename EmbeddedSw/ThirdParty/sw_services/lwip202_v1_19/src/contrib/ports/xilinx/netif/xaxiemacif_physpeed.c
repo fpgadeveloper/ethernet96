@@ -204,53 +204,6 @@ XAxiEthernet *axi_ethernet_0;
 
 static void __attribute__ ((noinline)) AxiEthernetUtilPhyDelay(unsigned int Seconds);
 
-static int detect_phy(XAxiEthernet *xaxiemacp)
-{
-	u16 phy_reg;
-	u16 phy_id;
-	u32 phy_addr;
-
-	for (phy_addr = 31; phy_addr > 0; phy_addr--) {
-		XAxiEthernet_PhyRead(xaxiemacp, phy_addr, PHY_DETECT_REG,
-								&phy_reg);
-
-		if ((phy_reg != 0xFFFF) &&
-			((phy_reg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
-			/* Found a valid PHY address */
-			LWIP_DEBUGF(NETIF_DEBUG, ("XAxiEthernet detect_phy: PHY detected at address %d.\r\n", phy_addr));
-			LWIP_DEBUGF(NETIF_DEBUG, ("XAxiEthernet detect_phy: PHY detected.\r\n"));
-			XAxiEthernet_PhyRead(xaxiemacp, phy_addr, PHY_IDENTIFIER_1_REG,
-										&phy_reg);
-			if ((phy_reg != PHY_MARVELL_IDENTIFIER) &&
-                (phy_reg != TI_PHY_IDENTIFIER)){
-				xil_printf("WARNING: Not a Marvell or TI Ethernet PHY. Please verify the initialization sequence\r\n");
-			}
-			phyaddrforemac = phy_addr;
-			return phy_addr;
-		}
-
-		XAxiEthernet_PhyRead(xaxiemacp, phy_addr, PHY_IDENTIFIER_1_REG,
-				&phy_id);
-
-		if (phy_id == PHY_XILINX_PCS_PMA_ID1) {
-			XAxiEthernet_PhyRead(xaxiemacp, phy_addr, PHY_IDENTIFIER_2_REG,
-					&phy_id);
-			if (phy_id == PHY_XILINX_PCS_PMA_ID2) {
-				/* Found a valid PHY address */
-				LWIP_DEBUGF(NETIF_DEBUG, ("XAxiEthernet detect_phy: PHY detected at address %d.\r\n",
-							phy_addr));
-				phyaddrforemac = phy_addr;
-				return phy_addr;
-			}
-		}
-	}
-
-	LWIP_DEBUGF(NETIF_DEBUG, ("XAxiEthernet detect_phy: No PHY detected.  Assuming a PHY at address 0\r\n"));
-
-        /* default to zero */
-	return 0;
-}
-
 void XAxiEthernet_PhyReadExtended(XAxiEthernet *InstancePtr, u32 PhyAddress,
 		u32 RegisterNum, u16 *PhyDataPtr)
 {
@@ -542,7 +495,7 @@ unsigned configure_IEEE_phy_speed(XAxiEthernet *xaxiemacp, u32 sgmii_phy_addr, u
 	return 0;
 }
 
-static u32_t init_dp83867_phy(XAxiEthernet *xaxiemacp, u32_t phy_addr)
+static void init_dp83867_phy(XAxiEthernet *xaxiemacp, u32_t phy_addr)
 {
 	u16_t control;
 	/*
@@ -623,6 +576,8 @@ static u32_t init_hardware(XAxiEthernet *xaxiemacp)
 	XAxiEthernet_PhyRead(xaxiemacp, extphyaddr[3], TI_PHY_CFGR2, &control);
 	control &= ~TI_PHY_CFG2_SGMII_AUTONEGEN;
 	XAxiEthernet_PhyWrite(xaxiemacp, extphyaddr[3], TI_PHY_CFGR2, control);
+
+	return(0);
 }
 
 unsigned init_axi_ethernet_0()
@@ -646,6 +601,39 @@ unsigned init_axi_ethernet_0()
 	return 0;
 }
 
+
+/*
+ * sgmii_phy_set_link_speed: Set the link speed of the PCS/PMA SGMII core
+ *
+ * This function can be used to set the link speed of the PCS/PMA or
+ * SGMII core when SGMII auto-negotiation is disabled. To use the
+ * function, first wait until the external PHY has negotiated a link,
+ * then read the negotiated link speed over the MDIO bus, then call
+ * this function with the PHY address of the SGMII IP core to configure,
+ * and the link speed (1000, 100 or 10).
+ *
+ */
+void sgmii_phy_set_link_speed(XAxiEthernet *xaxiemacp, u32 phy_addr, u32 link_speed)
+{
+	u16 control;
+
+	XAxiEthernet_PhyRead(xaxiemacp, phy_addr, IEEE_CONTROL_REG_OFFSET, &control);
+
+	if(link_speed == 1000){
+		control |= IEEE_CTRL_SPEED_MSB_MASK;
+		control &= ~IEEE_CTRL_SPEED_LSB_MASK;
+	}
+	else if(link_speed == 100){
+		control &= ~IEEE_CTRL_SPEED_MSB_MASK;
+		control |= IEEE_CTRL_SPEED_LSB_MASK;
+	}
+	else{
+		control &= ~IEEE_CTRL_SPEED_MSB_MASK;
+		control &= ~IEEE_CTRL_SPEED_LSB_MASK;
+	}
+
+	XAxiEthernet_PhyWrite(xaxiemacp, phy_addr, IEEE_CONTROL_REG_OFFSET, control);
+}
 
 unsigned phy_setup_axiemac (XAxiEthernet *xaxiemacp)
 {
@@ -685,11 +673,15 @@ unsigned phy_setup_axiemac (XAxiEthernet *xaxiemacp)
 
 	xil_printf("Enabled port: %d, Ext PHY addr: %d\r\n", port_num, extphyaddr[port_num]);
 
-	// If port 3 is enabled, then the external PHY will tell us link speed
+	// If port 3 is enabled, we read link speed from external PHY
+	// then configure the PCS/PMA SGMII IP core with that link speed
 	if(port_num == 3){
 		link_speed = get_IEEE_phy_speed(xaxiemacp_p0, 0, extphyaddr[port_num]);
+		sgmii_phy_set_link_speed(xaxiemacp_p0,sgmiiphyaddr[3],link_speed);
+		sgmii_phy_set_link_speed(xaxiemacp_p0,sgmiiphyaddr[4],link_speed);
 	}
-	// For ports 0-2, the SGMII core tells us link speed
+	// For ports 0-2 we can read link speed from either the external PHY
+	// or the PCS/PMA or SGMII core
 	else{
 		link_speed = get_IEEE_phy_speed(xaxiemacp_p0, sgmiiphyaddr[port_num], extphyaddr[port_num]);
 	}

@@ -21,8 +21,17 @@ it finds in the Vivado directory of this repo.
 
 ### Status of the PetaLinux projects
 
+#### PS GEM based design
+
 * All ports working for the ps_gem design
+* Port 0-2 will work at link speeds of 10Mbps, 100Mbps and 1000Mbps
+* Port 3 will only work at a link speed of 1000Mbps. It's hard coded to work at 1000Mbps only but we're working on a 
+fix for this so that the PCS/PMA or SGMII IP will be configured according to the actual negotiated link speed
+
+#### AXI Ethernet based design
+
 * Not yet tested for the axi_eth design (work still needs to be done)
+* To do: Need to patch the AXI Ethernet driver to deal with multiple PHYs connected to a single MDIO bus
 
 ### UNIX line endings
 

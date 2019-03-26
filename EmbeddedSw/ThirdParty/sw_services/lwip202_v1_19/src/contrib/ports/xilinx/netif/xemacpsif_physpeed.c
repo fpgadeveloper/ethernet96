@@ -358,11 +358,11 @@ unsigned init_xemac_p0()
 
 unsigned ps_gpio_set(u32 bank,u32 mask,u32 value)
 {
-	const u32 dirm[6] = {GPIO_DIRM_BANK_0,GPIO_DIRM_BANK_1,GPIO_DIRM_BANK_2,
+	const u32_t dirm[6] = {GPIO_DIRM_BANK_0,GPIO_DIRM_BANK_1,GPIO_DIRM_BANK_2,
 			GPIO_DIRM_BANK_3,GPIO_DIRM_BANK_4,GPIO_DIRM_BANK_5};
-	const u32 open[6] = {GPIO_OPEN_BANK_0,GPIO_OPEN_BANK_1,GPIO_OPEN_BANK_2,
+	const u32_t open[6] = {GPIO_OPEN_BANK_0,GPIO_OPEN_BANK_1,GPIO_OPEN_BANK_2,
 			GPIO_OPEN_BANK_3,GPIO_OPEN_BANK_4,GPIO_OPEN_BANK_5};
-	const u32 data[6] = {GPIO_DATA_BANK_0,GPIO_DATA_BANK_1,GPIO_DATA_BANK_2,
+	const u32_t data[6] = {GPIO_DATA_BANK_0,GPIO_DATA_BANK_1,GPIO_DATA_BANK_2,
 			GPIO_DATA_BANK_3,GPIO_DATA_BANK_4,GPIO_DATA_BANK_5};
 
 	u32_t reg = 0;
@@ -382,7 +382,7 @@ unsigned ps_gpio_set(u32 bank,u32 mask,u32 value)
 	return 0;
 }
 
-static u32_t init_dp83867_phy(XEmacPs *xemacpsp, u32_t phy_addr)
+static void init_dp83867_phy(XEmacPs *xemacpsp, u32_t phy_addr)
 {
 	u16_t control;
 	/*
@@ -464,13 +464,48 @@ static u32_t init_hardware(XEmacPs *xemacpsp)
 	XEmacPs_PhyRead(xemacpsp, extphyaddr[3], TI_PHY_CFGR2, &control);
 	control &= ~TI_PHY_CFG2_SGMII_AUTONEGEN;
 	XEmacPs_PhyWrite(xemacpsp, extphyaddr[3], TI_PHY_CFGR2, control);
+
+	return(0);
+}
+
+/*
+ * sgmii_phy_set_link_speed: Set the link speed of the PCS/PMA SGMII core
+ *
+ * This function can be used to set the link speed of the PCS/PMA or
+ * SGMII core when SGMII auto-negotiation is disabled. To use the
+ * function, first wait until the external PHY has negotiated a link,
+ * then read the negotiated link speed over the MDIO bus, then call
+ * this function with the PHY address of the SGMII IP core to configure,
+ * and the link speed (1000, 100 or 10).
+ *
+ */
+void sgmii_phy_set_link_speed(XEmacPs *xemacpsp, u32 phy_addr, u32 link_speed)
+{
+	u16 control;
+
+	XEmacPs_PhyRead(xemacpsp, phy_addr, IEEE_CONTROL_REG_OFFSET, &control);
+
+	if(link_speed == 1000){
+		control |= IEEE_CTRL_SPEED_MSB_MASK;
+		control &= ~IEEE_CTRL_SPEED_LSB_MASK;
+	}
+	else if(link_speed == 100){
+		control &= ~IEEE_CTRL_SPEED_MSB_MASK;
+		control |= IEEE_CTRL_SPEED_LSB_MASK;
+	}
+	else{
+		control &= ~IEEE_CTRL_SPEED_MSB_MASK;
+		control &= ~IEEE_CTRL_SPEED_LSB_MASK;
+	}
+
+	XEmacPs_PhyWrite(xemacpsp, phy_addr, IEEE_CONTROL_REG_OFFSET, control);
 }
 
 u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 {
 	u32_t link_speed;
 	XEmacPs *xemacpsp_gem0;
-	u32 port_num;
+	u32 port_num = 0;
 
 	// If the enabled port is not port 0, then we need to initialize
 	// GEM0 so that we can use it's MDIO interface
@@ -504,10 +539,14 @@ u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 	xil_printf("Enabled port: %d, Ext PHY addr: %d\r\n", port_num, extphyaddr[port_num]);
 
 	// If port 3 is enabled, we read link speed from external PHY
+	// then configure the PCS/PMA SGMII IP core with that link speed
 	if(port_num == 3){
 		link_speed = get_IEEE_phy_speed(xemacpsp_gem0, extphyaddr[port_num], 0);
+		sgmii_phy_set_link_speed(xemacpsp_gem0,sgmiiphyaddr[3],link_speed);
+		sgmii_phy_set_link_speed(xemacpsp_gem0,sgmiiphyaddr[4],link_speed);
 	}
-	// For ports 0-2 we read link speed from PCS/PMA or SGMII core
+	// For ports 0-2 we can read link speed from either the external PHY
+	// or the PCS/PMA or SGMII core
 	else{
 		link_speed = get_IEEE_phy_speed(xemacpsp_gem0, extphyaddr[port_num], sgmiiphyaddr[port_num]);
 	}
@@ -533,7 +572,6 @@ static u32_t get_IEEE_phy_speed(XEmacPs *xemacpsp, u32_t ext_phy_addr, u32_t sgm
 	u16_t temp;
 	u16_t control;
 	u16_t status;
-	u16_t partner_capabilities;
 	u16 physts;
 
 	/* Make sure that the PHY model is correct */
