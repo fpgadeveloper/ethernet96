@@ -193,3 +193,9 @@ set_property ODT RTT_48 [get_ports sgmii_port_3_rx_rxn]
 set_property ODT RTT_48 [get_ports ref_clk_625mhz_clk_p]
 set_property ODT RTT_48 [get_ports ref_clk_625mhz_clk_n]
 
+# Bluetooth UART0 pins
+set_property IOSTANDARD LVCMOS18 [get_ports BT*]
+#BT_HCI_RTS on FPGA /  emio_uart0_ctsn connect to 
+set_property PACKAGE_PIN B7 [get_ports BT_ctsn]
+#BT_HCI_CTS on FPGA / emio_uart0_rtsn
+set_property PACKAGE_PIN B5 [get_ports BT_rtsn]

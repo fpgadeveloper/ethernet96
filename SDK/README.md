@@ -27,7 +27,7 @@ Vivado design.
 
 ### Run the application
 
-1. Open Xilinx SDK.
+1. Open Xilinx SDK (DO NOT use the Launch SDK option from Vivado).
 2. Power up your hardware platform and ensure that the JTAG is
 connected properly.
 3. Select Xilinx Tools->Program FPGA. You only have to do this
