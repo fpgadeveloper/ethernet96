@@ -85,7 +85,8 @@ for the root file system.
   * `/<petalinux-project>/images/linux/BOOT.bin`
   * `/<petalinux-project>/images/linux/image.ub`
 3. Create the root file system using dd:
-```$ sudo dd if=rootfs.ext4 of=/dev/sdX2
+```
+$ sudo dd if=rootfs.ext4 of=/dev/sdX2
 $ sync
 ```
 Note that `sdX2` will depend on your system (it could be `sdE2` or `sdF2` or something else) and
@@ -147,7 +148,8 @@ following:
 ### Example port usage from Linux command line
 
 #### Enable port 0
-```root@ps_gem:~# ifconfig eth0 up
+```
+root@ps_gem:~# ifconfig eth0 up
 [  209.778955] TI DP83867 ff0b0000.mdio-mii:03: attached PHY driver [TI DP83867] (mii_bus:phy_addr=ff0b0000.mdio-mii:03, irq=POLL)
 [  209.793249] pps pps1: new PPS source ptp1
 [  209.797193] macb ff0b0000.ethernet: gem-ptp-timer ptp clock registered.
@@ -157,7 +159,8 @@ following:
 ```
  
 #### Enable port 1 with fixed IP address
-```root@ps_gem:~# ifconfig eth1 192.168.2.19 up
+```
+root@ps_gem:~# ifconfig eth1 192.168.2.19 up
 [  209.778955] TI DP83867 ff0b0000.mdio-mii:03: attached PHY driver [TI DP83867] (mii_bus:phy_addr=ff0b0000.mdio-mii:03, irq=POLL)
 [  209.793249] pps pps1: new PPS source ptp1
 [  209.797193] macb ff0c0000.ethernet: gem-ptp-timer ptp clock registered.
@@ -167,7 +170,8 @@ following:
 ```
 
 #### Check status of port 2 with ethtool
-```root@ps_gem:~# ethtool eth2
+```
+root@ps_gem:~# ethtool eth2
 Settings for eth2:
         Supported ports: [ TP MII ]
         Supported link modes:   10baseT/Half 10baseT/Full
@@ -195,7 +199,8 @@ Settings for eth2:
 ```
 
 #### Ping link partner using specific port (eg. port 1)
-```root@ps_gem:~# ping -I eth1 192.168.1.10
+```
+root@ps_gem:~# ping -I eth1 192.168.1.10
 PING 192.168.1.10 (192.168.1.10): 56 data bytes
 64 bytes from 192.168.1.10: seq=0 ttl=128 time=0.939 ms
 64 bytes from 192.168.1.10: seq=1 ttl=128 time=0.496 ms
@@ -209,7 +214,8 @@ round-trip min/avg/max = 0.485/0.581/0.939 ms
 ```
 
 #### Check port configuration (eg. port 1)
-```root@ps_gem:~# ifconfig eth1
+```
+root@ps_gem:~# ifconfig eth1
 eth1      Link encap:Ethernet  HWaddr 00:0A:35:00:01:23
           inet addr:192.168.1.11  Bcast:192.168.1.255  Mask:255.255.255.0
           inet6 addr: fe80::20a:35ff:fe00:123%4294741717/64 Scope:Link
@@ -223,7 +229,6 @@ eth1      Link encap:Ethernet  HWaddr 00:0A:35:00:01:23
 
 ### To do
 
-* FSBL hooks patch should be made to work for the AXI Ethernet design also
 * U-Boot needs to be patched so that it works for a configuration of multiple PHYs
   on a single MDIO bus
 * Need to be using the PCS/PMA or SGMII core's TX and RX locked signals to ensure
