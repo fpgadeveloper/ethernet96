@@ -304,9 +304,9 @@ proc create_boot_files {} {
     # Swap forward slashes for back slashes on Windows systems
     set OS [lindex $::tcl_platform(os) 0]
     if { $OS == "Windows" } {
-      regsub -all {/} $bootgen_cmd {\\} bootgen_cmd
+      regsub -all {/} $bootgen_cmd {\\\\} bootgen_cmd
     }
-	  exec {*}$bootgen_cmd
+    exec {*}$bootgen_cmd
   }
 }
 
