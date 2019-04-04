@@ -15,13 +15,12 @@
 # sys.path.insert(0, os.path.abspath('.'))
 import sys
 import os
-html_theme = 'sphinx_rtd_theme'
 numfig = True
 
 # -- Project information -----------------------------------------------------
 
 project = '96B Quad Ethernet Mezzanine'
-copyright = '2019, Jeff Johnson'
+copyright = '2019, Opsero Electronic Design Inc.'
 author = 'Jeff Johnson'
 
 
@@ -47,7 +46,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
