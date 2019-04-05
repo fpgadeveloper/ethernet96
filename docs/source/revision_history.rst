@@ -1,4 +1,4 @@
 Revision History
 ================
 
-Revision history.
+This is the first version of the documentation.

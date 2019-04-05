@@ -10,11 +10,14 @@ Description
 -----------
 
 The 96B Quad Ethernet Mezzanine is an add-on/expansion board for SoC based development platforms designed to
-the 96Boards specification. The mezzanine card uses the Texas Instruments DP83867 device to provide
+the 96Boards specification. The mezzanine card has 4x Texas Instruments DP83867 Gigabit Ethernet PHYs to provide
 4 ports of gigabit Ethernet connectivity to the carrier development platform.
 
-.. image:: images/96b-quad-ethernet-mezzanine-med-3.jpg
+.. figure:: images/96b-quad-ethernet-mezzanine-med-3.jpg
     :align: center
+    :name: 96b-quad-ethernet-ultra96-photo
+    
+    96B Quad Ethernet Mezzanine on the Ultra96
 
 Features
 --------
