@@ -44,4 +44,5 @@ refer to the `DP83867 datasheet <http://www.ti.com/product/DP83867CS>`_:
 Certifications
 ==============
 
-* Coming soon
+* RoHS
+* CE

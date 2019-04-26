@@ -30,6 +30,13 @@ Features
 * Example designs for Vivado
 * Standalone and PetaLinux example designs
 
+Where to buy
+------------
+
+The mezzanine card can be purchased from Opsero's online shop at the link below:
+
+`96B Quad Ethernet Mezzanine order page <https://opsero.com/product/96b-quad-ethernet-mezzanine/>`_
+
 Contents
 --------
 
