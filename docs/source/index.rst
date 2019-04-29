@@ -37,17 +37,19 @@ The mezzanine card can be purchased from Opsero's online shop at the link below:
 
 `96B Quad Ethernet Mezzanine order page <https://opsero.com/product/96b-quad-ethernet-mezzanine/>`_
 
-Contents
---------
-
 .. toctree::
    :maxdepth: 2
+   :caption: Datasheet
 
-   revision_history
    pin_configuration
    specifications
    detailed_description
    mechanical_info
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guide
+
    getting_started
    programming_guide
    references
