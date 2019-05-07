@@ -10,4 +10,10 @@ in the figure below. All dimensions are in millimeters (mm).
     
     96B Quad Ethernet Mezzanine mechanical drawing
 
-More mechanical dimensions, including 3D Step model, will be available soon.
+The assembly drawing above is also available as a PDF at the link below:
+
+  `96B Quad Ethernet Mezzanine Rev-A Assembly Drawing <http://ethernet96.com/download/96BQuadEth_ASSM_RevA.PDF>`_
+
+The 3D model of the board is available as a STEP file at the link below:
+
+  `96B Quad Ethernet Mezzanine Rev-A 3D STEP model <http://ethernet96.com/download/96BQuadEthernetRevA-3D.zip>`_
