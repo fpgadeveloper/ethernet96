@@ -51,5 +51,6 @@ The mezzanine card can be purchased from Opsero's online shop at the link below:
    :caption: User Guide
 
    getting_started
+   board_setup
    programming_guide
    references
