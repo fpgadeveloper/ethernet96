@@ -147,6 +147,12 @@ Linux users
    script. You may have to add execute permission to the script first using ``chmod +x build-petalinux``,
    then run it by typing ``./build-petalinux``.
 
+.. WARNING:: **UNIX line endings:** The scripts and files in the PetaLinux directory of this repository must 
+          have UNIX line endings when they are executed or used under Linux. The best way to ensure UNIX 
+          line endings, is to clone the repo directly onto your Linux machine. If instead you have copied 
+          the repo from a Windows machine, the files will have DOS line endings and
+          you must use the ``dos2unix`` tool to convert the line endings for UNIX.
+
 Launch on hardware
 ==================
 
