@@ -10,7 +10,7 @@ Avnet [Ultra96](http://zedboard.org/product/ultra96 "Ultra96").
 Important links:
 * Datasheet and user guide for this project is hosted here: [96B Quad Ethernet Mezzanine documentation](https://docs.ethernet96.com "96B Quad Ethernet Mezzanine docs").
 * For technical support, visit the Opsero support forums: [Opsero Support Forums](https://opsero.com/forums "Opsero Support Forums").
-* To purchase the mezzanine card: [96B Quad Ethernet Mezzanine order page](https://opsero.com/96b-quad-ethernet-mezzanine "96B Quad Ethernet Mezzanine order page").
+* To purchase the mezzanine card: [96B Quad Ethernet Mezzanine order page](https://opsero.com/product/96b-quad-ethernet-mezzanine "96B Quad Ethernet Mezzanine order page").
 
 ## Requirements
 
@@ -19,8 +19,8 @@ of this repository. Refer to the [list of commits](https://github.com/fpgadevelo
 to find links to the older versions of this repository.
 
 * Vivado 2018.2
-* 96B Quad Ethernet Mezzanine (expected availability: April 2019)
-* [Ultra96](https://www.96boards.org/product/ultra96/ "Ultra96")
+* [96B Quad Ethernet Mezzanine](https://opsero.com/product/96b-quad-ethernet-mezzanine "96B Quad Ethernet Mezzanine")
+* [Ultra96 v1 or v2](https://www.96boards.org/product/ultra96/ "Ultra96")
 * For designs containing AXI Ethernet Subsystem IP: [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
 * [Ultra96 board files](https://github.com/Avnet/bdf "Ultra96 board files") (see install instructions below)
 

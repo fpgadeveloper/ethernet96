@@ -245,6 +245,11 @@ proc create_sdk_ws {} {
       configbsp -bsp ${app_name}_bsp stdout psu_uart_1
       updatemss -mss ${app_name}_bsp/system.mss
       regenbsp -bsp ${app_name}_bsp
+      # STDIO must be set to psu_uart_1 on Ultra96
+      configbsp -bsp ${vivado_folder}_fsbl_bsp stdin psu_uart_1
+      configbsp -bsp ${vivado_folder}_fsbl_bsp stdout psu_uart_1
+      updatemss -mss ${vivado_folder}_fsbl_bsp/system.mss
+      regenbsp -bsp ${vivado_folder}_fsbl_bsp
     } else {
       puts "Vivado project $vivado_folder not exported."
     }

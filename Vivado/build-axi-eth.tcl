@@ -17,7 +17,21 @@ if {![string equal $ver $version_required]} {
   return
 }
 
-set design_name axi_eth
+# Work out the board name from arguments
+set board_ver "[lindex $argv 1]"
+if {$board_ver == "1"} {
+  set board_part "em.avnet.com:ultra96v1:part0:1.2"
+  set design_name axi_eth_v1
+} elseif {$board_ver == "2"} {
+  set board_part "em.avnet.com:ultra96v2:part0:1.0"
+  set design_name axi_eth_v2
+} else {
+  set board_part "em.avnet.com:ultra96v2:part0:1.0"
+  set design_name axi_eth_v2
+  puts "Board version incorrect or not specified - defaulting to v2."
+  puts "You must specify a valid Ultra96 board version as an argument when"
+  puts "running this script. The argument can be 1 or 2."
+}
 
 # Set the reference directory for source file relative paths (by default the value is script directory path)
 set origin_dir "."
@@ -33,7 +47,7 @@ set proj_dir [get_property directory [current_project]]
 
 # Set project properties
 set obj [get_projects $design_name]
-set_property -name "board_part" -value "em.avnet.com:ultra96v1:part0:1.2" -objects $obj
+set_property -name "board_part" -value $board_part -objects $obj
 set_property -name "default_lib" -value "xil_defaultlib" -objects $obj
 set_property -name "ip_cache_permissions" -value "read write" -objects $obj
 set_property -name "ip_output_repo" -value "$proj_dir/$design_name.cache/ip" -objects $obj

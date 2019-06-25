@@ -1,7 +1,16 @@
 SET vivado=C:\Xilinx\Vivado\2018.2\bin\vivado.bat
 @ECHO OFF
+ECHO.
+ECHO ################################
+ECHO ### Specify Ultra96 v1 or v2 ###
+ECHO ################################
+ECHO.
+ECHO This script can generate a project for Ultra96 v1 or v2.
+ECHO Please specify your board version [1 or 2] and press ENTER.
+ECHO.  
+SET /P ver=Enter board version [1 or 2]: 
 if exist %vivado% (
-  %vivado% -mode batch -source build-axi-eth.tcl
+  %vivado% -mode batch -source build-axi-eth.tcl -tclargs {1} %ver%
 ) else (
   ECHO.
   ECHO ###############################

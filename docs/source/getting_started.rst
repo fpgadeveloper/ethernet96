@@ -95,6 +95,9 @@ Windows users
 #. In the Vivado directory, you will find multiple batch files (\*.bat).
    Double click on the batch file of the example project that you would
    like to generate - this will generate a Vivado project.
+#. You will be asked to select between Ultra96 v1 and v2. It is important to select the
+   correct version of the Ultra96 that you are using. Type 1 or 2 (for v1 or v2)
+   and press ENTER. The script will now generate the Vivado project for your board.
 #. Run Vivado and open the project that was just created.
 #. Click Generate bitstream.
 #. When the bitstream is successfully generated, select "File->Export->Export Hardware".
