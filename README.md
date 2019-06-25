@@ -2,7 +2,8 @@
 
 ## Description
 
-This repo contains example designs for the Opsero 96B Quad Ethernet Mezzanine board when used with the 
+This repo contains example designs for the Opsero 
+[96B Quad Ethernet Mezzanine](https://docs.ethernet96.com "96B Quad Ethernet Mezzanine") board when used with the 
 Avnet [Ultra96](http://zedboard.org/product/ultra96 "Ultra96").
 
 ![96B Quad Ethernet Mezzanine](https://opsero.com/wp-content/uploads/2019/01/96b-quad-ethernet-mezzanine-med-3.jpg "96B Quad Ethernet Mezzanine")

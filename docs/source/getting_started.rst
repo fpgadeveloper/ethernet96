@@ -51,11 +51,14 @@ installation, and obtain an AXI Ethernet evaluation license if you intend to use
 Install Ultra96 board definition files
 --------------------------------------
 
-To use the example projects, you must first install the board definition files for the Ultra96 into your Vivado installation.
-The Ultra96 board definition files are hosted on `Avnet's Github repo <https://github.com/Avnet/bdf>`_.
+To use the example projects, you must first install the board definition files for the Ultra96 into your Vivado
+and Xilinx SDK installation. The Ultra96 board definition files are hosted on 
+`Avnet's Github repo <https://github.com/Avnet/bdf>`_.
 
-Clone or download that repo, then copy the ``ultra96v1`` and ``ultra96v2`` directories from it to the 
-``<path-to-xilinx-vivado>/data/boards/board_files`` directory on your machine.
+Clone or download that repo, then copy the ``ultra96v1`` and ``ultra96v2`` directories from it to the
+following directories on your machine: 
+* ``<path-to-xilinx-vivado>/data/boards/board_files``
+* ``<path-to-xilinx-sdk>/data/boards/board_files``
 
 AXI Ethernet evaluation license
 -------------------------------
@@ -117,6 +120,8 @@ Linux users
 #. Launch the Vivado GUI.
 #. On the welcome page, there is a Tcl console. In the Tcl console, ``cd`` to the repo files on your hard drive
    and into the Vivado subdirectory. For example: ``cd /media/projects/ethernet96/Vivado``.
+#. Specify the version of Ultra96 you want to build the project for (v1 or v2) by 
+   using one of the following commands: ``set argv {1}`` for v1, or ``set argv {2}`` for v2.
 #. In the Vivado subdirectory, you will find multiple Tcl files. To list them, type ``exec ls {*}[glob *.tcl]``.
    Determine the Tcl script for the example project that you would
    like to generate (for example: ``build-ps-gem.tcl``), then ``source`` the script in the Tcl console:
