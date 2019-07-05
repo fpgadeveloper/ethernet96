@@ -15,6 +15,48 @@ Recommended Operating Conditions
 |                   | | expansion socket     |            |            |           |        |
 +-------------------+------------------------+------------+------------+-----------+--------+
 
+Power Consumption
+=================
+
+The specifications below refer to the total power consumption of the mezzanine card
+and the carrier board combined. It is important to note that the use of the mezzanine 
+will affect the power consumption of the SoC on the carrier board. This is due to the 
+peripherals and IP that must be enabled on the SoC to interface with the 
+Ethernet PHYs. Also note that the total power consumption is dependent on the ambient 
+temperature and channel utilization.
+
+Ultra96-v1
+----------
+
++-------------------+------------+-------------+------------+------------+-----------+--------+
+|                   | SYS_DCIN   | UTILIZATION | MIN        | TYP        | MAX       | UNIT   |
++===================+============+=============+============+============+===========+========+
+| Current draw      | 16 VDC     |   100%      |            |    510     |           |   mA   |
+|                   +------------+-------------+------------+------------+-----------+--------+
+|                   | 12 VDC     |   100%      |            |    645     |           |   mA   |
+|                   +------------+-------------+------------+------------+-----------+--------+
+|                   | 8 VDC      |   100%      |            |    935     |           |   mA   |
++-------------------+------------+-------------+------------+------------+-----------+--------+
+
+* Tests performed at ambient temperature of 25 degrees C
+* Tests performed using IP in the FPGA to generate the Ethernet packets
+
+Ultra96-v2
+----------
+
++-------------------+------------+-------------+------------+------------+-----------+--------+
+|                   | SYS_DCIN   | UTILIZATION | MIN        | TYP        | MAX       | UNIT   |
++===================+============+=============+============+============+===========+========+
+| Current draw      | 16 VDC     |   100%      |            |    550     |           |   mA   |
+|                   +------------+-------------+------------+------------+-----------+--------+
+|                   | 12 VDC     |   100%      |            |    710     |           |   mA   |
+|                   +------------+-------------+------------+------------+-----------+--------+
+|                   | 8 VDC      |   100%      |            |    1050    |           |   mA   |
++-------------------+------------+-------------+------------+------------+-----------+--------+
+
+* Tests performed at ambient temperature of 25 degrees C
+* Tests performed using IP in the FPGA to generate the Ethernet packets
+
 Reset Timing
 ============
 

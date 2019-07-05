@@ -26,7 +26,7 @@ Features
 * Quad Ethernet RJ45 with magnetics
 * Power and reset pushbuttons
 * Low-speed expansion connector for stacking
-* Supports the `Avnet Ultra96 <https://www.96boards.org/product/ultra96/>`_ dev platform
+* Supports the `Avnet Ultra96 v1 and v2 <https://www.96boards.org/product/ultra96/>`_ dev platforms
 * Example designs for Vivado
 * Standalone and PetaLinux example designs
 
