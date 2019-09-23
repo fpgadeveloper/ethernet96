@@ -210,7 +210,8 @@ To boot PetaLinux on hardware via SD card:
 #. Create the root file system using dd:
 
    .. code-block:: console
-   
+      
+      $ cd /<petalinux-project>/images/linux/
       $ sudo dd if=rootfs.ext4 of=/dev/sdX2
       $ sync
    
