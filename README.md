@@ -15,11 +15,12 @@ Important links:
 
 ## Requirements
 
-This project is designed for Vivado 2018.2. If you are using an older version of Vivado, then you *MUST* use an older version
+This project is designed for Vivado 2019.2. If you are using an older version of Vivado, then you *MUST* use an older version
 of this repository. Refer to the [list of commits](https://github.com/fpgadeveloper/ethernet96/commits/master "list of commits")
 to find links to the older versions of this repository.
 
-* Vivado 2018.2
+* Vivado 2019.2
+* SDK 2019.1 (for standalone lwIP echo server)
 * [96B Quad Ethernet Mezzanine](https://opsero.com/product/96b-quad-ethernet-mezzanine "96B Quad Ethernet Mezzanine")
 * [Ultra96 v1 or v2](https://www.96boards.org/product/ultra96/ "Ultra96")
 * For designs containing AXI Ethernet Subsystem IP: [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
