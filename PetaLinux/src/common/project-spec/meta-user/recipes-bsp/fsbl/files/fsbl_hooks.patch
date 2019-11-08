@@ -1,7 +1,7 @@
 Opsero Electronic Design Inc. 2019
 Jeff Johnson
-ZynqMP FSBL hooks patch
-=======================
+ZynqMP FSBL hooks patch 2019.2
+==============================
 This patch modifies the ZynqMP FSBL to add code to the XFsbl_HookBeforeHandoff which is
 executed before the FSBL hands over control to U-Boot. This code is necessary for 
 initialization of the 96B Quad Ethernet Mezzanine and the PCS/PMA or SGMII IP cores,
@@ -20,28 +20,26 @@ following:
 7. Initialize the external PHYs for optimal operation
 8. Disable SGMII auto-negotiation in the external PHY of port 3
 
-diff --git a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
-index edf8a53..a62678f 100644
---- a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
-+++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
-@@ -55,15 +55,134 @@
+diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
+--- a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2019-11-07 10:42:40.000000000 -0500
++++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2019-11-07 10:49:22.793809202 -0500
+@@ -49,15 +49,134 @@
  #include "xfsbl_hw.h"
  #include "xfsbl_hooks.h"
  #include "psu_init.h"
--/************************** Constant Definitions *****************************/
 +#include "sleep.h"
 +#include "xparameters.h"
- 
--/**************************** Type Definitions *******************************/
++
 +#ifdef XPAR_XAXIETHERNET_NUM_INSTANCES
 +#include "xaxiethernet.h"
 +#else
 +#include "xemacps.h"
 +#endif
 +
-+/************************** Constant Definitions *****************************/
+ /************************** Constant Definitions *****************************/
 +#define PHY_TI_IDENTIFIER					0x2000
-+
+ 
+-/**************************** Type Definitions *******************************/
 +/* TI DP83867 PHY Registers */
 +#define DP83867_R32_RGMIICTL1					0x32
 +#define DP83867_R86_RGMIIDCTL					0x86
@@ -161,7 +159,7 @@ index edf8a53..a62678f 100644
  #ifdef XFSBL_BS
  u32 XFsbl_HookBeforeBSDownload(void )
  {
-@@ -90,6 +209,63 @@ u32 XFsbl_HookAfterBSDownload(void )
+@@ -84,6 +203,63 @@
  }
  #endif
  
@@ -225,7 +223,7 @@ index edf8a53..a62678f 100644
  u32 XFsbl_HookBeforeHandoff(u32 EarlyHandoff)
  {
  	u32 Status = XFSBL_SUCCESS;
-@@ -97,6 +273,120 @@ u32 XFsbl_HookBeforeHandoff(u32 EarlyHandoff)
+@@ -91,6 +267,120 @@
  	/**
  	 * Add the code here
  	 */

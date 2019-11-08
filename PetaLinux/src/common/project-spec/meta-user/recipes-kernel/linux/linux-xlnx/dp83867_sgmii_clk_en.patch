@@ -1,58 +1,33 @@
 Opsero Electronic Design Inc. 2019
 Jeff Johnson
-DP83867 SGMII CLK enable patch
-==============================
+DP83867 SGMII CLK enable patch 2019.2
+=====================================
 This patch modifies the driver for DP83867 Gigabit Ethernet PHY so that it will accept
-two extra properties:
+one extra property:
 * ti,dp83867-sgmii-autoneg-dis: When added to the GEM node, this will disable the SGMII 
   autonegotiation feature when the PHY is configured (eg. ipconfig eth0 up)
-* ti,dp83867-sgmii-clk-en: When added to the GEM node, this will enable the 625MHz
-  SGMII clock output of the PHY (ie. enable 3-wire mode)
-
 diff -Naur a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
---- a/drivers/net/phy/dp83867.c	2018-07-30 13:29:59.427857000 -0400
-+++ b/drivers/net/phy/dp83867.c	2019-03-25 08:37:04.065849139 -0400
-@@ -38,6 +38,7 @@
- #define DP83867_RGMIICTL	0x0032
- #define DP83867_STRAP_STS1	0x006E
- #define DP83867_RGMIIDCTL	0x0086
-+#define DP83867_SGMIICTL1	0x00D3
- #define DP83867_IO_MUX_CFG	0x0170
- 
- #define DP83867_SW_RESET	BIT(15)
-@@ -104,6 +105,9 @@
- /* CFG4 bits */
- #define DP83867_CFG4_PORT_MIRROR_EN              BIT(0)
- 
-+/* SGMIICTL1 bits */
-+#define DP83867_SGMIICTL1_SGMII_TYPE_MASK	0x4000
-+
- enum {
- 	DP83867_PORT_MIRROING_KEEP,
- 	DP83867_PORT_MIRROING_EN,
-@@ -117,6 +121,8 @@
- 	int io_impedance;
- 	int port_mirroring;
+--- a/drivers/net/phy/dp83867.c	2019-11-07 10:23:24.000000000 -0500
++++ b/drivers/net/phy/dp83867.c	2019-11-07 10:38:31.680234390 -0500
+@@ -124,6 +124,7 @@
  	bool rxctrl_strap_quirk;
+ 	int clk_output_sel;
+ 	bool wiremode_6;
 +	bool sgmii_autoneg_dis;
-+	bool sgmii_clk_en;
  };
  
  static int dp83867_ack_interrupt(struct phy_device *phydev)
-@@ -193,6 +199,12 @@
+@@ -208,6 +209,9 @@
  	dp83867->rxctrl_strap_quirk = of_property_read_bool(of_node,
  					"ti,dp83867-rxctrl-strap-quirk");
  
 +	dp83867->sgmii_autoneg_dis = of_property_read_bool(of_node,
 +					"ti,dp83867-sgmii-autoneg-dis");
 +
-+	dp83867->sgmii_clk_en = of_property_read_bool(of_node,
-+					"ti,dp83867-sgmii-clk-en");
-+
  	ret = of_property_read_u32(of_node, "ti,rx-internal-delay",
  				   &dp83867->rx_id_delay);
  	if (ret &&
-@@ -295,17 +307,35 @@
+@@ -314,6 +318,15 @@
  			 MII_DP83867_CFG2_SPEEDOPT_ENH |
  			 MII_DP83867_CFG2_SPEEDOPT_CNT |
  			 MII_DP83867_CFG2_SPEEDOPT_INTLOW);
@@ -68,24 +43,3 @@ diff -Naur a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
  		phy_write(phydev, MII_DP83867_CFG2, cfg2);
  
  		phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_RGMIICTL, 0x0);
- 
- 		phy_write(phydev, MII_DP83867_PHYCTRL,
- 			  DP83867_PHYCTRL_SGMIIEN |
--			  (DP83867_MDI_CROSSOVER_MDIX << DP83867_MDI_CROSSOVER) |
-+			  (DP83867_MDI_CROSSOVER_AUTO << DP83867_MDI_CROSSOVER) |
- 			  (dp83867->fifo_depth << DP83867_PHYCTRL_RXFIFO_SHIFT) |
- 			  (dp83867->fifo_depth  << DP83867_PHYCTRL_TXFIFO_SHIFT));
- 		phy_write(phydev, MII_DP83867_BISCR, 0x0);
- 
-+		/* This enables the SGMII 625MHz clock output of the DP83867
-+		 * when the "ti,dp83867-sgmii-clk-en" parameter is found
-+		 * in the phy node of the device tree.
-+		 */
-+		if (dp83867->sgmii_clk_en) {
-+			phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_SGMIICTL1,
-+				      DP83867_SGMIICTL1_SGMII_TYPE_MASK);
-+		}
-+
- 		/* This is a SW workaround for link instability if
- 		 * RX_CTRL is not strapped to mode 3 or 4 in HW.
- 		 */

@@ -1,0 +1,45 @@
+Opsero Electronic Design Inc. 2019
+Jeff Johnson
+Ultra96v2 patch to manipulate the wifi part's pins 2019.2
+=========================================================
+Origin repo of the patch: https://github.com/Avnet/Ultra96-PYNQ
+From: Fred Kellerman <fredkellerman@users.noreply.github.com>
+Date: Tue, 24 Sep 2019 19:49:30 -0400
+Subject: [PATCH] Patch the kernel to manipulate the wifi part's pins
+diff -Naur a/drivers/mmc/core/pwrseq_simple.c b/drivers/mmc/core/pwrseq_simple.c
+--- a/drivers/mmc/core/pwrseq_simple.c	2019-11-07 10:23:23.000000000 -0500
++++ b/drivers/mmc/core/pwrseq_simple.c	2019-11-07 10:55:58.448866620 -0500
+@@ -109,6 +109,33 @@
+ {
+ 	struct mmc_pwrseq_simple *pwrseq;
+ 	struct device *dev = &pdev->dev;
++        struct gpio_desc *gpio_chip_en;
++        struct gpio_desc *gpio_resetn;
++
++        // Leave resetn low and let pwrseq take care of it
++        gpio_resetn = gpiod_get(dev, "reset", GPIOD_ASIS);
++        if (IS_ERR(gpio_resetn)) {
++                dev_warn(dev,
++                   "mmc failed to get default resetn GPIO\n");
++        } else {
++                dev_info(dev, "mmc succesfully got gpio_resetn\n");
++                gpiod_direction_output(gpio_resetn, 1);  // low
++                gpiod_put(gpio_resetn);
++        }
++
++        // Turn power off then back on
++        gpio_chip_en = gpiod_get(dev, "chip_en", GPIOD_ASIS);
++        if (IS_ERR(gpio_chip_en)) {
++                dev_warn(dev,
++                   "mmc failed to get default chip_en GPIO\n");
++        } else {
++                dev_info(dev, "mmc succesfully got gpio_chip_en\n");
++                gpiod_direction_output(gpio_chip_en, 1);  // low (chip off)
++                mdelay(5);
++                gpiod_set_value(gpio_chip_en, 0); // high (chip on)
++                gpiod_put(gpio_chip_en);
++                mdelay(5);
++        }
+ 
+ 	pwrseq = devm_kzalloc(dev, sizeof(*pwrseq), GFP_KERNEL);
+ 	if (!pwrseq)
