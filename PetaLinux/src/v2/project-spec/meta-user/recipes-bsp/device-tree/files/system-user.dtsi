@@ -57,3 +57,4 @@
         };
 };
 
+#include "port-config.dtsi"

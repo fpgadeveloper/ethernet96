@@ -1,6 +1,3 @@
-/include/ "system-conf.dtsi"
-/ {
-};
 
     &axi_ethernet_0 {  
         local-mac-address = [00 0a 35 00 01 22];  

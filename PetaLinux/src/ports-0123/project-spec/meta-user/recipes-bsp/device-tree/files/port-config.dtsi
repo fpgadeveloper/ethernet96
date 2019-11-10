@@ -1,6 +1,3 @@
-/include/ "system-conf.dtsi"
-/ {
-};
 
     &gem0 {
         local-mac-address = [00 0a 35 00 01 22];
