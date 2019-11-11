@@ -22,8 +22,8 @@ following:
 
 diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
 --- a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2019-11-07 10:42:40.000000000 -0500
-+++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2019-11-07 10:49:22.793809202 -0500
-@@ -49,15 +49,134 @@
++++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2019-11-11 12:24:14.019845473 -0500
+@@ -49,7 +49,102 @@
  #include "xfsbl_hw.h"
  #include "xfsbl_hooks.h"
  #include "psu_init.h"
@@ -38,8 +38,7 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
 +
  /************************** Constant Definitions *****************************/
 +#define PHY_TI_IDENTIFIER					0x2000
- 
--/**************************** Type Definitions *******************************/
++
 +/* TI DP83867 PHY Registers */
 +#define DP83867_R32_RGMIICTL1					0x32
 +#define DP83867_R86_RGMIIDCTL					0x86
@@ -95,32 +94,39 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
 +#define PHY_XILINX_PCS_PMA_ID1			0x0174
 +#define PHY_XILINX_PCS_PMA_ID2			0x0C00
 +
-+/* GPIO register offsets */
-+#define GPIO_DATA_0_OFFSET		0x00000040
-+#define GPIO_DATA_1_OFFSET		0x00000044
-+#define GPIO_DATA_2_OFFSET		0x00000048
-+#define GPIO_DATA_3_OFFSET		0x0000004C
-+#define GPIO_DATA_4_OFFSET		0x00000050
-+#define GPIO_DATA_5_OFFSET		0x00000054
-+
-+#define GPIO_DIRM_0_OFFSET		0x00000204
-+#define GPIO_DIRM_1_OFFSET		0x00000244
-+#define GPIO_DIRM_2_OFFSET		0x00000284
-+#define GPIO_DIRM_3_OFFSET		0x000002C4
-+#define GPIO_DIRM_4_OFFSET		0x00000304
-+#define GPIO_DIRM_5_OFFSET		0x00000344
-+
-+#define GPIO_OEN_0_OFFSET		0x00000208
-+#define GPIO_OEN_1_OFFSET		0x00000248
-+#define GPIO_OEN_2_OFFSET		0x00000288
-+#define GPIO_OEN_3_OFFSET		0x000002C8
-+#define GPIO_OEN_4_OFFSET		0x00000308
-+#define GPIO_OEN_5_OFFSET		0x00000348
-+
-+/*************** Type Definitions *******************************/
++/* PS GPIO register offsets */
++// * GEM design: SGMII core reset driven by pl_resetn0 (GPIO bank 5, bit 31)
++//               PHY resets driven by GPIO bank 3, bits 0-3
++// * AXI Eth design: SGMII core reset driven by pl_resetn1 (GPIO bank 5, bit 30)
++//               PHY resets driven by the AXI Ethernet cores
++#define GPIO_DIRM_BANK_0     0xFF0A0204
++#define GPIO_DIRM_BANK_1     0xFF0A0244
++#define GPIO_DIRM_BANK_2     0xFF0A0284
++#define GPIO_DIRM_BANK_3     0xFF0A02C4
++#define GPIO_DIRM_BANK_4     0xFF0A0304
++#define GPIO_DIRM_BANK_5     0xFF0A0344
++#define GPIO_OPEN_BANK_0     0xFF0A0208
++#define GPIO_OPEN_BANK_1     0xFF0A0248
++#define GPIO_OPEN_BANK_2     0xFF0A0288
++#define GPIO_OPEN_BANK_3     0xFF0A02C8
++#define GPIO_OPEN_BANK_4     0xFF0A0308
++#define GPIO_OPEN_BANK_5     0xFF0A0348
++#define GPIO_DATA_BANK_0     0XFF0A0040
++#define GPIO_DATA_BANK_1     0XFF0A0044
++#define GPIO_DATA_BANK_2     0XFF0A0048
++#define GPIO_DATA_BANK_3     0XFF0A004C
++#define GPIO_DATA_BANK_4     0XFF0A0050
++#define GPIO_DATA_BANK_5     0XFF0A0054
++#define GPIO_EMIO_0_MASK     0x00000001
++#define GPIO_EMIO_1_MASK     0x00000002
++#define GPIO_EMIO_2_MASK     0x00000004
++#define GPIO_EMIO_3_MASK     0x00000008
++#define GPIO_PL_RESETN0_MASK 0x80000000
++#define GPIO_PL_RESETN1_MASK 0x40000000
  
- /***************** Macros (Inline Functions) Definitions *********************/
+ /**************************** Type Definitions *******************************/
  
+@@ -58,6 +153,38 @@
  /************************** Function Prototypes ******************************/
  
  /************************** Variable Definitions *****************************/
@@ -159,7 +165,7 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
  #ifdef XFSBL_BS
  u32 XFsbl_HookBeforeBSDownload(void )
  {
-@@ -84,6 +203,63 @@
+@@ -84,6 +211,99 @@
  }
  #endif
  
@@ -220,10 +226,46 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
 +	PhyWriteExtended(macp, phy_addr, TI_PHY_RGMIICTL, 0x0);
 +}
 +
++/*
++ * ps_gpio_set: Set PS GPIO output(s)
++ * 
++ * This function will configure the specified GPIOs as outputs
++ * and set their value as requested.
++ * 
++ * Arguments:  bank - the GPIO bank number (0,1,2,3,4,5)
++ *             mask - bit mask for selecting targeted GPIO(s)
++ *             value - values to set the targeted GPIO(s)
++ */
++unsigned ps_gpio_set(u32 bank,u32 mask,u32 value)
++{
++	const u32 dirm[6] = {GPIO_DIRM_BANK_0,GPIO_DIRM_BANK_1,GPIO_DIRM_BANK_2,
++			GPIO_DIRM_BANK_3,GPIO_DIRM_BANK_4,GPIO_DIRM_BANK_5};
++	const u32 open[6] = {GPIO_OPEN_BANK_0,GPIO_OPEN_BANK_1,GPIO_OPEN_BANK_2,
++			GPIO_OPEN_BANK_3,GPIO_OPEN_BANK_4,GPIO_OPEN_BANK_5};
++	const u32 data[6] = {GPIO_DATA_BANK_0,GPIO_DATA_BANK_1,GPIO_DATA_BANK_2,
++			GPIO_DATA_BANK_3,GPIO_DATA_BANK_4,GPIO_DATA_BANK_5};
++
++	u32 reg = 0;
++	// Set as outputs
++	reg = *(volatile u32 *)(dirm[bank]);
++	reg |= mask;
++	*(volatile u32 *)(dirm[bank]) = reg;
++	// Enable outputs
++	reg = *(volatile u32 *)(open[bank]);
++	reg |= mask;
++	*(volatile u32 *)(open[bank]) = reg;
++	// Set to value
++	reg = *(volatile u32 *)(data[bank]);
++	reg |= (value & mask);
++	reg &= ~(~value & mask);
++	*(volatile u32 *)(data[bank]) = reg;
++	return 0;
++}
++
  u32 XFsbl_HookBeforeHandoff(u32 EarlyHandoff)
  {
  	u32 Status = XFSBL_SUCCESS;
-@@ -91,6 +267,120 @@
+@@ -91,6 +311,126 @@
  	/**
  	 * Add the code here
  	 */
@@ -231,6 +273,15 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
 +	MacConfigType *mac_config_p = NULL;
 +	u16 control;
 +	u32 i;
++	u32 sgmii_rst_mask;
++
++	// GPIO mask for resetting SGMII core - SGMII core reset connected to:
++	// - pl_resetn0 (active low) on GEM design, EMIO GPIO bank 5, bit 31, EMIO[95]
++	// - pl_resetn1 (active low) on AXI Ethernet design, EMIO GPIO bank 5, bit 30, EMIO[94]
++	sgmii_rst_mask = 0x80000000;
++#ifdef XPAR_XAXIETHERNET_NUM_INSTANCES
++	sgmii_rst_mask >>= 1;
++#endif
 +
 +	// First initialize the MAC with the MDIO interface
 +	u32 result = XST_SUCCESS;
@@ -258,12 +309,9 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
 +	// Set the MDIO clock divisor
 +	Generic_SetMdioDivisor(&mac_with_mdio, MDIO_CLK_DIVISOR);
 +
-+	// Assert SGMII core reset: connected to pl_resetn0 (active low)
-+	// pl_resetn0 is EMIO GPIO bank 5, bit 31, EMIO[95]
++	// Assert SGMII core reset (active low)
 +	XFsbl_Printf(DEBUG_PRINT_ALWAYS,"96BQuadEthernet: Assert SGMII core reset\n\r");
-+	XFsbl_Out32(XPAR_XGPIOPS_0_BASEADDR | GPIO_DIRM_5_OFFSET,0x80000000);	// GPIO direction = OUTPUT
-+	XFsbl_Out32(XPAR_XGPIOPS_0_BASEADDR | GPIO_OEN_5_OFFSET,0x80000000);	// GPIO enable output
-+	XFsbl_Out32(XPAR_XGPIOPS_0_BASEADDR | GPIO_DATA_5_OFFSET,0x00000000);
++	ps_gpio_set(5,sgmii_rst_mask,0x0);
 +
 +#ifndef XPAR_XAXIETHERNET_NUM_INSTANCES
 +	// Assert external PHY resets: connected to EMIO GPIO[0-3]
@@ -311,7 +359,7 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
 +
 +	// Release SGMII core reset
 +	XFsbl_Printf(DEBUG_PRINT_ALWAYS,"96BQuadEthernet: Release SGMII core reset\n\r");
-+	XFsbl_Out32(XPAR_XGPIOPS_0_BASEADDR | GPIO_DATA_5_OFFSET,0x80000000);
++	ps_gpio_set(5,sgmii_rst_mask,sgmii_rst_mask);
 +
 +	// Finally we need to disable the ISOLATE bit on all the SGMII cores
 +	// because it is enabled by default
