@@ -31,7 +31,7 @@ do
   board_version=$(echo ${proj##*_})
 
   # Get the port configuration
-  if [[ $proj == "axi_eth*" ]]; then
+  if [[ $proj == "axi_eth"* ]]; then
     portconfig="ports-0123-axieth"
   else
     portconfig="ports-0123"
