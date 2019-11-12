@@ -199,25 +199,41 @@ To boot PetaLinux on hardware via SD card:
 #. The SD card must first be prepared with two partitions: one for the boot files and another 
    for the root file system.
 
-   * Partition 1: FAT32, size 1GB, label ``boot``
-   * Partition 2: ext4, 4GB or more, label ``rootfs``
+   * Plug the SD card into your computer and find it's device name using the ``dmesg`` command.
+     The SD card should be found at the end of the log, and it's device name should be something
+     like ``/dev/sdX``, where ``X`` is a letter such as a,b,c,d, etc. Note that you should replace
+     the ``X`` in the following instructions.
+   * Run ``fdisk`` by typing the command ``sudo fdisk /dev/sdX``
+   * Make the ``boot`` partition: typing ``n`` to create a new partition, then type ``p`` to make 
+     it primary, then use the default partition number and first sector. For the last sector, type 
+     ``+1G`` to allocate 1GB to this partition.
+   * Make the ``boot`` partition bootable by typing ``a``
+   * Make the ``root`` partition: typing ``n`` to create a new partition, then type ``p`` to make 
+     it primary, then use the default partition number, first sector and last sector.
+   * Save the partition table by typing ``w``
+   * Format the ``boot`` partition (FAT32) by typing ``sudo mkfs.vfat -F 32 -n boot /dev/sdX1``
+   * Format the ``root`` partition (ext4) by typing ``sudo mkfs.ext4 -L root /dev/sdX2``
 
 #. Copy the following files to the `boot` partition of the SD card:
-
-   * ``/<petalinux-project>/images/linux/BOOT.bin``
-   * ``/<petalinux-project>/images/linux/image.ub``
-
-#. Create the root file system using dd:
+   Assuming the ``boot`` partition was mounted to ``/media/user/boot``, follow these instructions:
 
    .. code-block:: console
       
-      $ cd /<petalinux-project>/images/linux/
-      $ sudo dd if=rootfs.ext4 of=/dev/sdX2
+      $ cd /media/user/boot/
+      $ sudo cp /<petalinux-project>/images/linux/BOOT.bin .
+      $ sudo cp /<petalinux-project>/images/linux/image.ub .
+
+#. Create the root file system by extracting the ``rootfs.tar.gz`` file to the ``root`` partition.
+   Assuming the ``root`` partition was mounted to ``/media/user/root``, follow these instructions:
+
+   .. code-block:: console
+      
+      $ cd /media/user/root/
+      $ sudo cp /<petalinux-project>/images/linux/rootfs.tar.gz .
+      $ sudo tar xvf rootfs.tar.gz -C .
       $ sync
    
-   .. DANGER:: ``sdX2`` will depend on your system (it could be ``sdE2`` or ``sdF2`` or something else) and
-       it is very important that you determine the correct label before running the `dd` command because
-       you can potentially overwrite the wrong disk.
+   Once the ``sync`` command returns, you will be able to eject the SD card from the machine.
 
 #. Connect and power your hardware.
 

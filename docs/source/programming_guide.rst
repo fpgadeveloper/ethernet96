@@ -224,40 +224,21 @@ In PetaLinux SDK, the kernel is configured using this command: ``petalinux-confi
 DP83867 Ethernet PHY driver patch
 ---------------------------------
 
-The PCS/PMA or SGMII cores in the Vivado designs rely on the 625MHz SGMII output clock 
-of the PHY of port 3 (PHY address 0xF). The DS83867 PHY does not enable this clock output
-by default, nor does the standard driver, so we need to modify the driver so that it can
-be enabled. Also, SGMII autonegotiation is disabled in the PCS/PMA or SGMII core for port
+SGMII autonegotiation is disabled in the PCS/PMA or SGMII core for port
 3, therefore we need to modify the driver so that it can also disable SGMII autonegotiation
 in the PHY.
 
-To fix both of these issues, we patch the DP83867 driver to accept two extra properties
+To allow for this, we patch the DP83867 driver to accept an extra property
 in the device tree:
 
 * ``ti,dp83867-sgmii-autoneg-dis``: When added to the GEM node, this will disable the SGMII 
   autonegotiation feature when the PHY is configured (eg. ipconfig eth0 up)
 
-* ``ti,dp83867-sgmii-clk-en``: When added to the GEM node, this will enable the 625MHz
-  SGMII clock output of the PHY (ie. enable 3-wire mode)
-
-Both of these properties should be included in the ``gem3`` node or the ``axi_ethernet_3`` node of 
+This property should be included in the ``gem3`` node or the ``axi_ethernet_3`` node of 
 the device tree (depending on the Vivado design being used).
 
 The source code for this patch can be found in this path of the Github repo: 
 ``PetaLinux/src/common/project-spec/meta-user/recipes-kernel/linux/linux-xlnx``
-
-
-MACB Multi-PHY patch
---------------------
-
-This patch was developed by Xilinx and allows the MACB driver for ZynqMP GEM to work with 
-multiple PHYs that are connected to a single MDIO bus. The 96B Quad Ethernet Mezzanine
-uses such an architecture and so this patch is required by the GEM based Vivado design.
-
-When using this patch, the PHYs and their addresses need to be defined in a node
-of the device tree called ``mdio``. For an example of how to define the PHYs in the ``mdio``
-node, please refer to the device tree of the GEM design, located in this path of the Github
-repo: ``PetaLinux/src/ports-0123/project-spec/meta-user/recipes-bsp/device-tree/files``
 
 
 ZynqMP FSBL hooks patch

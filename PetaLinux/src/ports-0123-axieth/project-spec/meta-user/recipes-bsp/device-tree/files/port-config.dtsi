@@ -15,11 +15,6 @@
                 ti,tx-internal-delay = <0xa>;
                 ti,fifo-depth = <0x1>;
             };
-            /***************************************************************** 
-               The following PHY nodes should define the external PHYs for
-               ports 1,2 and 3, however the AXI Ethernet driver does not yet
-               support multiple PHYs from a single MAC MDIO interface.
-
             phy1: phy@3 {
                 device_type = "ethernet-phy";
                 xlnx,phy-type = <0x4>;
@@ -45,8 +40,6 @@
                 ti,fifo-depth = <0x1>;
                 ti,dp83867-sgmii-clk-en;
             };  
-
-            ******************************************************************/
         };  
     };  
       
@@ -58,10 +51,6 @@
         mdio {  
             #address-cells = <1>;  
             #size-cells = <0>;  
-            phy1: phy@3 {
-                xlnx,phy-type = <0x4>;
-                reg = <3>;
-            };
         };
     };  
       
@@ -73,10 +62,6 @@
         mdio {  
             #address-cells = <1>;  
             #size-cells = <0>;  
-            phy2: phy@12 {
-                xlnx,phy-type = <0x4>;
-                reg = <12>;
-            };
         };
     };  
       
@@ -88,10 +73,6 @@
         mdio {  
             #address-cells = <1>;  
             #size-cells = <0>;  
-            phy3: phy@15 {
-                xlnx,phy-type = <0x4>;
-                reg = <15>;
-            };
         };
     };  
       
