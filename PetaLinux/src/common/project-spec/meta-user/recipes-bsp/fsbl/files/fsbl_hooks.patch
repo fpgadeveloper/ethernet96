@@ -22,7 +22,7 @@ following:
 
 diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
 --- a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2019-11-07 10:42:40.000000000 -0500
-+++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2019-11-11 12:24:14.019845473 -0500
++++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2019-11-13 08:38:46.221913880 -0500
 @@ -49,7 +49,102 @@
  #include "xfsbl_hw.h"
  #include "xfsbl_hooks.h"
@@ -265,7 +265,7 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
  u32 XFsbl_HookBeforeHandoff(u32 EarlyHandoff)
  {
  	u32 Status = XFSBL_SUCCESS;
-@@ -91,6 +311,126 @@
+@@ -91,6 +311,124 @@
  	/**
  	 * Add the code here
  	 */
@@ -319,11 +319,9 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
 +	// We only do this for the GEM design because AXI Ethernet
 +	// properly handles PHY reset
 +	XFsbl_Printf(DEBUG_PRINT_ALWAYS,"96BQuadEthernet: Hard reset external PHYs\n\r");
-+	XFsbl_Out32(XPAR_XGPIOPS_0_BASEADDR | GPIO_DIRM_3_OFFSET,0x0000000F);	// GPIO direction = OUTPUT
-+	XFsbl_Out32(XPAR_XGPIOPS_0_BASEADDR | GPIO_OEN_3_OFFSET,0x0000000F);	// GPIO enable output
-+	XFsbl_Out32(XPAR_XGPIOPS_0_BASEADDR | GPIO_DATA_3_OFFSET,0x00000000);	// GPIO value = LOW
++	ps_gpio_set(3,0x0000000F,0x00000000); // GPIO value = LOW
 +	usleep(10000);
-+	XFsbl_Out32(XPAR_XGPIOPS_0_BASEADDR | GPIO_DATA_3_OFFSET,0x0000000F);	// GPIO value = LOW
++	ps_gpio_set(3,0x0000000F,0x0000000F); // GPIO value = HIGH
 +	usleep(5000);
 +#endif
 +
