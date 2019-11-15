@@ -1,0 +1,68 @@
+Opsero Electronic Design Inc. 2019
+Jeff Johnson
+AXI Ethernet Common MDIO patch 2019.2
+=====================================
+This patch modifies the AXI Ethernet driver to handle an MDIO bus architecture of one (common)
+MAC connected to multiple PHYs. Without this patch, the AXI Ethernet driver tries to register
+the common MDIO bus more than once, resulting in errors on boot.
+
+The device tree is designed with the PHY nodes added to the MDIO node of the AXI Ethernet to 
+which they are connected. In the device tree below, axi_eth0 is connected to phy0 while axi_eth1 
+connects to phy1, however both PHYs are configured over the MDIO bus of axi_eth0. It is 
+important to set the phy-handle of each AXI Ethernet appropriately.
+
+axi_eth0: ethernet@A0000000 {  
+    phy-handle = <&phy0>;  
+    mdio {  
+        phy0: phy@5 {
+            reg = <5>;
+        };
+        phy1: phy@6 {
+            reg = <6>;
+        }
+    }
+}
+
+axi_eth1: ethernet@B0000000 {  
+    phy-handle = <&phy1>;  
+    mdio {  
+    }
+}
+
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_mdio.c b/drivers/net/ethernet/xilinx/xilinx_axienet_mdio.c
+index 55c0ea9..6777e81 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_mdio.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_mdio.c
+@@ -134,7 +134,7 @@ int axienet_mdio_setup(struct axienet_local *lp, struct device_node *np)
+ 
+ 	struct mii_bus *bus;
+ 	struct resource res;
+-	struct device_node *np1;
++	struct device_node *mdio_np;
+ 	/* the ethernet controller device node */
+ 	struct device_node *npp = NULL;
+ 
+@@ -162,10 +162,10 @@ int axienet_mdio_setup(struct axienet_local *lp, struct device_node *np)
+ 	 * fHOST can be read from the flattened device tree as property
+ 	 * "clock-frequency" from the CPU
+ 	 */
+-	np1 = of_get_parent(lp->phy_node);
+-	if (np1) {
+-		npp = of_get_parent(np1);
+-		of_node_put(np1);
++	mdio_np = of_get_child_by_name(np, "mdio");
++	if (mdio_np) {
++		npp = of_get_parent(mdio_np);
++		of_node_put(mdio_np);
+ 	}
+ 	if (!npp) {
+ 		dev_warn(lp->dev,
+@@ -221,7 +221,7 @@ int axienet_mdio_setup(struct axienet_local *lp, struct device_node *np)
+ 	bus->parent = lp->dev;
+ 	lp->mii_bus = bus;
+ 
+-	ret = of_mdiobus_register(bus, np1);
++	ret = of_mdiobus_register(bus, mdio_np);
+ 	if (ret) {
+ 		mdiobus_free(bus);
+ 		lp->mii_bus = NULL;
