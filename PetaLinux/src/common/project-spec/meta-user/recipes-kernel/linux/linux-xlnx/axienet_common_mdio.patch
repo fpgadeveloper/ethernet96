@@ -29,6 +29,23 @@ axi_eth1: ethernet@B0000000 {
     }
 }
 
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+index 6f67779..28edee0 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -1552,8 +1552,11 @@ static int axienet_open(struct net_device *ndev)
+ 
+ 		if (!phydev)
+ 			dev_err(lp->dev, "of_phy_connect() failed\n");
+-		else
++		else {
+ 			phy_start(phydev);
++			phy_attached_info(phydev);
++		}
++
+ 	}
+ 
+ 	if (!lp->is_tsn || lp->temac_no == XAE_TEMAC1) {
 diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_mdio.c b/drivers/net/ethernet/xilinx/xilinx_axienet_mdio.c
 index 55c0ea9..6777e81 100644
 --- a/drivers/net/ethernet/xilinx/xilinx_axienet_mdio.c

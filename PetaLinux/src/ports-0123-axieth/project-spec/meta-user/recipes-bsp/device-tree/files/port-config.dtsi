@@ -38,7 +38,8 @@
                 ti,rx-internal-delay = <0x8>;
                 ti,tx-internal-delay = <0xa>;
                 ti,fifo-depth = <0x1>;
-                ti,dp83867-sgmii-clk-en;
+                ti,dp83867-sgmii-autoneg-dis;
+                ti,6-wire-mode;
             };  
         };  
     };  
