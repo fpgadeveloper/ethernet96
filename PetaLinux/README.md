@@ -37,10 +37,10 @@ fix for this so that the PCS/PMA or SGMII IP will be configured according to the
 
 #### AXI Ethernet based design
 
-* Ports 0-2 have been tested in axi_eth design
+* All ports working for the axi_eth design
 * To do:
   * Need to patch the AXI Ethernet driver to prevent PHY reset on port 3 (hence disabling the SGMII clock)
-  which happens when try to enable the port (`ifconfig eth3 up`)
+  which happens when we enable the port (`ifconfig eth3 up`)
 
 ### How the script works
 
@@ -51,8 +51,8 @@ When executed, the build script searches the Vivado directory for all projects c
 This locates all projects that have been exported to SDK. Then for every exported project, the script
 does the following:
 
-1. Verifies that the `.hdf` and the `.bit` files exist.
-2. Creates a PetaLinux project, referencing the exported hardware design (.hdf).
+1. Verifies that the `.xsa` and the `.bit` files exist.
+2. Creates a PetaLinux project, referencing the exported hardware design (.xsa).
 3. Copies the relevant configuration files from the `src` directory into the created
 PetaLinux project.
 4. Builds the PetaLinux project.

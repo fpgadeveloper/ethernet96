@@ -51,7 +51,7 @@ CONFIG.PSU__USE__IRQ1 {1} \
 CONFIG.PSU__GPIO_EMIO__PERIPHERAL__ENABLE {1} \
 CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {8} \
 CONFIG.PSU__UART0__MODEM__ENABLE {1} \
-CONFIG.PSU__NUM_FABRIC_RESETS {2}] [get_bd_cells zynq_ultra_ps_e_0]
+CONFIG.PSU__NUM_FABRIC_RESETS {3}] [get_bd_cells zynq_ultra_ps_e_0]
 
 # Add the SGMII cores
 create_bd_cell -type ip -vlnv xilinx.com:ip:gig_ethernet_pcs_pma eth_pcs_pma_0_1
@@ -387,15 +387,21 @@ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 re
 set_property CONFIG.FREQ_HZ [get_property CONFIG.FREQ_HZ [get_bd_intf_pins eth_pcs_pma_3_rx/refclk625_in]] [get_bd_intf_ports ref_clk_625mhz]
 connect_bd_intf_net [get_bd_intf_pins eth_pcs_pma_3_rx/refclk625_in] [get_bd_intf_ports ref_clk_625mhz]
 
-# PHY RESET for all ports
+# PHY RESET for ports 0,1 and 2
 create_bd_port -dir O reset_port_0_n
 connect_bd_net [get_bd_ports reset_port_0_n] [get_bd_pins axi_ethernet_0/phy_rst_n]
 create_bd_port -dir O reset_port_1_n
 connect_bd_net [get_bd_ports reset_port_1_n] [get_bd_pins axi_ethernet_1/phy_rst_n]
 create_bd_port -dir O reset_port_2_n
 connect_bd_net [get_bd_ports reset_port_2_n] [get_bd_pins axi_ethernet_2/phy_rst_n]
+
+# PHY RESET for port 3:
+# We connect PHY3 to fabric reset pl_resetn2 so that we can control it from software, rather than connecting it to
+# axi_ethernet_3/phy_rst_n which is asserted whenever the AXI Ethernet is reset (occurs for example when running 
+# ifconfig eth3 up). We need to have control of the reset because PHY3 provides the 625MHz clock driving ALL ports,
+# so we don't want it to go down at the wrong time.
 create_bd_port -dir O reset_port_3_n
-connect_bd_net [get_bd_ports reset_port_3_n] [get_bd_pins axi_ethernet_3/phy_rst_n]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_resetn2] [get_bd_ports reset_port_3_n]
 
 # Create port for the PHY GPIOs
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 phy_gpio

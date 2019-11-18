@@ -136,19 +136,19 @@ Device tree for GEM design
 
 The required additions to the device tree include:
 
-* Create the ``mdio`` node (see multi-PHY patch below)
+* Define the ``phy0`` to ``phy3`` nodes within the ``gem0`` node
 
-* Define the ``phy0`` to ``phy3`` nodes within the ``mdio`` node:
+* Within each phy node:
 
-  * Define the PHY address
+  * Define the PHY address (``reg``)
   * Set the TX and RX internal delay
   * Set the FIFO depth
-  * Enable SGMII clock for PHY3 (see DP83867 patch below)
-  * Disable SGMII auto-negotiation in PHY3 (see DP83867 patch below)
+  * Enable SGMII clock for PHY3 (``ti,6-wire-mode``)
+  * Disable SGMII auto-negotiation in PHY3 (``ti,dp83867-sgmii-autoneg-dis`` see DP83867 patch below)
   
-* Add these properties to the ``gem0`` to ``gem3`` nodes:
+* Add these properties to each of the ``gem0`` to ``gem3`` nodes:
 
-  * Set PHY handle (as defined in the ``mdio`` node)
+  * Set PHY handle (use labels defined in the ``gem0`` node)
   * Set PHY mode set to GMII
   * Set PHY reset to connected GPIO
   * Set PHY reset to active-low
@@ -161,9 +161,22 @@ in the Github repository.
 Device tree for AXI Ethernet design
 -----------------------------------
 
-Please note that we are still working on PetaLinux for the AXI Ethernet design, so the device tree
-may still require some modifications.
+* Define the ``phy0`` to ``phy3`` nodes within the ``mdio`` node of the ``axi_ethernet_0`` node
 
+* Within each phy node:
+
+  * Define the PHY address (``reg``)
+  * Specify PHY type to SGMII (``xlnx,phy-type = <0x4>;``)
+  * Set the TX and RX internal delay
+  * Set the FIFO depth
+  * Enable SGMII clock for PHY3 (``ti,6-wire-mode``)
+  * Disable SGMII auto-negotiation in PHY3 (``ti,dp83867-sgmii-autoneg-dis`` see DP83867 patch below)
+  
+* Add these properties to each of the ``axi_ethernet_0`` to ``axi_ethernet_3`` nodes:
+
+  * Set PHY handle (use labels defined in the ``axi_ethernet_0`` node)
+  * Set PHY mode set to GMII
+  
 For more detail, refer to the `device tree for the AXI Ethernet design 
 <https://github.com/fpgadeveloper/ethernet96/blob/master/PetaLinux/src/ports-0123-axieth/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi>`_
 in the Github repository.

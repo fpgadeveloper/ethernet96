@@ -1,79 +1,79 @@
 
-    &axi_ethernet_0 {  
-        local-mac-address = [00 0a 35 00 01 22];  
-        phy-handle = <&phy0>;  
-        xlnx,has-mdio = <0x1>;  
-        phy-mode = "gmii";  
-        mdio {  
-            #address-cells = <1>;  
-            #size-cells = <0>;  
-            phy0: phy@1 {
-                device_type = "ethernet-phy";
-                xlnx,phy-type = <0x4>;
-                reg = <1>;
-                ti,rx-internal-delay = <0x8>;
-                ti,tx-internal-delay = <0xa>;
-                ti,fifo-depth = <0x1>;
-            };
-            phy1: phy@3 {
-                device_type = "ethernet-phy";
-                xlnx,phy-type = <0x4>;
-                reg = <3>;
-                ti,rx-internal-delay = <0x8>;
-                ti,tx-internal-delay = <0xa>;
-                ti,fifo-depth = <0x1>;
-            };
-            phy2: phy@12 {
-                device_type = "ethernet-phy";
-                xlnx,phy-type = <0x4>;
-                reg = <12>;
-                ti,rx-internal-delay = <0x8>;
-                ti,tx-internal-delay = <0xa>;
-                ti,fifo-depth = <0x1>;
-            };
-            phy3: phy@15 {  
-                device_type = "ethernet-phy";
-                xlnx,phy-type = <0x4>;
-                reg = <15>;  
-                ti,rx-internal-delay = <0x8>;
-                ti,tx-internal-delay = <0xa>;
-                ti,fifo-depth = <0x1>;
-                ti,dp83867-sgmii-autoneg-dis;
-                ti,6-wire-mode;
-            };  
+&axi_ethernet_0 {  
+    local-mac-address = [00 0a 35 00 01 22];  
+    phy-handle = <&phy0>;  
+    xlnx,has-mdio = <0x1>;  
+    phy-mode = "gmii";  
+    mdio {  
+        #address-cells = <1>;  
+        #size-cells = <0>;  
+        phy0: phy@1 {
+            device_type = "ethernet-phy";
+            xlnx,phy-type = <0x4>;
+            reg = <1>;
+            ti,rx-internal-delay = <0x8>;
+            ti,tx-internal-delay = <0xa>;
+            ti,fifo-depth = <0x1>;
+        };
+        phy1: phy@3 {
+            device_type = "ethernet-phy";
+            xlnx,phy-type = <0x4>;
+            reg = <3>;
+            ti,rx-internal-delay = <0x8>;
+            ti,tx-internal-delay = <0xa>;
+            ti,fifo-depth = <0x1>;
+        };
+        phy2: phy@12 {
+            device_type = "ethernet-phy";
+            xlnx,phy-type = <0x4>;
+            reg = <12>;
+            ti,rx-internal-delay = <0x8>;
+            ti,tx-internal-delay = <0xa>;
+            ti,fifo-depth = <0x1>;
+        };
+        phy3: phy@15 {  
+            device_type = "ethernet-phy";
+            xlnx,phy-type = <0x4>;
+            reg = <15>;  
+            ti,rx-internal-delay = <0x8>;
+            ti,tx-internal-delay = <0xa>;
+            ti,fifo-depth = <0x1>;
+            ti,dp83867-sgmii-autoneg-dis;
+            ti,6-wire-mode;
         };  
     };  
-      
-    &axi_ethernet_1 {  
-        local-mac-address = [00 0a 35 00 01 23];  
-        phy-handle = <&phy1>;  
-        xlnx,has-mdio = <0x1>;  
-        phy-mode = "gmii";  
-        mdio {  
-            #address-cells = <1>;  
-            #size-cells = <0>;  
-        };
-    };  
-      
-    &axi_ethernet_2 {  
-        local-mac-address = [00 0a 35 00 01 24];  
-        phy-handle = <&phy2>;  
-        xlnx,has-mdio = <0x1>;  
-        phy-mode = "gmii";  
-        mdio {  
-            #address-cells = <1>;  
-            #size-cells = <0>;  
-        };
-    };  
-      
-    &axi_ethernet_3 {
-        local-mac-address = [00 0a 35 00 01 25];
-        phy-handle = <&phy3>;
-        xlnx,has-mdio = <0x1>;  
-        phy-mode = "gmii";
-        mdio {  
-            #address-cells = <1>;  
-            #size-cells = <0>;  
-        };
-    };  
-      
+};  
+  
+&axi_ethernet_1 {  
+    local-mac-address = [00 0a 35 00 01 23];  
+    phy-handle = <&phy1>;  
+    xlnx,has-mdio = <0x1>;  
+    phy-mode = "gmii";  
+    mdio {  
+        #address-cells = <1>;  
+        #size-cells = <0>;  
+    };
+};  
+  
+&axi_ethernet_2 {  
+    local-mac-address = [00 0a 35 00 01 24];  
+    phy-handle = <&phy2>;  
+    xlnx,has-mdio = <0x1>;  
+    phy-mode = "gmii";  
+    mdio {  
+        #address-cells = <1>;  
+        #size-cells = <0>;  
+    };
+};  
+  
+&axi_ethernet_3 {
+    local-mac-address = [00 0a 35 00 01 25];
+    phy-handle = <&phy3>;
+    xlnx,has-mdio = <0x1>;  
+    phy-mode = "gmii";
+    mdio {  
+        #address-cells = <1>;  
+        #size-cells = <0>;  
+    };
+};  
+  

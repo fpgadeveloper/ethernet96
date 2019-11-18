@@ -48,7 +48,12 @@ SDK workspace using the provided `build-sdk.tcl` script.
 
 The SDK directory contains a `build-sdk.tcl` script which can be run to automatically
 generate the SDK workspace. Windows users can run the `build-sdk.bat` file which
-launches the Tcl script.
+launches the Tcl script. Linux users must use the following commands to run the build
+script:
+```
+cd <path-to-repo>/SDK
+/<path-to-xilinx-tools>/SDK/2019.1/bin/xsdk -batch -source build-sdk.tcl
+```
 
 The build script does three things:
 

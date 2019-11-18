@@ -4,7 +4,7 @@
 
 This repo contains example designs for the Opsero 
 [96B Quad Ethernet Mezzanine](https://docs.ethernet96.com "96B Quad Ethernet Mezzanine") board when used with the 
-Avnet [Ultra96](http://zedboard.org/product/ultra96 "Ultra96").
+Avnet [Ultra96 v1 and v2](http://zedboard.org/product/ultra96 "Ultra96 v1 and v2").
 
 ![96B Quad Ethernet Mezzanine](https://opsero.com/wp-content/uploads/2019/01/96b-quad-ethernet-mezzanine-med-3.jpg "96B Quad Ethernet Mezzanine")
 
@@ -15,9 +15,9 @@ Important links:
 
 ## Requirements
 
-This project is designed for Vivado 2019.2. If you are using an older version of Vivado, then you *MUST* use an older version
-of this repository. Refer to the [list of commits](https://github.com/fpgadeveloper/ethernet96/commits/master "list of commits")
-to find links to the older versions of this repository.
+This project is designed for Vivado 2019.2. If you are using an older version of the 
+Xilinx tools, then refer to the [release tags](https://github.com/fpgadeveloper/ethernet96/releases "releases")
+to find the version of this repository that matches your version of the tools.
 
 * Vivado 2019.2
 * SDK 2019.1 (for standalone lwIP echo server)
@@ -34,7 +34,7 @@ These are the different projects in the repo at the moment.
   * Uses soft AXI Ethernet IP to implement the MAC
   * Uses PCS/PMA or SGMII IP to implement the SGMII over LVDS links
   * Uses 625MHz clock from port 3 PHY, shared logic in SGMII core for port 3 RX
-  * All 4 ports have been tested on hardware with lwIP echo server
+  * All 4 ports have been tested on hardware with lwIP echo server and PetaLinux
 * PS GEM (ps-gem):
   * Uses PS integrated Gigabit Ethernet MACs (GEM)
   * Uses PCS/PMA or SGMII IP to implement the SGMII over LVDS links
