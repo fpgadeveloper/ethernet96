@@ -180,8 +180,6 @@ const u16 extphyaddr[4] = {0x1,0x3,0xC,0xF};
 // SGMII PHY addresses determined in Vivado design
 const u16 sgmiiphyaddr[5] = {0x2,0x4,0xD,0x10,0x11};
 
-XAxiEthernet *axi_ethernet_0;
-
 static void __attribute__ ((noinline)) AxiEthernetUtilPhyDelay(unsigned int Seconds);
 
 void XAxiEthernet_PhyReadExtended(XAxiEthernet *InstancePtr, u32 PhyAddress,
@@ -560,28 +558,6 @@ static u32_t init_hardware(XAxiEthernet *xaxiemacp)
 	return(0);
 }
 
-unsigned init_axi_ethernet_0()
-{
-	XAxiEthernet_Config *mac_config;
-
-	axi_ethernet_0 = mem_malloc(sizeof *axi_ethernet_0);
-	if (axi_ethernet_0 == NULL) {
-		xil_printf("Out of memory\n\r");
-		return ERR_MEM;
-	}
-
-	/* obtain config of this emac */
-	mac_config = xaxiemac_lookup_config((unsigned)XPAR_AXI_ETHERNET_0_BASEADDR);
-
-	XAxiEthernet_Initialize(axi_ethernet_0, mac_config,
-				mac_config->BaseAddress);
-
-	XAxiEthernet_Reset(axi_ethernet_0);
-
-	return 0;
-}
-
-
 /*
  * sgmii_phy_set_link_speed: Set the link speed of the PCS/PMA SGMII core
  *
@@ -618,24 +594,11 @@ void sgmii_phy_set_link_speed(XAxiEthernet *xaxiemacp, u32 phy_addr, u32 link_sp
 unsigned phy_setup_axiemac (XAxiEthernet *xaxiemacp)
 {
 	unsigned link_speed = 1000;
-	XAxiEthernet *xaxiemacp_p0;
 	u32 port_num;
 
 #ifdef  CONFIG_LINKSPEED_AUTODETECT
-	// If the enabled port is not port 0, then we need to initialize
-	// axi_ethernet_0 so that we can use it's MDIO interface
-	if(xaxiemacp->Config.BaseAddress != XPAR_AXI_ETHERNET_0_BASEADDR){
-		// Initialize axi_ethernet_0 which is used for the MDIO interface
-		init_axi_ethernet_0();
-		xaxiemacp_p0 = axi_ethernet_0;
-	}
-	// If the enabled port is port 0, then GEM0 is already initialized
-	else {
-		xaxiemacp_p0 = xaxiemacp;
-	}
-
 	// Initialize the hardware
-	init_hardware(xaxiemacp_p0);
+	init_hardware(xaxiemacp);
 
 	// Determine the enabled port number
 	if(xaxiemacp->Config.BaseAddress == XPAR_AXI_ETHERNET_0_BASEADDR){
@@ -656,26 +619,26 @@ unsigned phy_setup_axiemac (XAxiEthernet *xaxiemacp)
 	// If port 3 is enabled, we read link speed from external PHY
 	// then configure the PCS/PMA SGMII IP core with that link speed
 	if(port_num == 3){
-		link_speed = get_IEEE_phy_speed(xaxiemacp_p0, 0, extphyaddr[port_num]);
-		sgmii_phy_set_link_speed(xaxiemacp_p0,sgmiiphyaddr[3],link_speed);
-		sgmii_phy_set_link_speed(xaxiemacp_p0,sgmiiphyaddr[4],link_speed);
+		link_speed = get_IEEE_phy_speed(xaxiemacp, 0, extphyaddr[port_num]);
+		sgmii_phy_set_link_speed(xaxiemacp,sgmiiphyaddr[3],link_speed);
+		sgmii_phy_set_link_speed(xaxiemacp,sgmiiphyaddr[4],link_speed);
 	}
 	// For ports 0-2 we can read link speed from either the external PHY
 	// or the PCS/PMA or SGMII core
 	else{
-		link_speed = get_IEEE_phy_speed(xaxiemacp_p0, sgmiiphyaddr[port_num], extphyaddr[port_num]);
+		link_speed = get_IEEE_phy_speed(xaxiemacp, sgmiiphyaddr[port_num], extphyaddr[port_num]);
 	}
 #elif	defined(CONFIG_LINKSPEED1000)
 	link_speed = 1000;
-	configure_IEEE_phy_speed(xaxiemacp_p0, sgmii_phy_addr, extphyaddr[port_num], link_speed);
+	configure_IEEE_phy_speed(xaxiemacp, sgmii_phy_addr, extphyaddr[port_num], link_speed);
 	xil_printf("link speed: %d\r\n", link_speed);
 #elif	defined(CONFIG_LINKSPEED100)
 	link_speed = 100;
-	configure_IEEE_phy_speed(xaxiemacp_p0, sgmii_phy_addr, extphyaddr[port_num], link_speed);
+	configure_IEEE_phy_speed(xaxiemacp, sgmii_phy_addr, extphyaddr[port_num], link_speed);
 	xil_printf("link speed: %d\r\n", link_speed);
 #elif	defined(CONFIG_LINKSPEED10)
 	link_speed = 10;
-	configure_IEEE_phy_speed(xaxiemacp_p0, sgmii_phy_addr, extphyaddr[port_num], link_speed);
+	configure_IEEE_phy_speed(xaxiemacp, sgmii_phy_addr, extphyaddr[port_num], link_speed);
 	xil_printf("link speed: %d\r\n", link_speed);
 #endif
 	return link_speed;
