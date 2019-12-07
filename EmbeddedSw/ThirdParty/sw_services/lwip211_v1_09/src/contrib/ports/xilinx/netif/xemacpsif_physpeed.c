@@ -309,9 +309,6 @@ static void SetUpSLCRDivisors(u32_t mac_baseaddr, s32_t speed);
 static u32_t configure_IEEE_phy_speed(XEmacPs *xemacpsp, u32_t phy_addr, u32_t speed);
 #endif
 
-XEmacPs xemac_p0;
-XEmacPs_Config *mac_config_p0;
-
 /* Extended Read function for PHY registers above 0x001F */
 static void XEmacPs_PhyReadExtended(XEmacPs *xemacpsp, u16 phy_addr, u16 reg, u16 *pvalue)
 {
@@ -335,23 +332,6 @@ static void XEmacPs_PhyWriteExtended(XEmacPs *xemacpsp, u16 phy_addr, u16 reg, u
 	XEmacPs_PhyRead(xemacpsp, PhyAddr, PHY_ADDAR, &tmp);
 	if( tmp != value )
 		xil_printf("ERROR: PHYWriteExtended read-back verification failed!\r\n");
-}
-
-unsigned init_xemac_p0()
-{
-	s32_t status = XST_SUCCESS;
-	/* obtain config of this emac */
-	mac_config_p0 = (XEmacPs_Config *)xemacps_lookup_config((unsigned)XPAR_XEMACPS_0_BASEADDR);
-
-	status = XEmacPs_CfgInitialize(&xemac_p0, mac_config_p0,
-						mac_config_p0->BaseAddress);
-	if (status != XST_SUCCESS) {
-		xil_printf("In %s:EmacPs Configuration Failed....\r\n", __func__);
-	}
-
-	XEmacPs_SetMdioDivisor(&xemac_p0, MDC_DIV_224);
-
-	return 0;
 }
 
 unsigned ps_gpio_set(u32 bank,u32 mask,u32 value)
@@ -502,23 +482,10 @@ void sgmii_phy_set_link_speed(XEmacPs *xemacpsp, u32 phy_addr, u32 link_speed)
 u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 {
 	u32_t link_speed;
-	XEmacPs *xemacpsp_gem0;
 	u32 port_num = 0;
 
-	// If the enabled port is not port 0, then we need to initialize
-	// GEM0 so that we can use it's MDIO interface
-	if(xemacpsp->Config.BaseAddress != XPAR_XEMACPS_0_BASEADDR){
-		// Initialize GEM0 which is used for the MDIO interface
-		init_xemac_p0();
-		xemacpsp_gem0 = &xemac_p0;
-	}
-	// If the enabled port is port 0, then GEM0 is already initialized
-	else {
-		xemacpsp_gem0 = xemacpsp;
-	}
-
 	// Initialize the hardware
-	init_hardware(xemacpsp_gem0);
+	init_hardware(xemacpsp);
 
 	// Determine the correct PHY addresses for the enabled port
 	if(xemacpsp->Config.BaseAddress == XPAR_XEMACPS_0_BASEADDR){
@@ -539,14 +506,14 @@ u32_t phy_setup_emacps (XEmacPs *xemacpsp, u32_t phy_addr)
 	// If port 3 is enabled, we read link speed from external PHY
 	// then configure the PCS/PMA SGMII IP core with that link speed
 	if(port_num == 3){
-		link_speed = get_IEEE_phy_speed(xemacpsp_gem0, extphyaddr[port_num], 0);
-		sgmii_phy_set_link_speed(xemacpsp_gem0,sgmiiphyaddr[3],link_speed);
-		sgmii_phy_set_link_speed(xemacpsp_gem0,sgmiiphyaddr[4],link_speed);
+		link_speed = get_IEEE_phy_speed(xemacpsp, extphyaddr[port_num], 0);
+		sgmii_phy_set_link_speed(xemacpsp,sgmiiphyaddr[3],link_speed);
+		sgmii_phy_set_link_speed(xemacpsp,sgmiiphyaddr[4],link_speed);
 	}
 	// For ports 0-2 we can read link speed from either the external PHY
 	// or the PCS/PMA or SGMII core
 	else{
-		link_speed = get_IEEE_phy_speed(xemacpsp_gem0, extphyaddr[port_num], sgmiiphyaddr[port_num]);
+		link_speed = get_IEEE_phy_speed(xemacpsp, extphyaddr[port_num], sgmiiphyaddr[port_num]);
 	}
 
 	// Set the SLCR divisors according to negotiated link speed
