@@ -33,7 +33,7 @@ In order to use the example designs, you will need the following:
 
 * Windows or Linux PC
 * Xilinx Vivado
-* Xilinx SDK
+* Xilinx Vitis
 * 1x Ultra96 development platform
 * 1x 96B Quad Ethernet Mezzanine
 
@@ -52,13 +52,13 @@ Install Ultra96 board definition files
 --------------------------------------
 
 To use the example projects, you must first install the board definition files for the Ultra96 into your Vivado
-and Xilinx SDK installation. The Ultra96 board definition files are hosted on 
+and Vitis installation. The Ultra96 board definition files are hosted on 
 `Avnet's Github repo <https://github.com/Avnet/bdf>`_.
 
 Clone or download that repo, then copy the ``ultra96v1`` and ``ultra96v2`` directories from it to the
 following directories on your machine: 
 * ``<path-to-xilinx-vivado>/data/boards/board_files``
-* ``<path-to-xilinx-sdk>/data/boards/board_files``
+* ``<path-to-xilinx-vitis>/data/boards/board_files``
 
 AXI Ethernet evaluation license
 -------------------------------
@@ -80,15 +80,15 @@ The source code for both example designs can be found on our Github page:
 The repository contains the following directories:
 
 * **Vivado**: Contains the scripts to build the Vivado projects
-* **SDK**: Contains a script to generate and build the standalone software applications
+* **Vitis**: Contains a script to generate and build the standalone software applications
 * **PetaLinux**: Contains a script and configuration files to build the PetaLinux projects
 * **EmbeddedSw**: Contains modifications to the lwIP software library
 
-Build the Vivado and SDK projects
----------------------------------
+Build the Vivado and Vitis projects
+-----------------------------------
 
 Once you have installed the board definition files, and you have installed the required licenses, then
-you can use the sources in this repository to build the Vivado, SDK and PetaLinux projects. Start by cloning the repo 
+you can use the sources in this repository to build the Vivado, Vitis and PetaLinux projects. Start by cloning the repo 
 or download it as a zip file and extract the files to your hard drive, then follow these steps depending on your OS:
 
 Windows users
@@ -105,11 +105,10 @@ Windows users
 #. Click Generate bitstream.
 #. When the bitstream is successfully generated, select "File->Export->Export Hardware".
    In the window that opens, tick "Include bitstream" and "Local to project".
-   **DO NOT** "Launch SDK".
-#. Return to Windows Explorer and browse to the SDK directory in the repo.
-#. Double click the `build-sdk.bat` batch file. The batch file will run the
-   `build-sdk.tcl` script and build the SDK workspace containing the hardware
-   design and the software application. Please refer to the "README.md" file in the SDK
+#. Return to Windows Explorer and browse to the Vitis directory in the repo.
+#. Double click the `build-vitis.bat` batch file. The batch file will run the
+   `build-vitis.tcl` script and build the Vitis workspace containing the hardware
+   design and the software application. Please refer to the "README.md" file in the Vitis
    subdirectory for instructions on running the software application on hardware.
 #. If you are interested in building PetaLinux, you will need to use a Linux machine and
    follow the steps for Linux users below.
@@ -129,20 +128,19 @@ Linux users
 #. Vivado will run the script and generate the project. When it's finished, click Generate bitstream.
 #. When the bitstream is successfully generated, select "File->Export->Export Hardware".
    In the window that opens, tick "Include bitstream" and "Local to project".
-   **DO NOT** "Launch SDK".
-#. To build the SDK workspace, open a Linux command terminal and ``cd`` to the SDK directory in the repo.
-#. The SDK directory contains the ``build-sdk.tcl`` script that will build the SDK workspace containing the hardware
+#. To build the Vitis workspace, open a Linux command terminal and ``cd`` to the Vitis directory in the repo.
+#. The Vitis directory contains the ``build-vitis.tcl`` script that will build the Vitis workspace containing the hardware
    design and the software application. Run the build script by typing the following command:
-   ``<path-of-xilinx-sdk>/bin/xsdk -batch -source build-sdk.tcl``
-   Note that you must replace ``<path-of-xilinx-sdk>`` with the actual path to your Xilinx SDK installation.
-#. Please refer to the "README.md" file in the SDK subdirectory for instructions on running the software 
+   ``<path-of-xilinx-vitis>/bin/xsct build-vitis.tcl``
+   Note that you must replace ``<path-of-xilinx-vitis>`` with the actual path to your Vitis installation.
+#. Please refer to the "README.md" file in the Vitis subdirectory for instructions on running the software 
    application on hardware.
 #. To build the PetaLinux project, follow the steps in the following section.
 
 Build the PetaLinux projects
 ----------------------------
 
-Once the Vivado project(s) have been built and exported to SDK, you can now build the PetaLinux project(s).
+Once the Vivado project(s) have been built and exported, you can now build the PetaLinux project(s).
 
 .. NOTE:: The PetaLinux projects can only be built on a Linux machine (or virtual Linux machine).
 
@@ -167,14 +165,15 @@ Launch on hardware
 Echo server via JTAG
 --------------------
 
-#. Open Xilinx SDK (**DO NOT** use the Launch SDK option from Vivado).
+#. Open Vitis.
 #. Power up your hardware platform and ensure that the JTAG is connected properly.
 #. Select "Xilinx Tools->Program FPGA". In the "Program FPGA" dialog box that appears, select the
    "Hardware Platform" that you want to run, this will correspond to name of the Vivado project that
    you built earlier.
-#. Click on the software application that you want to run, it should be the one with the postfix "_echo".
-#. Select "Run->Run Configurations", then in the dialog box that appears, double-click on the option
-   "Xilinx C/C++ application (System Debugger)". This will create a new run configuration for the application.
+#. Click on the software application that you want to run, it should be the one with the postfix "_echo_system".
+#. Open the drop-down menu of the "Run" button (play) on the toolbar. Select "Run Configurations", then in the 
+   dialog box that appears, double-click on the option
+   "Single Application Debug". This will create a new run configuration for the application.
 #. Select the new run configuration and click "Run".
 
 
