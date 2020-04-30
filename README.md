@@ -20,7 +20,8 @@ Xilinx tools, then refer to the [release tags](https://github.com/fpgadeveloper/
 to find the version of this repository that matches your version of the tools.
 
 * Vivado 2019.2
-* SDK 2019.1 (for standalone lwIP echo server)
+* Vitis 2019.2 (for standalone lwIP echo server)
+* PetaLinux SDK 2019.2
 * [96B Quad Ethernet Mezzanine](https://opsero.com/product/96b-quad-ethernet-mezzanine "96B Quad Ethernet Mezzanine")
 * [Ultra96 v1 or v2](https://www.96boards.org/product/ultra96/ "Ultra96")
 * For designs containing AXI Ethernet Subsystem IP: [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
