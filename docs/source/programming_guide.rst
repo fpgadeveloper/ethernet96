@@ -117,6 +117,50 @@ connect the tri-state signal (MDIO_T) from one core to the next, this is essenti
 correct operation of the MDIO bus.
 
 
+EMIO GPIOs
+----------
+
+In both the PS GEM and AXI Ethernet designs, the EMIO GPIOs are connected to the PHY resets
+and the PHY GPIOs as shown in the table below:
+
++-------------+-------------------+--------------+--------+---------------+
+| | EMIO      | | PHY             | | GPIO       | | GPIO | | Pin         |
+| | GPIO      | | Connection      | | bank       | | bit  | | mapping     |
++=============+===================+==============+========+===============+
+| 0           |  PHY0 RESET_N     | 3            |  0     | 416           |
++-------------+-------------------+--------------+--------+---------------+
+| 1           |  PHY1 RESET_N     | 3            |  1     | 417           |
++-------------+-------------------+--------------+--------+---------------+
+| 2           |  PHY2 RESET_N     | 3            |  2     | 418           |
++-------------+-------------------+--------------+--------+---------------+
+| 3           |  PHY3 RESET_N     | 3            |  3     | 419           |
++-------------+-------------------+--------------+--------+---------------+
+| 4           |  PHY0 GPIO_0      | 3            |  4     | 420           |
++-------------+-------------------+--------------+--------+---------------+
+| 5           |  PHY0 GPIO_1      | 3            |  5     | 421           |
++-------------+-------------------+--------------+--------+---------------+
+| 6           |  PHY1 GPIO_0      | 3            |  6     | 422           |
++-------------+-------------------+--------------+--------+---------------+
+| 7           |  PHY1 GPIO_1      | 3            |  7     | 423           |
++-------------+-------------------+--------------+--------+---------------+
+| 8           |  PHY2 GPIO_0      | 3            |  8     | 424           |
++-------------+-------------------+--------------+--------+---------------+
+| 9           |  PHY2 GPIO_1      | 3            |  9     | 425           |
++-------------+-------------------+--------------+--------+---------------+
+| 10          |  PHY3 GPIO_0      | 3            |  10    | 426           |
++-------------+-------------------+--------------+--------+---------------+
+| 11          |  PHY3 GPIO_1      | 3            |  11    | 427           |
++-------------+-------------------+--------------+--------+---------------+
+
+The first four EMIO GPIOs are connected to the external PHY RESET_N pins.
+These can be driven LOW to place the respective PHY in hardware reset.
+The remaining EMIO GPIOs are connected to the external PHY GPIO_x pins.
+Although named "GPIO_x", these PHY pins are in fact output-only
+and their purpose can be configured by setting the GPIO Mux Control Register
+of the PHYs via the MDIO bus. Please refer to the 
+`DP83867 datasheet <http://www.ti.com/product/DP83867CS>`_ for more information.
+
+
 Constraints
 -----------
 

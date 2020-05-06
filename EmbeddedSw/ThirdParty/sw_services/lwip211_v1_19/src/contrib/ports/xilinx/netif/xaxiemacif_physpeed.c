@@ -506,11 +506,10 @@ static u32_t init_hardware(XAxiEthernet *xaxiemacp)
 	// Assert reset of the SGMII core (active low)
 	ps_gpio_set(5,GPIO_PL_RESETN1_MASK,0x0);
 
-	// Hardware Reset the external PHY for port 3 - connected to PL_RESETN2
-  // AXI Ethernet phy_rst_n output resets the other PHYs 0,1 and 2
-	ps_gpio_set(5,GPIO_PL_RESETN2_MASK,0x00000000);
+	// Hardware Reset the external PHYs
+	ps_gpio_set(3,GPIO_EMIO_0_MASK | GPIO_EMIO_1_MASK | GPIO_EMIO_2_MASK | GPIO_EMIO_3_MASK,0x00000000);
 	usleep(10000);
-	ps_gpio_set(5,GPIO_PL_RESETN2_MASK,GPIO_PL_RESETN2_MASK);
+	ps_gpio_set(3,GPIO_EMIO_0_MASK | GPIO_EMIO_1_MASK | GPIO_EMIO_2_MASK | GPIO_EMIO_3_MASK,0x0000000F);
 	usleep(5000);
 
 	// Make sure that we can read from all of the TI DP83867 PHYs

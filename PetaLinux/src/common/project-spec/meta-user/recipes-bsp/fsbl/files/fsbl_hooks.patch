@@ -11,8 +11,7 @@ following:
    so that it's MDIO interface can be used (we need it to communicate with the external 
    PHYs and the PCS/PMA or SGMII IP cores)
 2. Assert reset of PCS/PMA or SGMII IP core
-3. PS_GEM design: Hardware reset the 4x Ethernet PHYs and release from reset
-   AXI_ETH design: Hardware reset port 3's Ethernet PHY and release from reset
+3. Hardware reset the 4x Ethernet PHYs and release from reset
 4. Enable the 625MHz SGMII output clock of the PHY of port 3 of the 96B Quad Ethernet
    Mezzanine card (PHY address 0xF). This clock is required by the PCS/PMA or SGMII IP core
 5. Release the PCS/PMA or SGMII IP core from reset
@@ -23,7 +22,7 @@ following:
 
 diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
 --- a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2019-11-07 10:42:40.000000000 -0500
-+++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2019-11-15 08:52:05.471544533 -0500
++++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2020-05-04 21:17:22.363269706 -0400
 @@ -49,7 +49,102 @@
  #include "xfsbl_hw.h"
  #include "xfsbl_hooks.h"
@@ -266,7 +265,7 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
  u32 XFsbl_HookBeforeHandoff(u32 EarlyHandoff)
  {
  	u32 Status = XFSBL_SUCCESS;
-@@ -91,6 +311,131 @@
+@@ -91,6 +311,130 @@
  	/**
  	 * Add the code here
  	 */
@@ -316,13 +315,12 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
 +
 +	XFsbl_Printf(DEBUG_PRINT_ALWAYS,"96BQuadEthernet: Hard reset external PHYs\n\r");
 +#ifdef XPAR_XAXIETHERNET_NUM_INSTANCES
-+	// FOR THE AXI ETHERNET DESIGNS - RESET PHY3
-+	// Assert external PHY reset for port 3: connected to pl_resetn2
-+	// pl_resetn2 is GPIO bank 5, bit 29, EMIO[93]
-+	// The PHYs on ports 0,1,2 will be reset automatically by their respective AXI Ethernet cores
-+	ps_gpio_set(5,0x20000000,0x00000000); // GPIO value = LOW
++	// FOR THE AXI ETHERNET DESIGNS - RESET ALL PHYs
++	// Assert external PHY resets: connected to EMIO GPIO[0-3]
++	// EMIO[0-3] is GPIO bank 3, bits 0-3
++	ps_gpio_set(3,0x0000000F,0x00000000); // GPIO value = LOW
 +	usleep(10000);
-+	ps_gpio_set(5,0x20000000,0x20000000); // GPIO value = HIGH
++	ps_gpio_set(3,0x0000000F,0x0000000F); // GPIO value = HIGH
 +#else
 +	// FOR THE GEM DESIGNS - RESET ALL PHYs
 +	// Assert external PHY resets: connected to EMIO GPIO[0-3]
