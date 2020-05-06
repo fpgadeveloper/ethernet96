@@ -152,6 +152,7 @@
 #define GPIO_EMIO_3_MASK     0x00000008
 #define GPIO_PL_RESETN0_MASK 0x80000000
 #define GPIO_PL_RESETN1_MASK 0x40000000
+#define GPIO_PL_RESETN2_MASK 0x20000000
 
 /* Loop counters to check for reset done
  */
@@ -505,10 +506,12 @@ static u32_t init_hardware(XAxiEthernet *xaxiemacp)
 	// Assert reset of the SGMII core (active low)
 	ps_gpio_set(5,GPIO_PL_RESETN1_MASK,0x0);
 
-	// Hardware Reset the external PHYs
-	// In the GEM design, we hardware reset the PHYs here but the
-	// AXI Ethernet IP already handles the reset properly,
-	// asserting reset for 10ms.
+	// Hardware Reset the external PHY for port 3 - connected to PL_RESETN2
+  // AXI Ethernet phy_rst_n output resets the other PHYs 0,1 and 2
+	ps_gpio_set(5,GPIO_PL_RESETN2_MASK,0x00000000);
+	usleep(10000);
+	ps_gpio_set(5,GPIO_PL_RESETN2_MASK,GPIO_PL_RESETN2_MASK);
+	usleep(5000);
 
 	// Make sure that we can read from all of the TI DP83867 PHYs
 	for(i = 0; i<4; i++){

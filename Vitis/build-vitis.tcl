@@ -230,8 +230,9 @@ proc create_vitis_ws {} {
       -support-app {lwip_echo_server}
     platform write
     platform active ${hw_project_name}
-    # Enable the FSBL for ZynqMP
+    # Enable the FSBL and PMU FW for ZynqMP
     domain active {zynqmp_fsbl}
+    domain active {zynqmp_pmufw}
     domain active {standalone_domain}
     platform generate
     # Generate the example application
