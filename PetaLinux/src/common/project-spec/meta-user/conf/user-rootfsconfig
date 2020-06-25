@@ -1,0 +1,18 @@
+#Note: Mention Each package in individual line
+#These packages will get added into rootfs menu entry
+
+CONFIG_gpio-demo
+CONFIG_peekpoke
+CONFIG_packagegroup-base-extended
+CONFIG_cmake
+CONFIG_lmsensors-sensorsdetect
+CONFIG_python-pyserial
+CONFIG_libftdi
+CONFIG_python3-pip
+CONFIG_packagegroup-petalinux-ultra96-webapp
+CONFIG_packagegroup-petalinux-v4lutils
+CONFIG_packagegroup-petalinux-96boards-sensors
+CONFIG_packagegroup-petalinux-x11
+CONFIG_packagegroup-petalinux-matchbox
+CONFIG_ultra96-ap-setup
+CONFIG_iperf3
