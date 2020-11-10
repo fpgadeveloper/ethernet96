@@ -21,7 +21,8 @@
 # For each exported hardware design, the script will generate the echo server software application.
 
 # Set the Vivado directory containing the Vivado projects
-set vivado_dir "../Vivado"
+set vivado_dir [file join [pwd] "../Vivado"]
+set vivado_dir [file normalize $vivado_dir]
 # Set the application postfix
 set app_postfix "_echo"
 
@@ -232,9 +233,7 @@ proc create_vitis_ws {} {
     platform active ${hw_project_name}
     # Enable the FSBL and PMU FW for ZynqMP
     domain active {zynqmp_fsbl}
-    domain active {zynqmp_pmufw}
     domain active {standalone_domain}
-    platform generate
     # Generate the example application
     puts "Creating application $app_name."
     app create -name $app_name \
@@ -245,6 +244,7 @@ proc create_vitis_ws {} {
     create_board_h "${app_name}/src"
     # STDIO must be set to psu_uart_1 on Ultra96
     domain active standalone_domain
+    bsp setlib -name lwip211
     bsp config stdin psu_uart_1
     bsp config stdout psu_uart_1
     bsp regenerate
@@ -258,6 +258,7 @@ proc create_vitis_ws {} {
     bsp config stdin psu_uart_1
     bsp config stdout psu_uart_1
     bsp regenerate
+    platform generate
     # Build the application
     puts "Building application $app_name."
     app build -name $app_name

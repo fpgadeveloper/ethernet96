@@ -1,33 +1,34 @@
-Opsero Electronic Design Inc. 2019
+Opsero Electronic Design Inc. 2020
 Jeff Johnson
-DP83867 SGMII CLK enable patch 2019.2
+DP83867 SGMII CLK enable patch 2020.1
 =====================================
 This patch modifies the driver for DP83867 Gigabit Ethernet PHY so that it will accept
 one extra property:
 * ti,dp83867-sgmii-autoneg-dis: When added to the GEM node, this will disable the SGMII 
   autonegotiation feature when the PHY is configured (eg. ipconfig eth0 up)
-diff -Naur a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
---- a/drivers/net/phy/dp83867.c	2019-11-07 10:23:24.000000000 -0500
-+++ b/drivers/net/phy/dp83867.c	2019-11-07 10:38:31.680234390 -0500
-@@ -124,6 +124,7 @@
- 	bool rxctrl_strap_quirk;
- 	int clk_output_sel;
- 	bool wiremode_6;
+diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
+index 9c5acc6..c5f345f 100644
+--- a/drivers/net/phy/dp83867.c
++++ b/drivers/net/phy/dp83867.c
+@@ -130,6 +130,7 @@ struct dp83867_private {
+ 	bool set_clk_output;
+ 	u32 clk_output_sel;
+ 	bool sgmii_ref_clk_en;
 +	bool sgmii_autoneg_dis;
  };
  
  static int dp83867_ack_interrupt(struct phy_device *phydev)
-@@ -208,6 +209,9 @@
+@@ -218,6 +219,9 @@ static int dp83867_of_init(struct phy_device *phydev)
  	dp83867->rxctrl_strap_quirk = of_property_read_bool(of_node,
  					"ti,dp83867-rxctrl-strap-quirk");
  
 +	dp83867->sgmii_autoneg_dis = of_property_read_bool(of_node,
 +					"ti,dp83867-sgmii-autoneg-dis");
 +
- 	ret = of_property_read_u32(of_node, "ti,rx-internal-delay",
- 				   &dp83867->rx_id_delay);
- 	if (ret &&
-@@ -314,6 +318,15 @@
+ 	dp83867->sgmii_ref_clk_en = of_property_read_bool(of_node,
+ 					"ti,sgmii-ref-clock-output-enable");
+ 
+@@ -435,6 +439,15 @@ static int dp83867_config_init(struct phy_device *phydev)
  			 MII_DP83867_CFG2_SPEEDOPT_ENH |
  			 MII_DP83867_CFG2_SPEEDOPT_CNT |
  			 MII_DP83867_CFG2_SPEEDOPT_INTLOW);
