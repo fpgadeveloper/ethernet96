@@ -1,4 +1,5 @@
 /include/ "system-conf.dtsi"
+/include/ "port-config.dtsi"
 / {
 	sdio_pwrseq: sdio_pwrseq {
 		compatible = "mmc-pwrseq-simple";
@@ -57,4 +58,3 @@
         };
 };
 
-#include "port-config.dtsi"
