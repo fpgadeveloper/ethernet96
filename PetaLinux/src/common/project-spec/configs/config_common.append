@@ -21,8 +21,8 @@ CONFIG_SUBSYSTEM_MACHINE_NAME="avnet-ultra96-rev1"
 CONFIG_SUBSYSTEM_UBOOT_CONFIG_TARGET=""
 
 # u-boot Configuration
-CONFIG_SUBSYSTEM_UBOOT_CONFIG_PETALINUX=y
-CONFIG_SUBSYSTEM_UBOOT_CONFIG_OTHER=n
+CONFIG_SUBSYSTEM_UBOOT_CONFIG_PETALINUX=n
+CONFIG_SUBSYSTEM_UBOOT_CONFIG_OTHER=y
 
 # Boot from SD card
 CONFIG_SUBSYSTEM_ROOTFS_INITRAMFS=n
@@ -48,8 +48,8 @@ CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT=n
 #CONFIG_SUBSYSTEM_ETHERNET_PSU_ETHERNET_0_USE_DHCP=y
 
 # Add pre-mirror url 
-CONFIG_PRE_MIRROR_URL="http://petalinux.xilinx.com/sswreleases/rel-v${PETALINUX_VER%%}/downloads"
+# CONFIG_PRE_MIRROR_URL="http://petalinux.xilinx.com/sswreleases/rel-v${PETALINUX_VER%%}/downloads"
 
 # Network sstate feeds URL
-CONFIG_YOCTO_NETWORK_SSTATE_FEEDS_URL="http://petalinux.xilinx.com/sswreleases/rel-v${PETALINUX_VER%%}/aarch64/sstate-cache"
+# CONFIG_YOCTO_NETWORK_SSTATE_FEEDS_URL="http://petalinux.xilinx.com/sswreleases/rel-v${PETALINUX_VER%%}/aarch64/sstate-cache"
 # CONFIG_YOCTO_BB_NO_NETWORK is not set
