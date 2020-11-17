@@ -44,3 +44,19 @@ index 9c5acc6..c5f345f 100644
  		phy_write(phydev, MII_DP83867_CFG2, cfg2);
  
  		phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_RGMIICTL, 0x0);
+@@ -487,13 +500,13 @@ static int dp83867_config_init(struct phy_device *phydev)
+ static int dp83867_phy_reset(struct phy_device *phydev)
+ {
+ 	int err;
+-
++	/*
+ 	err = phy_write(phydev, DP83867_CTRL, DP83867_SW_RESET);
+ 	if (err < 0)
+ 		return err;
+ 
+ 	usleep_range(10, 20);
+-
++	*/
+ 	/* After reset FORCE_LINK_GOOD bit is set. Although the
+ 	 * default value should be unset. Disable FORCE_LINK_GOOD
+ 	 * for the phy to work properly.
