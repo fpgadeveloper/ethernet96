@@ -4,7 +4,7 @@
 #*****************************************************************************************
 
 # Check the version of Vivado used
-set version_required "2019.2"
+set version_required "2020.1"
 set ver [lindex [split $::env(XILINX_VIVADO) /] end]
 if {![string equal $ver $version_required]} {
   puts "###############################"
