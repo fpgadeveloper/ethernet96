@@ -1,0 +1,33 @@
+Opsero Electronic Design Inc. 2020
+Jeff Johnson
+U-Boot for AXI Ethernet failed to find PHY patch 2020.1
+=======================================================
+This patch fixes a bug in the AXI Ethernet driver for Xilinx U-Boot. The driver
+function axiemac_phy_init calls the phy_connect function from drivers/net/phy/phy.c
+which returns a phy_device struct when it successfully makes contact with the PHY,
+or NULL when it fails to contact the PHY. The axiemac_phy_init function does not
+check the return value before trying to assign some of its members. In the case
+that phy_connect returns NULL, this causes U-Boot to crash with the "Synchronous Abort"
+handler message. This patch adds the necessary checking of the phy_connect return value,
+preventing the crash.
+
+This patch is required in our case because we have a shared MDIO bus, which is not
+yet supported by the AXI Ethernet driver in Xilinx UBoot. This causes the driver to 
+search for the PHYs from the wrong MDIO bus, hence causing phy_connect to fail and return
+NULL.
+
+diff --git a/drivers/net/xilinx_axi_emac.c b/drivers/net/xilinx_axi_emac.c
+index b0450ff..c6dcd59 100644
+--- a/drivers/net/xilinx_axi_emac.c
++++ b/drivers/net/xilinx_axi_emac.c
+@@ -274,6 +274,10 @@ static int axiemac_phy_init(struct udevice *dev)
+ 
+ 	/* Interface - look at tsec */
+ 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, priv->interface);
++	if (!phydev) {
++		printf("%s: PHY not found\n", __func__);
++		return -ENODEV;
++	}
+ 
+ 	phydev->supported &= supported;
+ 	phydev->advertising = phydev->supported;

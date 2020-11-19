@@ -1,6 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI += "file://platform-top.h"
+SRC_URI += "file://uboot-axieth-could-not-get-phy.patch"
 
 do_configure_append () {
 	if [ "${U_BOOT_AUTO_CONFIG}" = "1" ]; then
