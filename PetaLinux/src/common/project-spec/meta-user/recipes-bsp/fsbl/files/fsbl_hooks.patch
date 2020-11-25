@@ -1,6 +1,6 @@
-Opsero Electronic Design Inc. 2019
+Opsero Electronic Design Inc. 2020
 Jeff Johnson
-ZynqMP FSBL hooks patch 2019.2
+ZynqMP FSBL hooks patch 2020.1
 ==============================
 This patch modifies the ZynqMP FSBL to add code to the XFsbl_HookBeforeHandoff which is
 executed before the FSBL hands over control to U-Boot. This code is necessary for 
@@ -20,10 +20,11 @@ following:
 7. Initialize the external PHYs for optimal operation
 8. Disable SGMII auto-negotiation in the external PHY of port 3
 
-diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
---- a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2019-11-07 10:42:40.000000000 -0500
-+++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c	2020-05-04 21:17:22.363269706 -0400
-@@ -49,7 +49,102 @@
+diff --git a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
+index 80a1314..6d1fc87 100644
+--- a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
++++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
+@@ -29,7 +29,101 @@
  #include "xfsbl_hw.h"
  #include "xfsbl_hooks.h"
  #include "psu_init.h"
@@ -35,7 +36,6 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
 +#else
 +#include "xemacps.h"
 +#endif
-+
  /************************** Constant Definitions *****************************/
 +#define PHY_TI_IDENTIFIER					0x2000
 +
@@ -126,7 +126,7 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
  
  /**************************** Type Definitions *******************************/
  
-@@ -58,6 +153,38 @@
+@@ -38,6 +132,38 @@
  /************************** Function Prototypes ******************************/
  
  /************************** Variable Definitions *****************************/
@@ -165,7 +165,7 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
  #ifdef XFSBL_BS
  u32 XFsbl_HookBeforeBSDownload(void )
  {
-@@ -84,6 +211,99 @@
+@@ -64,6 +190,99 @@ u32 XFsbl_HookAfterBSDownload(void )
  }
  #endif
  
@@ -265,7 +265,7 @@ diff -Naur a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl
  u32 XFsbl_HookBeforeHandoff(u32 EarlyHandoff)
  {
  	u32 Status = XFSBL_SUCCESS;
-@@ -91,6 +311,130 @@
+@@ -71,6 +290,130 @@ u32 XFsbl_HookBeforeHandoff(u32 EarlyHandoff)
  	/**
  	 * Add the code here
  	 */

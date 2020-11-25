@@ -1,12 +1,16 @@
 Vitis Project files
 ===================
 
-### Important patch for Vitis 2019.2
+### Issue for Vitis 2020.1 on Windows 10
 
-To use the build script in this directory, you must first apply the following patch
-to your Vitis installation:
+The `build-vitis.tcl` script results in an error when run on a Windows 10 machine. The script
+can however be run on Linux machines without issue. We are working to fix this issue but we
+suggest our users run the script from a Linux machine until a patch is available.
 
-https://www.xilinx.com/support/answers/73252.html
+We have written about this issue on the Xilinx forums at the link below. If you have any
+information on fixing this problem, we would greatly appreciate your input.
+
+https://forums.xilinx.com/t5/Vitis-Acceleration-SDAccel-SDSoC/Zynq-FSBL-fails-to-build-cp-cannot-create-regular-file-Invalid/m-p/1178078#M7722
 
 ### How to build the Vitis workspace
 
@@ -17,11 +21,10 @@ Check the `Vivado` folder for instructions on doing this from Vivado.
 Once the bitstream is generated and exported, then you can build the
 Vitis workspace using the provided `build-vitis.tcl` script.
 
-### Scripted build
+### Scripted build (Linux only - see above note)
 
 The Vitis directory contains a `build-vitis.tcl` script which can be run to automatically
-generate the Vitis workspace. Windows users can run the `build-vitis.bat` file which
-launches the Tcl script. Linux users must use the following commands to run the build
+generate the Vitis workspace. Linux users must use the following commands to run the build
 script:
 ```
 cd <path-to-repo>/Vitis

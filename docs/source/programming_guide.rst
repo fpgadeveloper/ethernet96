@@ -187,7 +187,7 @@ The required additions to the device tree include:
   * Define the PHY address (``reg``)
   * Set the TX and RX internal delay
   * Set the FIFO depth
-  * Enable SGMII clock for PHY3 (``ti,6-wire-mode``)
+  * Enable SGMII clock for PHY3 (``ti,sgmii-ref-clock-output-enable``)
   * Disable SGMII auto-negotiation in PHY3 (``ti,dp83867-sgmii-autoneg-dis`` see DP83867 patch below)
   
 * Add these properties to each of the ``gem0`` to ``gem3`` nodes:
@@ -213,7 +213,7 @@ Device tree for AXI Ethernet design
   * Specify PHY type to SGMII (``xlnx,phy-type = <0x4>;``)
   * Set the TX and RX internal delay
   * Set the FIFO depth
-  * Enable SGMII clock for PHY3 (``ti,6-wire-mode``)
+  * Enable SGMII clock for PHY3 (``ti,sgmii-ref-clock-output-enable``)
   * Disable SGMII auto-negotiation in PHY3 (``ti,dp83867-sgmii-autoneg-dis`` see DP83867 patch below)
   
 * Add these properties to each of the ``axi_ethernet_0`` to ``axi_ethernet_3`` nodes:
@@ -234,25 +234,7 @@ In the rootfs configuration, we add the following packages:
 * ethtool-dev
 * ethtool-dbg
 * git
-* openamp-fw-echo-testd
-* openamp-fw-mat-muld
-* openamp-fw-rpc-demo
-* packagegroup-petalinux
-* packagegroup-petalinux-matchbox
-* packagegroup-petalinux-openamp
-* packagegroup-petalinux-self-hosted
-* packagegroup-petalinux-v4lutils
-* packagegroup-petalinux-x11
-* libftdi
-* cmake
 * iperf3
-* lmsensors-sensorsdetect
-* packagegroup-base-extended
-* packagegroup-petalinux-96boards-sensors
-* packagegroup-petalinux-ultra96-webapp
-* python-pyserial
-* python3-pip
-* ultra96-ap-setup
 
 In PetaLinux SDK, the rootfs is configured using this command: ``petalinux-config -c rootfs``
 
@@ -294,6 +276,14 @@ in the device tree:
 This property should be included in the ``gem3`` node or the ``axi_ethernet_3`` node of 
 the device tree (depending on the Vivado design being used).
 
+Since PetaLinux release 2020.1, the DP83867 driver will only configure the PHY for SGMII 
+if the ``phy-mode`` property (PHY interface) in the device tree is set to ``sgmii``. In 
+earlier releases, it would assume SGMII if ``phy-mode`` was not set to ``rgmii``. In our 
+case, we cannot set ``phy-mode="sgmii"`` because that would cause the MACB driver to 
+set the SGMIIEN and PCSSEL bits in the GEM. Instead, we use ``phy-mode="gmii"`` and we 
+patch the DP83867 driver such that it doesn't require ``phy-mode="sgmii"`` to configure 
+for SGMII.
+
 The source code for this patch can be found in this path of the Github repo: 
 ``PetaLinux/src/common/project-spec/meta-user/recipes-kernel/linux/linux-xlnx``
 
@@ -319,4 +309,23 @@ following:
 
 The source code for this patch can be found in this path of the Github repo: 
 ``PetaLinux/src/common/project-spec/meta-user/recipes-bsp/fsbl/files``
+
+
+xilinx_uartps: Really fix id assignment patch for 2020.1
+========================================================
+
+This patch comes originated here:	https://www.spinics.net/lists/linux-serial/msg39343.html
+Without this patch PetaLinux boot hangs after these lines:
+
+.. code-block:: console
+  
+    console [tty0] enabled
+	  bootconsole [cdns0] disabled
+
+This problem occurs with PetaLinux 2020.1 on Ultra96 when using UART1 as the console output (serial0).
+Xilinx produced a patch for this problem but it does not properly fix the problem:
+https://www.xilinx.com/support/answers/75417.html
+
+The complete solution is described in this Xilinx forum post:
+https://forums.xilinx.com/t5/Embedded-Linux/Freeze-in-Xilinx-Linux-2020-1-Serial-UART-Driver/td-p/1130457
 

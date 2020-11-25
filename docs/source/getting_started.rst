@@ -220,6 +220,7 @@ To boot PetaLinux on hardware via SD card:
       
       $ cd /media/user/boot/
       $ sudo cp /<petalinux-project>/images/linux/BOOT.bin .
+      $ sudo cp /<petalinux-project>/images/linux/boot.scr .
       $ sudo cp /<petalinux-project>/images/linux/image.ub .
 
 #. Create the root file system by extracting the ``rootfs.tar.gz`` file to the ``root`` partition.
