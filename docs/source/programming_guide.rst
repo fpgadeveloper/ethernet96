@@ -312,7 +312,7 @@ The source code for this patch can be found in this path of the Github repo:
 
 
 xilinx_uartps: Really fix id assignment patch for 2020.1
-========================================================
+--------------------------------------------------------
 
 This patch comes originated here:	https://www.spinics.net/lists/linux-serial/msg39343.html
 Without this patch PetaLinux boot hangs after these lines:
