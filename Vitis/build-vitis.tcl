@@ -231,9 +231,31 @@ proc create_vitis_ws {} {
       -support-app {lwip_echo_server}
     platform write
     platform active ${hw_project_name}
-    # Enable the FSBL and PMU FW for ZynqMP
+    # Enable and configure the FSBL domain
+    # STDIO must be set to psu_uart_1 on Ultra96
     domain active {zynqmp_fsbl}
+    bsp config stdin psu_uart_1
+    bsp config stdout psu_uart_1
+    bsp regenerate
+    # Enable and configure the Standalone domain
+    # STDIO must be set to psu_uart_1 on Ultra96
     domain active {standalone_domain}
+    bsp config stdin psu_uart_1
+    bsp config stdout psu_uart_1
+    bsp regenerate
+    # Enable and configure the PMU FW domain
+    # STDIO must be set to psu_uart_1 on Ultra96
+    domain active {zynqmp_pmufw}
+    bsp config stdin psu_uart_1
+    bsp config stdout psu_uart_1
+    bsp regenerate
+
+    # Extra compiler flags are needed
+    platform config -extra-compiler-flags fsbl "-MMD -MP      -Wall -fmessage-length=0 -DARMA53_64 -Os -flto -ffat-lto-objects  "
+    platform config -extra-compiler-flags pmufw "-MMD -MP      -mlittle-endian -mxl-barrel-shift -mxl-pattern-compare -mcpu=v9.2 -mxl-soft-mul -Os -flto -ffat-lto-objects  "
+    platform write
+    platform generate
+
     # Generate the example application
     puts "Creating application $app_name."
     app create -name $app_name \
@@ -242,23 +264,6 @@ proc create_vitis_ws {} {
       -domain {standalone_domain}
     # Create the board.h file
     create_board_h "${app_name}/src"
-    # STDIO must be set to psu_uart_1 on Ultra96
-    domain active standalone_domain
-    bsp setlib -name lwip211
-    bsp config stdin psu_uart_1
-    bsp config stdout psu_uart_1
-    bsp regenerate
-    # STDIO must be set to psu_uart_1 on Ultra96
-    domain active zynqmp_fsbl
-    bsp config stdin psu_uart_1
-    bsp config stdout psu_uart_1
-    bsp regenerate
-    # STDIO must be set to psu_uart_1 on Ultra96
-    domain active zynqmp_pmufw
-    bsp config stdin psu_uart_1
-    bsp config stdout psu_uart_1
-    bsp regenerate
-    platform generate
     # Build the application
     puts "Building application $app_name."
     app build -name $app_name
@@ -280,7 +285,7 @@ proc create_vitis_ws {} {
 	
     puts "Copying the BOOT.BIN file to the ./boot/${vivado_folder} directory."
     # Copy the already generated BOOT.bin file
-    set bootbin_file "./${app_name}_system/Debug/sd_card/BOOT.bin"
+    set bootbin_file "./${app_name}_system/Debug/sd_card/BOOT.BIN"
     if {[file exists $bootbin_file] == 1} {
       file copy -force $bootbin_file "./boot/${vivado_folder}"
     } else {
