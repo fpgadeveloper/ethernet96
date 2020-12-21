@@ -1,17 +1,6 @@
 Vitis Project files
 ===================
 
-### Issue for Vitis 2020.1 on Windows 10
-
-The `build-vitis.tcl` script results in an error when run on a Windows 10 machine. The script
-can however be run on Linux machines without issue. We are working to fix this issue but we
-suggest our users run the script from a Linux machine until a patch is available.
-
-We have written about this issue on the Xilinx forums at the link below. If you have any
-information on fixing this problem, we would greatly appreciate your input.
-
-https://forums.xilinx.com/t5/Vitis-Acceleration-SDAccel-SDSoC/Zynq-FSBL-fails-to-build-cp-cannot-create-regular-file-Invalid/m-p/1178078#M7722
-
 ### How to build the Vitis workspace
 
 In order to make use of these source files, you must first generate
