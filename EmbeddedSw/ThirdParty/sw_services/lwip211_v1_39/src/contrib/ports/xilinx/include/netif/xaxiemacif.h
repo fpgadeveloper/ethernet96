@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 - 2019 Xilinx, Inc.
+ * Copyright (C) 2010 - 2020 Xilinx, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -71,6 +71,7 @@ err_t 	xaxiemacif_init(struct netif *netif);
 int 	xaxiemacif_input(struct netif *netif);
 
 unsigned get_IEEE_phy_speed(XAxiEthernet *xaxiemacp, u32 sgmii_phy_addr, u32 ext_phy_addr);
+void enable_sgmii_clock(XAxiEthernet *xaxiemacp);
 unsigned configure_IEEE_phy_speed(XAxiEthernet *xaxiemacp, u32 sgmii_phy_addr, u32 ext_phy_addr, unsigned speed);
 unsigned phy_setup_axiemac (XAxiEthernet *xaxiemacp);
 
