@@ -1,13 +1,13 @@
 Opsero Electronic Design Inc. 2020
 Jeff Johnson
-Ultra96v2 patch to manipulate the wifi part's pins 2020.1
+Ultra96v2 patch to manipulate the wifi part's pins 2020.2
 =========================================================
 Origin repo of the patch: https://github.com/Avnet/Ultra96-PYNQ
 From: Fred Kellerman <fredkellerman@users.noreply.github.com>
 Date: Tue, 24 Sep 2019 19:49:30 -0400
 Subject: [PATCH] Patch the kernel to manipulate the wifi part's pins
 diff --git a/drivers/mmc/core/pwrseq_simple.c b/drivers/mmc/core/pwrseq_simple.c
-index ea4d367..9afaf4e 100644
+index ea4d3670560e..9afaf4e45b2b 100644
 --- a/drivers/mmc/core/pwrseq_simple.c
 +++ b/drivers/mmc/core/pwrseq_simple.c
 @@ -113,6 +113,34 @@ static int mmc_pwrseq_simple_probe(struct platform_device *pdev)

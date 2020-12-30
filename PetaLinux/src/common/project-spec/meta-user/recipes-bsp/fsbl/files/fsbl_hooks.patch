@@ -1,6 +1,6 @@
 Opsero Electronic Design Inc. 2020
 Jeff Johnson
-ZynqMP FSBL hooks patch 2020.1
+ZynqMP FSBL hooks patch 2020.2
 ==============================
 This patch modifies the ZynqMP FSBL to add code to the XFsbl_HookBeforeHandoff which is
 executed before the FSBL hands over control to U-Boot. This code is necessary for 
@@ -21,7 +21,7 @@ following:
 8. Disable SGMII auto-negotiation in the external PHY of port 3
 
 diff --git a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
-index 80a1314..6d1fc87 100644
+index 80a1314203..6d1fc87238 100644
 --- a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
 +++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_hooks.c
 @@ -29,7 +29,101 @@

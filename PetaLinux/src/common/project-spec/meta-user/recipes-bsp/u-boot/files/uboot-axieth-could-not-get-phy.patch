@@ -1,6 +1,6 @@
 Opsero Electronic Design Inc. 2020
 Jeff Johnson
-U-Boot for AXI Ethernet failed to find PHY patch 2020.1
+U-Boot for AXI Ethernet failed to find PHY patch 2020.2
 =======================================================
 This patch fixes a bug in the AXI Ethernet driver for Xilinx U-Boot. The driver
 function axiemac_phy_init calls the phy_connect function from drivers/net/phy/phy.c
@@ -17,10 +17,10 @@ search for the PHYs from the wrong MDIO bus, hence causing phy_connect to fail a
 NULL.
 
 diff --git a/drivers/net/xilinx_axi_emac.c b/drivers/net/xilinx_axi_emac.c
-index b0450ff..c6dcd59 100644
+index cb99a25384..7a786a16cc 100644
 --- a/drivers/net/xilinx_axi_emac.c
 +++ b/drivers/net/xilinx_axi_emac.c
-@@ -274,6 +274,10 @@ static int axiemac_phy_init(struct udevice *dev)
+@@ -275,6 +275,10 @@ static int axiemac_phy_init(struct udevice *dev)
  
  	/* Interface - look at tsec */
  	phydev = phy_connect(priv->bus, priv->phyaddr, dev, priv->interface);

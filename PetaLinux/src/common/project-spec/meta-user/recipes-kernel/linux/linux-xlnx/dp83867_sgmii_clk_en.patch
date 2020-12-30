@@ -1,6 +1,6 @@
 Opsero Electronic Design Inc. 2020
 Jeff Johnson
-DP83867 SGMII CLK enable patch 2020.1
+DP83867 SGMII CLK enable patch 2020.2
 =====================================
 This patch modifies the driver for DP83867 Gigabit Ethernet PHY so that it will accept
 one extra property:
@@ -15,7 +15,7 @@ PCSSEL bits in the GEM. Instead, we keep using phy-mode="gmii" and we modify the
 driver such that it doesn't require phy-mode="sgmii" to configure for SGMII.
 
 diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 9c5acc6..746b630 100644
+index 9c5acc611e4e..746b630418d7 100644
 --- a/drivers/net/phy/dp83867.c
 +++ b/drivers/net/phy/dp83867.c
 @@ -130,6 +130,7 @@ struct dp83867_private {
