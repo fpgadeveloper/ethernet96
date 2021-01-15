@@ -7,16 +7,11 @@ PetaLinux/axi_eth_*/
 PetaLinux/ps_gem_*/
 Vitis/.*/
 Vitis/.*
+Vitis/embeddedsw/
 Vitis/boot/
 Vitis/axi_eth_*/
 Vitis/ps_gem_*/
 Vitis/RemoteSystemsTempFiles/
 Vitis/*.log
-EmbeddedSw/XilinxProcessorIPLib/drivers/*/doc/
-EmbeddedSw/XilinxProcessorIPLib/drivers/*/examples/
-EmbeddedSw/ThirdParty/sw_services/*/doc/
-EmbeddedSw/ThirdParty/sw_services/*/examples/
-EmbeddedSw/ThirdParty/sw_services/*/src/Make*
-EmbeddedSw/ThirdParty/sw_services/*/src/ChangeLog
-EmbeddedSw/ThirdParty/sw_services/*/src/lwip*/
+Vitis/*.jou
 
