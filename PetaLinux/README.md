@@ -44,8 +44,8 @@ fix for this so that the PCS/PMA or SGMII IP will be configured according to the
 The PetaLinux directory contains a `build-petalinux` shell script which can be run in Linux to automatically
 generate a PetaLinux project for each of the generated/exported Vivado projects in the Vivado directory.
 
-When executed, the build script searches the Vivado directory for all projects containing `*.sdk` sub-directories.
-This locates all projects that have been exported to SDK. Then for every exported project, the script
+When executed, the build script searches the Vivado directory for all projects containing `*.xsa` files
+(exported Vivado project files). Then for every exported project, the script
 does the following:
 
 1. Verifies that the `.xsa` and the `.bit` files exist.
@@ -53,10 +53,10 @@ does the following:
 3. Copies the relevant configuration files from the `src` directory into the created
 PetaLinux project.
 4. Builds the PetaLinux project.
-5. Generates a BOOT.BIN, boot.scr and image.ub file.
+5. Generates a `BOOT.BIN`, `boot.scr` and `image.ub` file.
 
 For detailed information on the PetaLinux configuration files in the `src` directory, please read the 
-[PetaLinux](hhttps://docs.ethernet96.com/en/latest/programming_guide.html#petalinux "PetaLinux") 
+[PetaLinux](https://docs.ethernet96.com/en/latest/programming_guide.html#petalinux "PetaLinux") 
 section in the Programming guide.
 
 ### To do

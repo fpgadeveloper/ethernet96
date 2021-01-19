@@ -55,3 +55,8 @@ For questions or technical support, please contact Opsero or report an issue on 
 
 * [Contact Opsero](https://opsero.com/contact-us "Contact Opsero")
 * [Report an issue](https://github.com/fpgadeveloper/ethernet96/issues "Report an issue")
+
+## Contributions
+
+We welcome your contributions! If you would like to add something to the example designs, or you
+have fixed an issue, please make a pull request.
