@@ -1,17 +1,6 @@
 Vitis Project files
 ===================
 
-### Issue for Vitis 2020.1 on Windows 10
-
-The `build-vitis.tcl` script results in an error when run on a Windows 10 machine. The script
-can however be run on Linux machines without issue. We are working to fix this issue but we
-suggest our users run the script from a Linux machine until a patch is available.
-
-We have written about this issue on the Xilinx forums at the link below. If you have any
-information on fixing this problem, we would greatly appreciate your input.
-
-https://forums.xilinx.com/t5/Vitis-Acceleration-SDAccel-SDSoC/Zynq-FSBL-fails-to-build-cp-cannot-create-regular-file-Invalid/m-p/1178078#M7722
-
 ### How to build the Vitis workspace
 
 In order to make use of these source files, you must first generate
@@ -21,23 +10,26 @@ Check the `Vivado` folder for instructions on doing this from Vivado.
 Once the bitstream is generated and exported, then you can build the
 Vitis workspace using the provided `build-vitis.tcl` script.
 
-### Scripted build (Linux only - see above note)
+### Scripted build
 
 The Vitis directory contains a `build-vitis.tcl` script which can be run to automatically
-generate the Vitis workspace. Linux users must use the following commands to run the build
+generate the Vitis workspace. Windows users can run the `build-vitis.bat` file which
+launches the Tcl script. Linux users must use the following commands to run the build
 script:
 ```
 cd <path-to-repo>/Vitis
-/<path-to-xilinx-tools>/Vitis/2019.2/bin/xsct build-vitis.tcl
+/<path-to-xilinx-tools>/Vitis/2020.2/bin/xsct build-vitis.tcl
 ```
 
 The build script does three things:
 
-1. Prepares a local Vitis repository containing a modified version of lwIP library,
-required by the echo server example application.
-2. Adds the ../EmbeddedSw directory as a local Vitis repository.
+1. Prepares a local software repository containing a modified version of lwIP library,
+required by the echo server example application. This local software repository is
+a folder called `embeddedsw` that is created inside the `Vitis` folder/workspace.
+2. Adds the modified sources from the Git repo's `EmbeddedSw` directory to the local 
+software repository `Vitis/embeddedsw`.
 3. Generates a lwIP Echo Server example application for each exported Vivado design
-that is found in the ../Vivado directory. Most users will only have one exported
+that is found in the Git repo's `Vivado` directory. Most users will only have one exported
 Vivado design.
 
 ### Run the application

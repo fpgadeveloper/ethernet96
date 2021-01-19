@@ -1,0 +1,17 @@
+Vivado/.Xil/
+Vivado/*.log
+Vivado/*.jou
+Vivado/axi_eth_*/
+Vivado/ps_gem_*/
+PetaLinux/axi_eth_*/
+PetaLinux/ps_gem_*/
+Vitis/.*/
+Vitis/.*
+Vitis/embeddedsw/
+Vitis/boot/
+Vitis/axi_eth_*/
+Vitis/ps_gem_*/
+Vitis/RemoteSystemsTempFiles/
+Vitis/*.log
+Vitis/*.jou
+

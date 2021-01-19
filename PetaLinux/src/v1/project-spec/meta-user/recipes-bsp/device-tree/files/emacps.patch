@@ -1,0 +1,19 @@
+Opsero Electronic Design Inc. 2020
+Jeff Johnson
+EMACPS patch 2020.2
+===================
+Initialize sink_periph to prevent build error when the variable
+is accessed later in the code.
+
+diff --git a/emacps/data/emacps.tcl b/emacps/data/emacps.tcl
+index e3fbded..c3318ad 100644
+--- a/emacps/data/emacps.tcl
++++ b/emacps/data/emacps.tcl
+@@ -162,6 +162,7 @@ proc generate {drv_handle} {
+         gen_phy_node $mdio_node $phy_name $phya
+     }
+ 	set ip_name " "
++	set sink_periph ""
+ 	if {[string match -nocase $proc_type "psu_cortexa53"] } {
+ 		if {[string match -nocase $node "&gem0"]} {
+ 			set connected_ip [hsi::utils::get_connected_stream_ip $zynq_periph "MDIO_ENET0"]
