@@ -10,7 +10,8 @@ Avnet [Ultra96 v1 and v2](http://zedboard.org/product/ultra96 "Ultra96 v1 and v2
 
 Important links:
 * Datasheet and user guide for this project is hosted here: [96B Quad Ethernet Mezzanine documentation](https://docs.ethernet96.com "96B Quad Ethernet Mezzanine docs").
-* For technical support, visit the Opsero support forums: [Opsero Support Forums](https://opsero.com/forums "Opsero Support Forums").
+* To report a bug: [Report an issue](https://github.com/fpgadeveloper/ethernet96/issues "Report an issue").
+* For technical support: [Contact Opsero](https://opsero.com/contact-us "Contact Opsero").
 * To purchase the mezzanine card: [96B Quad Ethernet Mezzanine order page](https://opsero.com/product/96b-quad-ethernet-mezzanine "96B Quad Ethernet Mezzanine order page").
 
 ## Requirements
@@ -25,7 +26,7 @@ to find the version of this repository that matches your version of the tools.
 * [96B Quad Ethernet Mezzanine](https://opsero.com/product/96b-quad-ethernet-mezzanine "96B Quad Ethernet Mezzanine")
 * [Ultra96 v1 or v2](https://www.96boards.org/product/ultra96/ "Ultra96")
 * For designs containing AXI Ethernet Subsystem IP: [Xilinx Soft TEMAC license](http://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
-* [Ultra96 board files](https://github.com/Avnet/bdf "Ultra96 board files") (see install instructions below)
+* [Ultra96 board files](https://github.com/Avnet/bdf "Ultra96 board files") (see [install instructions](https://docs.ethernet96.com/en/latest/getting_started.html#install-ultra96-board-definition-files ""))
 
 ## Projects in this repo
 
@@ -50,7 +51,7 @@ For build and usage instructions, please refer to the Getting Started section of
 
 ## Technical support
 
-For questions or technical support, please post in the Opsero forums for the 96B Quad Ethernet Mezzanine:
+For questions or technical support, please contact Opsero or report an issue on the Github repo:
 
-[Opsero Support Forums](https://opsero.com/forums "Opsero Support Forums")
-
+* [Contact Opsero](https://opsero.com/contact-us "Contact Opsero")
+* [Report an issue](https://github.com/fpgadeveloper/ethernet96/issues "Report an issue")

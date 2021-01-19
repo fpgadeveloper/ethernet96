@@ -40,7 +40,7 @@ In order to use the example designs, you will need the following:
 If you want to build PetaLinux for the example designs, you will also need:
 
 * Linux PC or a virtual Linux machine
-* PetaLinux SDK
+* PetaLinux Tools
 
 You will also need a CAT-5e Ethernet cable and a link partner, such as a PC with an Ethernet port 
 or a network router.
@@ -219,7 +219,7 @@ To boot PetaLinux on hardware via SD card:
    .. code-block:: console
       
       $ cd /media/user/boot/
-      $ sudo cp /<petalinux-project>/images/linux/BOOT.bin .
+      $ sudo cp /<petalinux-project>/images/linux/BOOT.BIN .
       $ sudo cp /<petalinux-project>/images/linux/boot.scr .
       $ sudo cp /<petalinux-project>/images/linux/image.ub .
 
