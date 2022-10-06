@@ -5,9 +5,9 @@ References
 96B Quad Ethernet Mezzanine Board Files
 =======================================
 
-#. `96B Quad Ethernet Mezzanine Rev-A Schematics PDF <http://ethernet96.com/download/96BQuadEth_SCH_RevA-2.PDF>`_
-#. `96B Quad Ethernet Mezzanine Rev-A Assembly Drawing PDF <http://ethernet96.com/download/96BQuadEth_ASSM_RevA.PDF>`_
-#. `96B Quad Ethernet Mezzanine Rev-A 3D STEP model <http://ethernet96.com/download/96BQuadEthernetRevA-3D.zip>`_
+#. `96B Quad Ethernet Mezzanine Rev-A Schematics PDF <https://download.opsero.com/ethernet96/96BQuadEth_SCH_RevA-2.PDF>`_
+#. `96B Quad Ethernet Mezzanine Rev-A Assembly Drawing PDF <https://download.opsero.com/ethernet96/96BQuadEth_ASSM_RevA.PDF>`_
+#. `96B Quad Ethernet Mezzanine Rev-A 3D STEP model <https://download.opsero.com/ethernet96/96BQuadEthernetRevA-3D.zip>`_
 
 Ultra96
 =======
@@ -35,4 +35,4 @@ Accessories
 
 Extender for stacking a second mezzanine card:
 
-#. `40-pin Pin socket with extended pins, F263-1220A0BSYE1, Yxcon <http://ethernet96.com/download/F263-1220A0BSYE1.pdf>`_
+#. `40-pin Pin socket with extended pins, F263-1220A0BSYE1, Yxcon <https://download.opsero.com/ethernet96/F263-1220A0BSYE1.pdf>`_
